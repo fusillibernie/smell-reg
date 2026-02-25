@@ -1,0 +1,71 @@
+{
+  "metadata": {
+    "description": "California Proposition 65 listed substances relevant to fragrance",
+    "sources": ["OEHHA Proposition 65 List"],
+    "last_updated": "2024-01-15"
+  },
+  "substances": [
+    {
+      "cas_number": "50-32-8",
+      "name": "Benzo[a]pyrene",
+      "listing_mechanism": "carcinogen",
+      "nsrl_ug_day": 0.0,
+      "warning_required": true,
+      "notes": "Found in some smoky notes, pyrolysis products"
+    },
+    {
+      "cas_number": "100-42-5",
+      "name": "Styrene",
+      "listing_mechanism": "carcinogen",
+      "nsrl_ug_day": 27.0,
+      "warning_required": true
+    },
+    {
+      "cas_number": "110-80-5",
+      "name": "2-Ethoxyethanol",
+      "listing_mechanism": "reproductive",
+      "madl_ug_day": 3000.0,
+      "warning_required": true,
+      "notes": "Solvent"
+    },
+    {
+      "cas_number": "80-54-6",
+      "name": "Lilial (BMHCA)",
+      "listing_mechanism": "reproductive",
+      "madl_ug_day": null,
+      "warning_required": true,
+      "notes": "Listed 2020, common fragrance ingredient"
+    },
+    {
+      "cas_number": "94-59-7",
+      "name": "Safrole",
+      "listing_mechanism": "carcinogen",
+      "nsrl_ug_day": 0.7,
+      "warning_required": true,
+      "notes": "Found in sassafras, nutmeg oils"
+    },
+    {
+      "cas_number": "140-11-4",
+      "name": "Benzyl acetate",
+      "listing_mechanism": "carcinogen",
+      "nsrl_ug_day": 350.0,
+      "warning_required": true,
+      "notes": "Common fragrance ingredient"
+    },
+    {
+      "cas_number": "123-35-3",
+      "name": "Myrcene",
+      "listing_mechanism": "carcinogen",
+      "nsrl_ug_day": 170.0,
+      "warning_required": true,
+      "notes": "Common in essential oils"
+    },
+    {
+      "cas_number": "98-86-2",
+      "name": "Acetophenone",
+      "listing_mechanism": "carcinogen",
+      "nsrl_ug_day": null,
+      "warning_required": true
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IFRA Certificate of Conformity</title>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            {% if company_logo %}
+            <img src="{{ company_logo }}" alt="Company Logo" class="header-logo">
+            {% endif %}
+        </div>
+        <div class="header-info">
+            <div class="company-name">{{ company_name }}</div>
+            <div>Regulatory Compliance</div>
+        </div>
+    </div>
+
+    <h1 class="document-title">IFRA Certificate of Conformity</h1>
+
+    <div class="certificate-info">
+        <table>
+            <tr>
+                <td>Certificate Number:</td>
+                <td><strong>{{ report.certificate_number or 'Pending' }}</strong></td>
+            </tr>
+            <tr>
+                <td>Formula Name:</td>
+                <td>{{ report.formula_name }}</td>
+            </tr>
+            <tr>
+                <td>Product Type:</td>
+                <td>{{ report.product_type.value | replace('_', ' ') | title }}</td>
+            </tr>
+            <tr>
+                <td>Fragrance Concentration:</td>
+                <td>{{ report.fragrance_concentration }}%</td>
+            </tr>
+            <tr>
+                <td>Issue Date:</td>
+                <td>{{ generated_date | format_date }}</td>
+            </tr>
+            <tr>
+                <td>IFRA Amendment:</td>
+                <td>51st Amendment (January 2024)</td>
+            </tr>
+        </table>
+    </div>
+
+    <h2>Compliance Statement</h2>
+
+    {% if report.is_compliant %}
+    <p>
+        This is to certify that the fragrance composition identified above, when used at the
+        specified concentration in the indicated product type, conforms to the standards of
+        the <strong>International Fragrance Association (IFRA)</strong> as set forth in the
+        <strong>51st Amendment</strong> to the IFRA Code of Practice.
+    </p>
+    <p>
+        All ingredients in this fragrance have been evaluated and are within the permissible
+        limits for the specified product category.
+    </p>
+    {% else %}
+    <p style="color: #dc3545;">
+        <strong>NON-COMPLIANT:</strong> This fragrance composition does not conform to IFRA
+        standards due to the violations listed below.
+    </p>
+    {% endif %}
+
+    {% if report.non_compliant_items %}
+    <h2>Violations</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Ingredient</th>
+                <th>CAS Number</th>
+                <th>Current %</th>
+                <th>Limit %</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in report.non_compliant_items %}
+            <tr>
+                <td>{{ item.ingredient_name }}</td>
+                <td>{{ item.cas_number }}</td>
+                <td>{{ item.current_value | format_percent }}</td>
+                <td>{{ item.limit_value | format_percent }}</td>
+                <td>{{ item.details }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if report.warnings %}
+    <h2>Warnings</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Ingredient</th>
+                <th>CAS Number</th>
+                <th>Current %</th>
+                <th>Limit %</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in report.warnings %}
+            <tr>
+                <td>{{ item.ingredient_name }}</td>
+                <td>{{ item.cas_number }}</td>
+                <td>{{ item.current_value | format_percent }}</td>
+                <td>{{ item.limit_value | format_percent }}</td>
+                <td>{{ item.details }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <div class="signature-block no-break">
+        <h2>Certification</h2>
+        <p>
+            I hereby certify that the information provided in this certificate is accurate
+            and complete to the best of my knowledge.
+        </p>
+
+        <div class="signature-line">
+            <div class="signature-name">{{ signatory_name }}</div>
+            <div class="signature-title">{{ signatory_title }}</div>
+            <div>Date: {{ generated_date | format_date }}</div>
+        </div>
+    </div>
+
+    <div class="disclaimer">
+        <strong>Disclaimer:</strong> This certificate is based on the formula composition
+        provided and the IFRA standards in effect at the time of issuance. Changes to the
+        formula or updates to IFRA standards may require re-evaluation. The fragrance
+        supplier/manufacturer remains responsible for ensuring ongoing compliance.
+    </div>
+
+    <div class="footer">
+        <p>{{ company_name }} | Regulatory Compliance Department</p>
+        <p>Generated: {{ generated_date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Allergen Declaration</title>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            {% if company_logo %}
+            <img src="{{ company_logo }}" alt="Company Logo" class="header-logo">
+            {% endif %}
+        </div>
+        <div class="header-info">
+            <div class="company-name">{{ company_name }}</div>
+            <div>Regulatory Compliance</div>
+        </div>
+    </div>
+
+    <h1 class="document-title">Allergen Declaration</h1>
+
+    <div class="certificate-info">
+        <table>
+            <tr>
+                <td>Formula Name:</td>
+                <td><strong>{{ report.formula_name }}</strong></td>
+            </tr>
+            <tr>
+                <td>Fragrance Concentration:</td>
+                <td>{{ report.fragrance_concentration }}%</td>
+            </tr>
+            <tr>
+                <td>Product Type:</td>
+                <td>{{ 'Leave-on' if report.is_leave_on else 'Rinse-off' }}</td>
+            </tr>
+            <tr>
+                <td>Target Markets:</td>
+                <td>{{ report.markets | map(attribute='value') | join(', ') | upper }}</td>
+            </tr>
+            <tr>
+                <td>Issue Date:</td>
+                <td>{{ generated_date | format_date }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <h2>Allergen Disclosure Requirements</h2>
+
+    {% if report.disclosure_required %}
+    <p>
+        The following allergens are present in this fragrance composition at concentrations
+        that require disclosure under applicable regulations:
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Allergen Name</th>
+                <th>CAS Number</th>
+                <th>% in Fragrance</th>
+                <th>% in Product</th>
+                <th>Threshold</th>
+                <th>Regulations</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for allergen in report.disclosure_required %}
+            <tr>
+                <td><strong>{{ allergen.name }}</strong></td>
+                <td>{{ allergen.cas_number }}</td>
+                <td>{{ allergen.concentration_in_fragrance | format_percent }}</td>
+                <td>{{ allergen.concentration_in_product | format_percent }}</td>
+                <td>{{ allergen.threshold | format_percent }}</td>
+                <td>{{ allergen.regulations | join(', ') | upper }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Labeling Statement</h3>
+    <p>Based on the analysis above, the following allergens should be declared on the product label:</p>
+    <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 15px 0;">
+        <strong>
+            {% for allergen in report.disclosure_required %}
+            {{ allergen.name }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </strong>
+    </div>
+
+    {% else %}
+    <p>
+        No allergens are present in this fragrance composition at concentrations that require
+        disclosure under the applicable regulations for the specified markets and product type.
+    </p>
+    {% endif %}
+
+    {% if report.detected_allergens and report.detected_allergens | length > report.disclosure_required | length %}
+    <h2>Additional Allergens Detected (Below Disclosure Threshold)</h2>
+    <p>
+        The following allergens are present but below the disclosure threshold:
+    </p>
+    <table>
+        <thead>
+            <tr>
+                <th>Allergen Name</th>
+                <th>CAS Number</th>
+                <th>% in Product</th>
+                <th>Threshold</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for allergen in report.detected_allergens %}
+            {% if not allergen.requires_disclosure %}
+            <tr>
+                <td>{{ allergen.name }}</td>
+                <td>{{ allergen.cas_number }}</td>
+                <td>{{ allergen.concentration_in_product | format_percent }}</td>
+                <td>{{ allergen.threshold | format_percent }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <h2>Regulatory References</h2>
+    <ul>
+        <li><strong>EU:</strong> Regulation (EC) No 1223/2009 (Cosmetics Regulation), Annex III;
+            Regulation (EU) 2023/1545 (expanded allergen list)</li>
+        <li><strong>UK:</strong> UK Cosmetic Products Enforcement Regulations 2013</li>
+        <li><strong>Canada:</strong> Health Canada Cosmetic Ingredient Hotlist,
+            Allergen Labeling Requirements</li>
+        <li><strong>US:</strong> Fair Packaging and Labeling Act, IFRA Guidelines</li>
+    </ul>
+
+    <h3>Disclosure Thresholds</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Product Type</th>
+                <th>Leave-on Products</th>
+                <th>Rinse-off Products</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>EU/UK</td>
+                <td>0.001% (10 ppm)</td>
+                <td>0.01% (100 ppm)</td>
+            </tr>
+            <tr>
+                <td>Canada</td>
+                <td>0.001% (10 ppm)</td>
+                <td>0.01% (100 ppm)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="disclaimer">
+        <strong>Disclaimer:</strong> This allergen declaration is based on the composition
+        provided and regulations in effect at the time of issuance. The manufacturer/supplier
+        is responsible for ensuring accuracy of the composition data and compliance with all
+        applicable labeling requirements.
+    </div>
+
+    <div class="footer">
+        <p>{{ company_name }} | Regulatory Compliance Department</p>
+        <p>Generated: {{ generated_date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VOC Compliance Statement</title>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            {% if company_logo %}
+            <img src="{{ company_logo }}" alt="Company Logo" class="header-logo">
+            {% endif %}
+        </div>
+        <div class="header-info">
+            <div class="company-name">{{ company_name }}</div>
+            <div>Regulatory Compliance</div>
+        </div>
+    </div>
+
+    <h1 class="document-title">VOC Compliance Statement</h1>
+
+    <div class="certificate-info">
+        <table>
+            <tr>
+                <td>Formula Name:</td>
+                <td><strong>{{ report.formula_name }}</strong></td>
+            </tr>
+            <tr>
+                <td>Product Type:</td>
+                <td>{{ report.product_type.value | replace('_', ' ') | title }}</td>
+            </tr>
+            <tr>
+                <td>Overall Compliance:</td>
+                <td>
+                    <span class="status {{ 'status-compliant' if report.is_compliant else 'status-non-compliant' }}">
+                        {{ 'COMPLIANT' if report.is_compliant else 'NON-COMPLIANT' }}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td>Issue Date:</td>
+                <td>{{ generated_date | format_date }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <h2>VOC Content Summary</h2>
+
+    {% for calc in report.calculations %}
+    <div class="no-break" style="margin-bottom: 30px;">
+        <h3>{{ calc.regulation.value | upper }} - {{ calc.product_category }}</h3>
+
+        <table>
+            <tr>
+                <td style="width: 40%;">Total VOC Content:</td>
+                <td><strong>{{ "%.2f" | format(calc.total_voc_percent) }}%</strong></td>
+            </tr>
+            <tr>
+                <td>Regulatory Limit:</td>
+                <td>{{ "%.2f" | format(calc.limit_percent) }}%</td>
+            </tr>
+            <tr>
+                <td>Margin to Limit:</td>
+                <td>{{ "%.2f" | format(calc.margin) }}%</td>
+            </tr>
+            <tr>
+                <td>Exempt VOC Content:</td>
+                <td>{{ "%.2f" | format(calc.exempt_voc_percent) }}%</td>
+            </tr>
+            <tr>
+                <td>Status:</td>
+                <td>
+                    <span class="status {{ 'status-compliant' if calc.is_compliant else 'status-non-compliant' }}">
+                        {{ 'COMPLIANT' if calc.is_compliant else 'NON-COMPLIANT' }}
+                    </span>
+                </td>
+            </tr>
+        </table>
+
+        <!-- VOC Bar Chart -->
+        <div class="voc-bar">
+            {% set fill_percent = (calc.total_voc_percent / calc.limit_percent * 100) if calc.limit_percent > 0 else 0 %}
+            {% set bar_class = 'danger' if fill_percent > 100 else ('warning' if fill_percent > 80 else '') %}
+            <div class="voc-fill {{ bar_class }}" style="width: {{ [fill_percent, 100] | min }}%;"></div>
+        </div>
+        <p style="font-size: 9pt; color: #666; text-align: center;">
+            {{ "%.1f" | format(fill_percent) }}% of limit utilized
+        </p>
+    </div>
+    {% endfor %}
+
+    <h2>VOC Contributing Ingredients</h2>
+
+    {% for calc in report.calculations %}
+    {% if calc.ingredients %}
+    <h3>{{ calc.regulation.value | upper }}</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Ingredient</th>
+                <th>CAS Number</th>
+                <th>% in Formula</th>
+                <th>VOC %</th>
+                <th>VOC Contribution</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ing in calc.ingredients %}
+            <tr>
+                <td>{{ ing.name }}</td>
+                <td>{{ ing.cas_number }}</td>
+                <td>{{ "%.2f" | format(ing.percentage_in_formula) }}%</td>
+                <td>{{ "%.0f" | format(ing.voc_percent) }}%</td>
+                <td>{{ "%.4f" | format(ing.voc_contribution) }}%</td>
+                <td>
+                    {% if ing.is_exempt %}
+                    <span class="status status-compliant">EXEMPT</span>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    {% endfor %}
+
+    <h2>Regulatory References</h2>
+    <ul>
+        <li><strong>CARB:</strong> California Code of Regulations, Title 17,
+            Section 94509 - Consumer Products</li>
+        <li><strong>Canada:</strong> Canadian Environmental Protection Act (CEPA),
+            Volatile Organic Compound (VOC) Concentration Limits for
+            Certain Products Regulations</li>
+        <li><strong>EU:</strong> Directive 2004/42/CE - VOC emissions from paints,
+            varnishes and vehicle refinishing products</li>
+    </ul>
+
+    <div class="disclaimer">
+        <strong>Disclaimer:</strong> This VOC statement is based on the composition data
+        provided. VOC content may vary based on formulation changes, raw material variations,
+        and measurement methods. The manufacturer is responsible for verifying VOC content
+        through appropriate testing methods as required by applicable regulations.
+    </div>
+
+    <div class="footer">
+        <p>{{ company_name }} | Regulatory Compliance Department</p>
+        <p>Generated: {{ generated_date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,151 @@
+{
+  "metadata": {
+    "description": "Formaldehyde and formaldehyde-releasing substances regulated in cosmetics",
+    "sources": [
+      "EU Cosmetics Regulation (EC) No 1223/2009 Annex V",
+      "Health Canada Cosmetic Ingredient Hotlist",
+      "ASEAN Cosmetic Directive"
+    ],
+    "last_updated": "2024-01-15",
+    "version": "1.0"
+  },
+  "formaldehyde_donors": [
+    {
+      "cas_number": "50-00-0",
+      "name": "Formaldehyde",
+      "inci_name": "FORMALDEHYDE",
+      "type": "direct",
+      "eu_status": "restricted",
+      "eu_limit_percent": 0.1,
+      "eu_free_formaldehyde_limit": 0.2,
+      "canada_status": "restricted",
+      "labeling_threshold": 0.05,
+      "labeling_text": "contains formaldehyde",
+      "notes": "Restricted as preservative; banned in aerosols"
+    },
+    {
+      "cas_number": "100-97-0",
+      "name": "Methenamine",
+      "inci_name": "METHENAMINE",
+      "type": "donor",
+      "releases_formaldehyde": true,
+      "eu_status": "restricted",
+      "eu_limit_percent": 0.15,
+      "canada_status": "restricted",
+      "notes": "Releases formaldehyde; max 0.15% as free formaldehyde"
+    },
+    {
+      "cas_number": "51229-78-8",
+      "name": "DMDM Hydantoin",
+      "inci_name": "DMDM HYDANTOIN",
+      "type": "donor",
+      "releases_formaldehyde": true,
+      "eu_status": "restricted",
+      "eu_limit_percent": 0.6,
+      "canada_status": "restricted",
+      "notes": "Common preservative; releases formaldehyde over time"
+    },
+    {
+      "cas_number": "6440-58-0",
+      "name": "DMDM Hydantoin (alt CAS)",
+      "inci_name": "DMDM HYDANTOIN",
+      "type": "donor",
+      "releases_formaldehyde": true,
+      "eu_status": "restricted",
+      "eu_limit_percent": 0.6,
+      "canada_status": "restricted"
+    },
+    {
+      "cas_number": "39236-46-9",
+      "name": "Imidazolidinyl Urea",
+      "inci_name": "IMIDAZOLIDINYL UREA",
+      "type": "donor",
+      "releases_formaldehyde": true,
+      "eu_status": "restricted",
+      "eu_limit_percent": 0.6,
+      "canada_status": "restricted",
+      "notes": "Germall 115; releases formaldehyde"
+    },
+    {
+      "cas_number": "78491-02-8",
+      "name": "Diazolidinyl Urea",
+      "inci_name": "DIAZOLIDINYL UREA",
+      "type": "donor",
+      "releases_formaldehyde": true,
+      "eu_status": "restricted",
+      "eu_limit_percent": 0.5,
+      "canada_status": "restricted",
+      "notes": "Germall II; releases formaldehyde"
+    },
+    {
+      "cas_number": "57028-96-3",
+      "name": "Quaternium-15",
+      "inci_name": "QUATERNIUM-15",
+      "type": "donor",
+      "releases_formaldehyde": true,
+      "eu_status": "restricted",
+      "eu_limit_percent": 0.2,
+      "canada_status": "restricted",
+      "notes": "Dowicil 200; highest formaldehyde release rate"
+    },
+    {
+      "cas_number": "4080-31-3",
+      "name": "Quaternium-15 (chloride)",
+      "inci_name": "QUATERNIUM-15",
+      "type": "donor",
+      "releases_formaldehyde": true,
+      "eu_status": "restricted",
+      "eu_limit_percent": 0.2,
+      "canada_status": "restricted"
+    },
+    {
+      "cas_number": "70161-44-3",
+      "name": "Sodium Hydroxymethylglycinate",
+      "inci_name": "SODIUM HYDROXYMETHYLGLYCINATE",
+      "type": "donor",
+      "releases_formaldehyde": true,
+      "eu_status": "restricted",
+      "eu_limit_percent": 0.5,
+      "canada_status": "restricted",
+      "notes": "Suttocide A; releases formaldehyde"
+    },
+    {
+      "cas_number": "118-56-9",
+      "name": "Homosalate",
+      "inci_name": "HOMOSALATE",
+      "type": "non_donor",
+      "releases_formaldehyde": false,
+      "eu_status": "restricted",
+      "eu_limit_percent": 7.34,
+      "notes": "UV filter, not a formaldehyde donor but often confused"
+    },
+    {
+      "cas_number": "2372-21-6",
+      "name": "2-Bromo-2-nitropropane-1,3-diol",
+      "inci_name": "2-BROMO-2-NITROPROPANE-1,3-DIOL",
+      "type": "donor",
+      "releases_formaldehyde": true,
+      "eu_status": "banned",
+      "canada_status": "restricted",
+      "notes": "Bronopol; banned in EU, releases formaldehyde and nitrosamines"
+    },
+    {
+      "cas_number": "7747-35-5",
+      "name": "Bronidox",
+      "inci_name": "BRONIDOX",
+      "type": "donor",
+      "releases_formaldehyde": true,
+      "eu_status": "restricted",
+      "eu_limit_percent": 0.1,
+      "canada_status": "restricted",
+      "notes": "5-Bromo-5-nitro-1,3-dioxane"
+    }
+  ],
+  "testing_requirements": {
+    "free_formaldehyde_test": "HPLC method per Cosmetics Europe guidelines",
+    "total_formaldehyde_test": "Chromotropic acid method or equivalent",
+    "labeling_trigger_eu": 0.05,
+    "labeling_trigger_asean": 0.05,
+    "notes": "Products releasing >0.05% free formaldehyde must be labeled 'contains formaldehyde'"
+  }
+}

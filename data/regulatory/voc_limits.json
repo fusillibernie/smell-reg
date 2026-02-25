@@ -1,0 +1,63 @@
+{
+  "metadata": {
+    "description": "VOC limits by regulation and product category",
+    "sources": [
+      "California Code of Regulations Title 17 Section 94509",
+      "Canadian CEPA VOC Concentration Limits Regulations"
+    ],
+    "last_updated": "2024-01-15"
+  },
+  "limits": [
+    {
+      "regulation": "carb",
+      "product_category": "Air Fresheners",
+      "limit_percent": 15.0,
+      "effective_date": "2020-01-01",
+      "notes": "Dual purpose air fresheners/disinfectants"
+    },
+    {
+      "regulation": "carb",
+      "product_category": "General Purpose Cleaners",
+      "limit_percent": 4.0,
+      "effective_date": "2020-01-01"
+    },
+    {
+      "regulation": "carb",
+      "product_category": "Personal Fragrance Products",
+      "limit_percent": 75.0,
+      "effective_date": "2020-01-01",
+      "notes": "Fine fragrances, colognes, toilet waters"
+    },
+    {
+      "regulation": "carb",
+      "product_category": "Hair Styling Products",
+      "limit_percent": 6.0,
+      "effective_date": "2020-01-01"
+    },
+    {
+      "regulation": "carb",
+      "product_category": "Antiperspirants/Deodorants",
+      "limit_percent": 0.0,
+      "effective_date": "2020-01-01",
+      "notes": "Limit varies by product type"
+    },
+    {
+      "regulation": "canada",
+      "product_category": "Personal Fragrance Products",
+      "limit_percent": 80.0,
+      "effective_date": "2021-01-01"
+    },
+    {
+      "regulation": "canada",
+      "product_category": "Air Fresheners",
+      "limit_percent": 30.0,
+      "effective_date": "2021-01-01"
+    },
+    {
+      "regulation": "canada",
+      "product_category": "General Purpose Cleaners",
+      "limit_percent": 5.0,
+      "effective_date": "2021-01-01"
+    }
+  ]
+}

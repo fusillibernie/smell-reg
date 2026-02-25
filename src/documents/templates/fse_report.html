@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fragrance Safety Evaluation</title>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            {% if company_logo %}
+            <img src="{{ company_logo }}" alt="Company Logo" class="header-logo">
+            {% endif %}
+        </div>
+        <div class="header-info">
+            <div class="company-name">{{ company_name }}</div>
+            <div>Regulatory Compliance</div>
+        </div>
+    </div>
+
+    <h1 class="document-title">Fragrance Safety Evaluation</h1>
+
+    <div class="certificate-info">
+        <table>
+            <tr>
+                <td>Report Number:</td>
+                <td><strong>{{ report.report_number or 'Draft' }}</strong></td>
+            </tr>
+            <tr>
+                <td>Formula Name:</td>
+                <td>{{ report.formula_name }}</td>
+            </tr>
+            <tr>
+                <td>Product Type:</td>
+                <td>{{ report.product_type | replace('_', ' ') | title }}</td>
+            </tr>
+            <tr>
+                <td>Intended Use:</td>
+                <td>{{ report.intended_use }}</td>
+            </tr>
+            <tr>
+                <td>Fragrance Concentration:</td>
+                <td>{{ report.fragrance_concentration }}%</td>
+            </tr>
+            <tr>
+                <td>Assessment Date:</td>
+                <td>{{ report.assessment_date | format_date }}</td>
+            </tr>
+            <tr>
+                <td>Assessor:</td>
+                <td>{{ report.assessor or 'Not specified' }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <h2>Exposure Parameters</h2>
+    <table>
+        <tr>
+            <td style="width: 50%;">Exposure Area:</td>
+            <td>{{ report.exposure_area_cm2 or 'N/A' }} cm²</td>
+        </tr>
+        <tr>
+            <td>Applications per Day:</td>
+            <td>{{ report.applications_per_day }}</td>
+        </tr>
+        <tr>
+            <td>Retention Factor:</td>
+            <td>{{ report.retention_factor }} ({{ '100%' if report.retention_factor == 1.0 else (report.retention_factor * 100)|int ~ '%' }} retention)</td>
+        </tr>
+    </table>
+
+    <h2>Endpoint Summary</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Toxicological Endpoint</th>
+                <th>Risk Assessment</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for endpoint, risk in report.endpoint_summaries.items() %}
+            <tr>
+                <td>{{ endpoint | replace('_', ' ') | title }}</td>
+                <td>
+                    {% set status_class = {
+                        'safe': 'status-safe',
+                        'acceptable': 'status-compliant',
+                        'caution': 'status-caution',
+                        'unacceptable': 'status-unacceptable',
+                        'insufficient_data': 'status-insufficient'
+                    } %}
+                    <span class="status {{ status_class.get(risk.value, '') }}">
+                        {{ risk.value | replace('_', ' ') | upper }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Overall Conclusion</h2>
+    <div style="background-color: {% if report.has_unacceptable_risk %}#f8d7da{% elif report.has_insufficient_data %}#fff3cd{% else %}#d4edda{% endif %}; padding: 15px; border-radius: 5px; margin: 15px 0;">
+        <p style="margin: 0;">{{ report.overall_conclusion }}</p>
+    </div>
+
+    <div class="page-break"></div>
+
+    <h2>Ingredient Safety Assessment</h2>
+
+    {% for ing in report.ingredients %}
+    <div class="no-break" style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; padding: 15px;">
+        <h3 style="margin-top: 0;">{{ ing.name }}</h3>
+        <table style="margin-bottom: 10px;">
+            <tr>
+                <td style="width: 40%;">CAS Number:</td>
+                <td>{{ ing.cas_number }}</td>
+            </tr>
+            <tr>
+                <td>Concentration in Product:</td>
+                <td>{{ ing.concentration_percent | format_percent }}</td>
+            </tr>
+            <tr>
+                <td>RIFM Data:</td>
+                <td>{{ 'Available' if ing.rifm_data_available else 'Not available' }}</td>
+            </tr>
+            <tr>
+                <td>Overall Risk:</td>
+                <td>
+                    {% set status_class = {
+                        'safe': 'status-safe',
+                        'acceptable': 'status-compliant',
+                        'caution': 'status-caution',
+                        'unacceptable': 'status-unacceptable',
+                        'insufficient_data': 'status-insufficient'
+                    } %}
+                    <span class="status {{ status_class.get(ing.overall_risk.value, '') }}">
+                        {{ ing.overall_risk.value | replace('_', ' ') | upper }}
+                    </span>
+                </td>
+            </tr>
+        </table>
+
+        {% if ing.assessments %}
+        <table style="font-size: 10pt;">
+            <thead>
+                <tr>
+                    <th>Endpoint</th>
+                    <th>Risk Level</th>
+                    <th>Exposure</th>
+                    <th>Threshold</th>
+                    <th>MoS</th>
+                    <th>Source</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for assess in ing.assessments %}
+                <tr>
+                    <td>{{ assess.endpoint.value | replace('_', ' ') | title }}</td>
+                    <td>
+                        <span class="status {{ status_class.get(assess.risk_level.value, '') }}">
+                            {{ assess.risk_level.value | replace('_', ' ') }}
+                        </span>
+                    </td>
+                    <td>{{ assess.exposure_level | format_percent if assess.exposure_level else '-' }}</td>
+                    <td>{{ assess.threshold | format_percent if assess.threshold else '-' }}</td>
+                    <td>{{ "%.1f"|format(assess.margin_of_safety) if assess.margin_of_safety else '-' }}</td>
+                    <td>{{ assess.data_source or '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <h2>Methodology</h2>
+    <p>
+        This Fragrance Safety Evaluation follows the RIFM (Research Institute for Fragrance
+        Materials) Criteria Document methodology for the safety assessment of fragrance
+        ingredients. The assessment covers eight key toxicological endpoints:
+    </p>
+    <ol>
+        <li><strong>Skin Sensitization:</strong> Potential to cause allergic contact dermatitis</li>
+        <li><strong>Skin Irritation:</strong> Potential to cause non-immunologic skin reactions</li>
+        <li><strong>Phototoxicity:</strong> Enhanced toxicity upon UV exposure</li>
+        <li><strong>Acute Toxicity:</strong> Effects from single exposure</li>
+        <li><strong>Repeated Dose Toxicity:</strong> Effects from chronic exposure</li>
+        <li><strong>Reproductive Toxicity:</strong> Effects on fertility and development</li>
+        <li><strong>Genotoxicity:</strong> Potential to damage DNA</li>
+        <li><strong>Carcinogenicity:</strong> Potential to cause cancer</li>
+    </ol>
+
+    <h2>Regulatory References</h2>
+    <ul>
+        <li>RIFM Expert Panel Criteria Documents</li>
+        <li>IFRA Standards (51st Amendment)</li>
+        <li>EU Cosmetics Regulation (EC) No 1223/2009</li>
+        <li>SCCS Notes of Guidance for the Testing of Cosmetic Ingredients</li>
+    </ul>
+
+    <div class="disclaimer">
+        <strong>Disclaimer:</strong> This safety evaluation is based on available data at
+        the time of assessment. The evaluation considers exposure through normal, foreseeable
+        use of the product. The manufacturer/supplier is responsible for ensuring the safety
+        of the final product through appropriate testing. This evaluation does not supersede
+        regulatory requirements in specific jurisdictions.
+    </div>
+
+    <div class="footer">
+        <p>{{ company_name }} | Regulatory Compliance Department</p>
+        <p>Generated: {{ generated_date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+    </div>
+</body>
+</html>

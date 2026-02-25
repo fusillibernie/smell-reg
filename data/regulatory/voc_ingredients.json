@@ -1,0 +1,105 @@
+{
+  "metadata": {
+    "description": "VOC classification of common fragrance ingredients",
+    "sources": ["CARB Tables", "Material Safety Data Sheets"],
+    "last_updated": "2024-01-15"
+  },
+  "ingredients": [
+    {
+      "cas_number": "64-17-5",
+      "name": "Ethanol",
+      "voc_percent": 100.0,
+      "is_exempt": false
+    },
+    {
+      "cas_number": "67-63-0",
+      "name": "Isopropyl alcohol",
+      "voc_percent": 100.0,
+      "is_exempt": false
+    },
+    {
+      "cas_number": "67-64-1",
+      "name": "Acetone",
+      "voc_percent": 100.0,
+      "is_exempt": true,
+      "exempt_reason": "CARB exempt compound"
+    },
+    {
+      "cas_number": "141-78-6",
+      "name": "Ethyl acetate",
+      "voc_percent": 100.0,
+      "is_exempt": false
+    },
+    {
+      "cas_number": "57-55-6",
+      "name": "Propylene glycol",
+      "voc_percent": 0.0,
+      "is_exempt": true,
+      "exempt_reason": "Low vapor pressure"
+    },
+    {
+      "cas_number": "111-90-0",
+      "name": "Diethylene glycol monoethyl ether",
+      "voc_percent": 0.0,
+      "is_exempt": true,
+      "exempt_reason": "Low vapor pressure"
+    },
+    {
+      "cas_number": "78-70-6",
+      "name": "Linalool",
+      "voc_percent": 100.0,
+      "is_exempt": false
+    },
+    {
+      "cas_number": "5989-27-5",
+      "name": "d-Limonene",
+      "voc_percent": 100.0,
+      "is_exempt": false
+    },
+    {
+      "cas_number": "106-22-9",
+      "name": "Citronellol",
+      "voc_percent": 100.0,
+      "is_exempt": false
+    },
+    {
+      "cas_number": "106-24-1",
+      "name": "Geraniol",
+      "voc_percent": 100.0,
+      "is_exempt": false
+    },
+    {
+      "cas_number": "115-95-7",
+      "name": "Linalyl acetate",
+      "voc_percent": 100.0,
+      "is_exempt": false
+    },
+    {
+      "cas_number": "7212-44-4",
+      "name": "Nerolidol",
+      "voc_percent": 50.0,
+      "is_exempt": false,
+      "notes": "Low volatility"
+    },
+    {
+      "cas_number": "4180-23-8",
+      "name": "trans-Anethole",
+      "voc_percent": 100.0,
+      "is_exempt": false
+    },
+    {
+      "cas_number": "91-64-5",
+      "name": "Coumarin",
+      "voc_percent": 0.0,
+      "is_exempt": true,
+      "exempt_reason": "Solid at room temperature, low VP"
+    },
+    {
+      "cas_number": "121-33-5",
+      "name": "Vanillin",
+      "voc_percent": 0.0,
+      "is_exempt": true,
+      "exempt_reason": "Solid at room temperature, low VP"
+    }
+  ]
+}

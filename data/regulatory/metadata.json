@@ -1,0 +1,52 @@
+{
+  "regulatory_data_version": "2024.01",
+  "last_updated": "2024-01-15",
+  "update_sources": {
+    "ifra": {
+      "name": "IFRA Standards",
+      "current_amendment": "51st",
+      "url": "https://ifrafragrance.org/standards/IFRA_Standards",
+      "check_frequency": "quarterly"
+    },
+    "eu_allergens": {
+      "name": "EU Cosmetics Regulation Allergens",
+      "regulation": "EC 1223/2009, EC 2023/1545",
+      "url": "https://eur-lex.europa.eu/",
+      "check_frequency": "monthly"
+    },
+    "canada_hotlist": {
+      "name": "Health Canada Cosmetic Ingredient Hotlist",
+      "url": "https://www.canada.ca/en/health-canada/services/consumer-product-safety/cosmetics/cosmetic-ingredient-hotlist-prohibited-restricted-ingredients.html",
+      "check_frequency": "monthly"
+    },
+    "prop65": {
+      "name": "California Proposition 65",
+      "url": "https://oehha.ca.gov/proposition-65/proposition-65-list",
+      "check_frequency": "quarterly"
+    },
+    "reach": {
+      "name": "EU REACH Regulation",
+      "url": "https://echa.europa.eu/substances-of-very-high-concern-identification",
+      "check_frequency": "monthly"
+    },
+    "carb_voc": {
+      "name": "California CARB VOC Limits",
+      "url": "https://ww2.arb.ca.gov/our-work/programs/consumer-products-program",
+      "check_frequency": "annually"
+    }
+  },
+  "update_log": [
+    {
+      "date": "2024-01-15",
+      "version": "2024.01",
+      "changes": [
+        "Initial regulatory data population",
+        "Added EU 26+82 allergens",
+        "Added CARB and Canada VOC limits",
+        "Added Prop 65 fragrance-relevant substances",
+        "Added formaldehyde donors list"
+      ]
+    }
+  ],
+  "notes": "To update regulatory data, edit the corresponding JSON files in data/regulatory/ and update this metadata file with the new version and date."
+}

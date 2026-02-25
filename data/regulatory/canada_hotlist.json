@@ -1,0 +1,59 @@
+{
+  "metadata": {
+    "description": "Health Canada Cosmetic Ingredient Hotlist - Prohibited and Restricted Substances",
+    "sources": ["Health Canada Cosmetic Ingredient Hotlist"],
+    "last_updated": "2024-01-15"
+  },
+  "substances": [
+    {
+      "cas_number": "94-59-7",
+      "name": "Safrole",
+      "restriction_type": "prohibited",
+      "restriction": "Prohibited in cosmetics",
+      "notes": "Carcinogen"
+    },
+    {
+      "cas_number": "120-12-7",
+      "name": "Anthracene",
+      "restriction_type": "prohibited",
+      "restriction": "Prohibited in cosmetics"
+    },
+    {
+      "cas_number": "84-66-2",
+      "name": "Diethyl phthalate",
+      "restriction_type": "restricted",
+      "restriction": "Restricted use",
+      "limit_percent": null,
+      "notes": "Must not be used in toys or childcare articles"
+    },
+    {
+      "cas_number": "88-29-9",
+      "name": "6-Methylcoumarin",
+      "restriction_type": "restricted",
+      "restriction": "Not to be used in suntan products",
+      "notes": "Phototoxicity concerns"
+    },
+    {
+      "cas_number": "8007-35-0",
+      "name": "Terpineol acetate",
+      "restriction_type": "restricted",
+      "restriction": "Restricted based on peroxide content",
+      "notes": "Peroxide value limits apply"
+    },
+    {
+      "cas_number": "84082-34-8",
+      "name": "Peru Balsam",
+      "restriction_type": "restricted",
+      "restriction": "Limited concentration",
+      "limit_percent": 0.4,
+      "notes": "Sensitizer"
+    },
+    {
+      "cas_number": "90028-68-5",
+      "name": "Oak moss absolute",
+      "restriction_type": "restricted",
+      "restriction": "Atranol and chloroatranol limits",
+      "notes": "Sensitization concerns"
+    }
+  ]
+}
