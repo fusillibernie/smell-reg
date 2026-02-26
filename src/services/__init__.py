@@ -6,6 +6,7 @@ from .voc_service import VOCService
 from .fse_service import FSEService
 from .market_service import MarketService
 from .formaldehyde_service import FormaldehydeService
+from .naturals_service import NaturalsService
 from .compliance_engine import ComplianceEngine
 
 __all__ = [
@@ -15,5 +16,6 @@ __all__ = [
     "FSEService",
     "MarketService",
     "FormaldehydeService",
+    "NaturalsService",
     "ComplianceEngine",
 ]

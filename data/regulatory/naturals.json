@@ -1,0 +1,310 @@
+{
+  "description": "Natural materials with IFRA-restricted constituents (from IFRA Transparency List / Annex IV)",
+  "source": "IFRA 51st Amendment Annex IV",
+  "last_updated": "2024-01-01",
+  "naturals": [
+    {
+      "cas_number": "8008-56-8",
+      "name": "Lemon Oil",
+      "botanical_name": "Citrus limon",
+      "material_type": "essential_oil",
+      "restricted_constituents": [
+        {"cas_number": "5392-40-5", "name": "Citral", "max_percentage": 5.0, "typical_percentage": 2.5},
+        {"cas_number": "5989-27-5", "name": "d-Limonene", "max_percentage": 75.0, "typical_percentage": 65.0}
+      ],
+      "allergen_constituents": [
+        {"cas_number": "5392-40-5", "name": "Citral", "max_percentage": 5.0},
+        {"cas_number": "5989-27-5", "name": "Limonene", "max_percentage": 75.0},
+        {"cas_number": "78-70-6", "name": "Linalool", "max_percentage": 0.5},
+        {"cas_number": "106-22-9", "name": "Citronellol", "max_percentage": 0.1},
+        {"cas_number": "106-24-1", "name": "Geraniol", "max_percentage": 0.5}
+      ],
+      "ifra_annex_reference": "Annex IV"
+    },
+    {
+      "cas_number": "8008-57-9",
+      "name": "Orange Oil Sweet",
+      "botanical_name": "Citrus sinensis",
+      "material_type": "essential_oil",
+      "restricted_constituents": [
+        {"cas_number": "5989-27-5", "name": "d-Limonene", "max_percentage": 96.0, "typical_percentage": 94.0}
+      ],
+      "allergen_constituents": [
+        {"cas_number": "5989-27-5", "name": "Limonene", "max_percentage": 96.0},
+        {"cas_number": "78-70-6", "name": "Linalool", "max_percentage": 1.0}
+      ],
+      "ifra_annex_reference": "Annex IV"
+    },
+    {
+      "cas_number": "8007-08-7",
+      "name": "Ginger Oil",
+      "botanical_name": "Zingiber officinale",
+      "material_type": "essential_oil",
+      "restricted_constituents": [
+        {"cas_number": "5392-40-5", "name": "Citral", "max_percentage": 4.5, "typical_percentage": 2.0}
+      ],
+      "allergen_constituents": [
+        {"cas_number": "5392-40-5", "name": "Citral", "max_percentage": 4.5},
+        {"cas_number": "5989-27-5", "name": "Limonene", "max_percentage": 3.0}
+      ],
+      "ifra_annex_reference": "Annex IV"
+    },
+    {
+      "cas_number": "8000-28-0",
+      "name": "Lavender Oil",
+      "botanical_name": "Lavandula angustifolia",
+      "material_type": "essential_oil",
+      "restricted_constituents": [
+        {"cas_number": "91-64-5", "name": "Coumarin", "max_percentage": 0.3, "typical_percentage": 0.1}
+      ],
+      "allergen_constituents": [
+        {"cas_number": "78-70-6", "name": "Linalool", "max_percentage": 45.0, "typical_percentage": 35.0},
+        {"cas_number": "115-95-7", "name": "Linalyl acetate", "max_percentage": 45.0, "typical_percentage": 40.0},
+        {"cas_number": "106-22-9", "name": "Citronellol", "max_percentage": 1.0},
+        {"cas_number": "106-24-1", "name": "Geraniol", "max_percentage": 2.0},
+        {"cas_number": "91-64-5", "name": "Coumarin", "max_percentage": 0.3},
+        {"cas_number": "5989-27-5", "name": "Limonene", "max_percentage": 1.0}
+      ],
+      "ifra_annex_reference": "Annex IV"
+    },
+    {
+      "cas_number": "8006-90-4",
+      "name": "Peppermint Oil",
+      "botanical_name": "Mentha piperita",
+      "material_type": "essential_oil",
+      "restricted_constituents": [],
+      "allergen_constituents": [
+        {"cas_number": "78-70-6", "name": "Linalool", "max_percentage": 1.0},
+        {"cas_number": "5989-27-5", "name": "Limonene", "max_percentage": 4.0}
+      ],
+      "ifra_annex_reference": "Annex IV"
+    },
+    {
+      "cas_number": "8007-01-0",
+      "name": "Rose Oil",
+      "botanical_name": "Rosa damascena",
+      "material_type": "essential_oil",
+      "restricted_constituents": [
+        {"cas_number": "106-24-1", "name": "Geraniol", "max_percentage": 25.0, "typical_percentage": 18.0},
+        {"cas_number": "106-22-9", "name": "Citronellol", "max_percentage": 45.0, "typical_percentage": 35.0}
+      ],
+      "allergen_constituents": [
+        {"cas_number": "106-24-1", "name": "Geraniol", "max_percentage": 25.0},
+        {"cas_number": "106-22-9", "name": "Citronellol", "max_percentage": 45.0},
+        {"cas_number": "78-70-6", "name": "Linalool", "max_percentage": 3.0},
+        {"cas_number": "60-12-8", "name": "Phenethyl alcohol", "max_percentage": 3.0},
+        {"cas_number": "141-27-5", "name": "Geranial (Citral)", "max_percentage": 1.5}
+      ],
+      "ifra_annex_reference": "Annex IV"
+    },
+    {
+      "cas_number": "8000-34-8",
+      "name": "Clove Bud Oil",
+      "botanical_name": "Syzygium aromaticum",
+      "material_type": "essential_oil",
+      "restricted_constituents": [
+        {"cas_number": "97-53-0", "name": "Eugenol", "max_percentage": 90.0, "typical_percentage": 82.0}
+      ],
+      "allergen_constituents": [
+        {"cas_number": "97-53-0", "name": "Eugenol", "max_percentage": 90.0}
+      ],
+      "ifra_annex_reference": "Annex IV"
+    },
+    {
+      "cas_number": "8007-70-3",
+      "name": "Anise Oil",
+      "botanical_name": "Pimpinella anisum",
+      "material_type": "essential_oil",
+      "restricted_constituents": [
+        {"cas_number": "104-46-1", "name": "Anethole", "max_percentage": 95.0, "typical_percentage": 90.0}
+      ],
+      "allergen_constituents": [
+        {"cas_number": "78-70-6", "name": "Linalool", "max_percentage": 1.0}
+      ],
+      "ifra_annex_reference": "Annex IV"
+    },
+    {
+      "cas_number": "8008-52-4",
+      "name": "Coriander Oil",
+      "botanical_name": "Coriandrum sativum",
+      "material_type": "essential_oil",
+      "restricted_constituents": [],
+      "allergen_constituents": [
+        {"cas_number": "78-70-6", "name": "Linalool", "max_percentage": 75.0, "typical_percentage": 70.0},
+        {"cas_number": "106-24-1", "name": "Geraniol", "max_percentage": 3.0},
+        {"cas_number": "5989-27-5", "name": "Limonene", "max_percentage": 5.0}
+      ],
+      "ifra_annex_reference": "Annex IV"
+    },
+    {
+      "cas_number": "8006-87-9",
+      "name": "Sandalwood Oil",
+      "botanical_name": "Santalum album",
+      "material_type": "essential_oil",
+      "restricted_constituents": [],
+      "allergen_constituents": [
+        {"cas_number": "115-71-9", "name": "alpha-Santalol", "max_percentage": 55.0},
+        {"cas_number": "77-42-9", "name": "beta-Santalol", "max_percentage": 30.0}
+      ],
+      "ifra_annex_reference": "Annex IV"
+    },
+    {
+      "cas_number": "8016-38-4",
+      "name": "Ylang Ylang Oil",
+      "botanical_name": "Cananga odorata",
+      "material_type": "essential_oil",
+      "restricted_constituents": [
+        {"cas_number": "120-51-4", "name": "Benzyl benzoate", "max_percentage": 10.0, "typical_percentage": 5.0},
+        {"cas_number": "100-51-6", "name": "Benzyl alcohol", "max_percentage": 3.0, "typical_percentage": 1.0}
+      ],
+      "allergen_constituents": [
+        {"cas_number": "78-70-6", "name": "Linalool", "max_percentage": 20.0},
+        {"cas_number": "106-24-1", "name": "Geraniol", "max_percentage": 5.0},
+        {"cas_number": "120-51-4", "name": "Benzyl benzoate", "max_percentage": 10.0},
+        {"cas_number": "100-51-6", "name": "Benzyl alcohol", "max_percentage": 3.0},
+        {"cas_number": "140-11-4", "name": "Benzyl acetate", "max_percentage": 5.0},
+        {"cas_number": "97-53-0", "name": "Eugenol", "max_percentage": 2.0},
+        {"cas_number": "4602-84-0", "name": "Farnesol", "max_percentage": 8.0}
+      ],
+      "ifra_annex_reference": "Annex IV"
+    },
+    {
+      "cas_number": "8008-79-5",
+      "name": "Spearmint Oil",
+      "botanical_name": "Mentha spicata",
+      "material_type": "essential_oil",
+      "restricted_constituents": [],
+      "allergen_constituents": [
+        {"cas_number": "5989-27-5", "name": "Limonene", "max_percentage": 25.0},
+        {"cas_number": "78-70-6", "name": "Linalool", "max_percentage": 1.0}
+      ],
+      "ifra_annex_reference": "Annex IV"
+    },
+    {
+      "cas_number": "8015-73-4",
+      "name": "Basil Oil",
+      "botanical_name": "Ocimum basilicum",
+      "material_type": "essential_oil",
+      "restricted_constituents": [
+        {"cas_number": "97-53-0", "name": "Eugenol", "max_percentage": 20.0, "typical_percentage": 10.0},
+        {"cas_number": "93-15-2", "name": "Methyl eugenol", "max_percentage": 5.0, "typical_percentage": 2.0}
+      ],
+      "allergen_constituents": [
+        {"cas_number": "78-70-6", "name": "Linalool", "max_percentage": 60.0},
+        {"cas_number": "97-53-0", "name": "Eugenol", "max_percentage": 20.0}
+      ],
+      "ifra_annex_reference": "Annex IV",
+      "notes": "Methyl eugenol content varies significantly by chemotype"
+    },
+    {
+      "cas_number": "8022-96-6",
+      "name": "Jasmine Absolute",
+      "botanical_name": "Jasminum grandiflorum",
+      "material_type": "absolute",
+      "restricted_constituents": [
+        {"cas_number": "120-51-4", "name": "Benzyl benzoate", "max_percentage": 25.0, "typical_percentage": 18.0},
+        {"cas_number": "100-51-6", "name": "Benzyl alcohol", "max_percentage": 3.0, "typical_percentage": 2.0}
+      ],
+      "allergen_constituents": [
+        {"cas_number": "120-51-4", "name": "Benzyl benzoate", "max_percentage": 25.0},
+        {"cas_number": "100-51-6", "name": "Benzyl alcohol", "max_percentage": 3.0},
+        {"cas_number": "140-11-4", "name": "Benzyl acetate", "max_percentage": 25.0},
+        {"cas_number": "78-70-6", "name": "Linalool", "max_percentage": 8.0},
+        {"cas_number": "4602-84-0", "name": "Farnesol", "max_percentage": 3.0}
+      ],
+      "ifra_annex_reference": "Annex IV"
+    },
+    {
+      "cas_number": "8000-46-2",
+      "name": "Geranium Oil",
+      "botanical_name": "Pelargonium graveolens",
+      "material_type": "essential_oil",
+      "restricted_constituents": [
+        {"cas_number": "106-24-1", "name": "Geraniol", "max_percentage": 25.0, "typical_percentage": 18.0},
+        {"cas_number": "106-22-9", "name": "Citronellol", "max_percentage": 45.0, "typical_percentage": 32.0},
+        {"cas_number": "5392-40-5", "name": "Citral", "max_percentage": 1.0, "typical_percentage": 0.5}
+      ],
+      "allergen_constituents": [
+        {"cas_number": "106-24-1", "name": "Geraniol", "max_percentage": 25.0},
+        {"cas_number": "106-22-9", "name": "Citronellol", "max_percentage": 45.0},
+        {"cas_number": "78-70-6", "name": "Linalool", "max_percentage": 15.0},
+        {"cas_number": "5392-40-5", "name": "Citral", "max_percentage": 1.0}
+      ],
+      "ifra_annex_reference": "Annex IV"
+    },
+    {
+      "cas_number": "8006-78-8",
+      "name": "Bergamot Oil",
+      "botanical_name": "Citrus bergamia",
+      "material_type": "essential_oil",
+      "restricted_constituents": [
+        {"cas_number": "5989-27-5", "name": "d-Limonene", "max_percentage": 45.0, "typical_percentage": 38.0},
+        {"cas_number": "115-95-7", "name": "Linalyl acetate", "max_percentage": 35.0, "typical_percentage": 30.0}
+      ],
+      "allergen_constituents": [
+        {"cas_number": "5989-27-5", "name": "Limonene", "max_percentage": 45.0},
+        {"cas_number": "78-70-6", "name": "Linalool", "max_percentage": 15.0},
+        {"cas_number": "115-95-7", "name": "Linalyl acetate", "max_percentage": 35.0},
+        {"cas_number": "106-24-1", "name": "Geraniol", "max_percentage": 1.0}
+      ],
+      "ifra_annex_reference": "Annex IV",
+      "notes": "FCF (bergapten-free) versions available for leave-on products"
+    },
+    {
+      "cas_number": "8007-02-1",
+      "name": "Lemongrass Oil",
+      "botanical_name": "Cymbopogon citratus",
+      "material_type": "essential_oil",
+      "restricted_constituents": [
+        {"cas_number": "5392-40-5", "name": "Citral", "max_percentage": 85.0, "typical_percentage": 75.0}
+      ],
+      "allergen_constituents": [
+        {"cas_number": "5392-40-5", "name": "Citral", "max_percentage": 85.0},
+        {"cas_number": "106-24-1", "name": "Geraniol", "max_percentage": 5.0},
+        {"cas_number": "5989-27-5", "name": "Limonene", "max_percentage": 3.0}
+      ],
+      "ifra_annex_reference": "Annex IV"
+    },
+    {
+      "cas_number": "8008-51-3",
+      "name": "Camphor Oil",
+      "botanical_name": "Cinnamomum camphora",
+      "material_type": "essential_oil",
+      "restricted_constituents": [
+        {"cas_number": "76-22-2", "name": "Camphor", "max_percentage": 50.0, "typical_percentage": 40.0},
+        {"cas_number": "94-59-7", "name": "Safrole", "max_percentage": 2.0, "typical_percentage": 1.0}
+      ],
+      "allergen_constituents": [
+        {"cas_number": "78-70-6", "name": "Linalool", "max_percentage": 10.0},
+        {"cas_number": "5989-27-5", "name": "Limonene", "max_percentage": 10.0}
+      ],
+      "ifra_annex_reference": "Annex IV",
+      "notes": "White camphor oil (safrole-free) recommended for fragrance use"
+    },
+    {
+      "cas_number": "8007-46-3",
+      "name": "Thyme Oil",
+      "botanical_name": "Thymus vulgaris",
+      "material_type": "essential_oil",
+      "restricted_constituents": [
+        {"cas_number": "89-83-8", "name": "Thymol", "max_percentage": 50.0, "typical_percentage": 40.0}
+      ],
+      "allergen_constituents": [
+        {"cas_number": "78-70-6", "name": "Linalool", "max_percentage": 5.0},
+        {"cas_number": "5989-27-5", "name": "Limonene", "max_percentage": 3.0}
+      ],
+      "ifra_annex_reference": "Annex IV"
+    },
+    {
+      "cas_number": "8008-99-9",
+      "name": "Garlic Oil",
+      "botanical_name": "Allium sativum",
+      "material_type": "essential_oil",
+      "restricted_constituents": [
+        {"cas_number": "2179-57-9", "name": "Diallyl disulfide", "max_percentage": 30.0}
+      ],
+      "allergen_constituents": [],
+      "ifra_annex_reference": "Annex IV"
+    }
+  ]
+}

@@ -10,6 +10,7 @@ from .regulatory import (
 from .allergen import Allergen, AllergenResult, AllergenReport
 from .voc import VOCLimit, VOCCalculation, VOCReport
 from .fse import FSEEndpoint, FSEReport
+from .naturals import NaturalMaterial, RestrictedConstituent, IncidentalReport
 
 __all__ = [
     "Market",
@@ -25,4 +26,7 @@ __all__ = [
     "VOCReport",
     "FSEEndpoint",
     "FSEReport",
+    "NaturalMaterial",
+    "RestrictedConstituent",
+    "IncidentalReport",
 ]
