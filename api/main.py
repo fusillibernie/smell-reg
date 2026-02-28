@@ -11,6 +11,8 @@ from pydantic import BaseModel, Field
 
 from src.models.regulatory import Market, ProductType
 from src.services.compliance_engine import ComplianceEngine
+from src.services.materials_service import MaterialsService
+from src.services.formula_library import FormulaLibrary
 from src.documents.pdf_generator import PDFGenerator
 from src.integrations.aroma_lab import FormulaData, FormulaIngredientData
 
@@ -24,6 +26,8 @@ app = FastAPI(
 # Initialize services
 engine = ComplianceEngine()
 pdf_generator = PDFGenerator()
+materials_service = MaterialsService()
+formula_library = FormulaLibrary()
 
 
 # Request/Response Models
@@ -367,6 +371,194 @@ async def get_markets():
 async def get_product_types():
     """Get list of supported product types."""
     return [{"value": pt.value, "name": pt.name} for pt in ProductType]
+
+
+# Materials search endpoints
+@app.get("/api/materials/search")
+async def search_materials(q: str, limit: int = 20):
+    """Search raw materials by name, CAS number, or INCI name.
+
+    Args:
+        q: Search query.
+        limit: Maximum results (default 20).
+
+    Returns:
+        List of matching materials.
+    """
+    results = materials_service.search(q, limit=limit)
+    return [m.to_dict() for m in results]
+
+
+@app.get("/api/materials/{cas_number}")
+async def get_material(cas_number: str):
+    """Get a material by CAS number.
+
+    Args:
+        cas_number: CAS registry number.
+
+    Returns:
+        Material details or 404.
+    """
+    material = materials_service.get_by_cas(cas_number)
+    if not material:
+        raise HTTPException(status_code=404, detail=f"Material not found: {cas_number}")
+    return material.to_dict()
+
+
+@app.get("/api/materials/odor/{odor_family}")
+async def get_materials_by_odor(odor_family: str):
+    """Get materials by odor family.
+
+    Args:
+        odor_family: Odor family (e.g., floral, woody, citrus).
+
+    Returns:
+        List of materials in that odor family.
+    """
+    results = materials_service.search_by_odor_family(odor_family)
+    return [m.to_dict() for m in results]
+
+
+# Formula library endpoints
+class FormulaLibraryInput(BaseModel):
+    """Input model for saving a formula to the library."""
+    name: str
+    ingredients: list[IngredientInput]
+    description: Optional[str] = None
+    tags: list[str] = []
+
+
+@app.get("/api/library/formulas")
+async def list_formulas():
+    """List all formulas in the library."""
+    formulas = formula_library.list_all()
+    return [f.to_dict() for f in formulas]
+
+
+@app.get("/api/library/formulas/{formula_id}")
+async def get_formula(formula_id: str):
+    """Get a formula by ID.
+
+    Args:
+        formula_id: Formula ID.
+
+    Returns:
+        Formula details or 404.
+    """
+    formula = formula_library.get(formula_id)
+    if not formula:
+        raise HTTPException(status_code=404, detail=f"Formula not found: {formula_id}")
+    return formula.to_dict()
+
+
+@app.post("/api/library/formulas")
+async def save_formula(formula_input: FormulaLibraryInput):
+    """Save a formula to the library.
+
+    Args:
+        formula_input: Formula data.
+
+    Returns:
+        Saved formula with ID.
+    """
+    ingredients = [
+        {
+            "cas_number": ing.cas_number,
+            "name": ing.name,
+            "percentage": ing.percentage,
+        }
+        for ing in formula_input.ingredients
+    ]
+
+    formula = formula_library.save(
+        name=formula_input.name,
+        ingredients=ingredients,
+        description=formula_input.description,
+        tags=formula_input.tags,
+    )
+
+    return formula.to_dict()
+
+
+@app.put("/api/library/formulas/{formula_id}")
+async def update_formula(formula_id: str, formula_input: FormulaLibraryInput):
+    """Update an existing formula.
+
+    Args:
+        formula_id: Formula ID.
+        formula_input: Updated formula data.
+
+    Returns:
+        Updated formula.
+    """
+    existing = formula_library.get(formula_id)
+    if not existing:
+        raise HTTPException(status_code=404, detail=f"Formula not found: {formula_id}")
+
+    ingredients = [
+        {
+            "cas_number": ing.cas_number,
+            "name": ing.name,
+            "percentage": ing.percentage,
+        }
+        for ing in formula_input.ingredients
+    ]
+
+    formula = formula_library.save(
+        name=formula_input.name,
+        ingredients=ingredients,
+        description=formula_input.description,
+        tags=formula_input.tags,
+        formula_id=formula_id,
+    )
+
+    return formula.to_dict()
+
+
+@app.delete("/api/library/formulas/{formula_id}")
+async def delete_formula(formula_id: str):
+    """Delete a formula from the library.
+
+    Args:
+        formula_id: Formula ID.
+
+    Returns:
+        Success message.
+    """
+    if not formula_library.delete(formula_id):
+        raise HTTPException(status_code=404, detail=f"Formula not found: {formula_id}")
+    return {"message": "Formula deleted"}
+
+
+@app.post("/api/library/formulas/{formula_id}/duplicate")
+async def duplicate_formula(formula_id: str, new_name: Optional[str] = None):
+    """Duplicate a formula.
+
+    Args:
+        formula_id: Formula ID to duplicate.
+        new_name: Optional name for the new formula.
+
+    Returns:
+        New formula.
+    """
+    formula = formula_library.duplicate(formula_id, new_name)
+    if not formula:
+        raise HTTPException(status_code=404, detail=f"Formula not found: {formula_id}")
+    return formula.to_dict()
+
+
+@app.get("/api/library/search")
+async def search_formulas(q: str):
+    """Search formulas by name or tags.
+
+    Args:
+        q: Search query.
+
+    Returns:
+        List of matching formulas.
+    """
+    results = formula_library.search(q)
+    return [f.to_dict() for f in results]
 
 
 if __name__ == "__main__":

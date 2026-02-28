@@ -1,6 +1,7 @@
 """Allergen detection and disclosure service."""
 
 import json
+import re
 from pathlib import Path
 from typing import Optional
 
@@ -29,7 +30,30 @@ class AllergenService:
         """
         self.data_file = data_file or DEFAULT_ALLERGEN_DATA
         self._allergens: dict[str, Allergen] = {}
+        self._name_index: dict[str, str] = {}  # normalized name -> CAS
         self._loaded = False
+
+    def _normalize_name(self, name: str) -> str:
+        """Normalize a name for matching."""
+        name = name.lower().strip()
+        # Remove common prefixes
+        for prefix in ["d-", "l-", "dl-", "(+)-", "(-)-", "(±)-", "(r)-", "(s)-",
+                       "alpha-", "α-", "beta-", "β-", "gamma-", "γ-", "cis-", "trans-"]:
+            if name.startswith(prefix):
+                name = name[len(prefix):]
+        # Remove parenthetical annotations
+        name = re.sub(r'\s*\([^)]*\)\s*', ' ', name)
+        # Remove special characters
+        name = re.sub(r'[^\w\s]', '', name)
+        return name.strip()
+
+    def _index_name(self, name: str, cas_number: str) -> None:
+        """Add a name to the search index."""
+        if not name:
+            return
+        normalized = self._normalize_name(name)
+        if normalized:
+            self._name_index[normalized] = cas_number
 
     def load(self) -> None:
         """Load allergen data from JSON file."""
@@ -42,6 +66,12 @@ class AllergenService:
         for item in data.get("allergens", []):
             allergen = Allergen.from_dict(item)
             self._allergens[allergen.cas_number] = allergen
+
+            # Build name index for fuzzy matching
+            self._index_name(allergen.name, allergen.cas_number)
+            self._index_name(allergen.inci_name, allergen.cas_number)
+            for synonym in allergen.synonyms:
+                self._index_name(synonym, allergen.cas_number)
 
         self._loaded = True
 
@@ -61,6 +91,40 @@ class AllergenService:
         """
         self._ensure_loaded()
         return self._allergens.get(cas_number)
+
+    def get_allergen_by_name(self, name: str) -> Optional[Allergen]:
+        """Get allergen by name (fuzzy matching).
+
+        Args:
+            name: Allergen name to search.
+
+        Returns:
+            Allergen if found, None otherwise.
+        """
+        self._ensure_loaded()
+        normalized = self._normalize_name(name)
+        cas_number = self._name_index.get(normalized)
+        if cas_number:
+            return self._allergens.get(cas_number)
+        return None
+
+    def find_allergen(self, cas_number: str, name: str) -> Optional[Allergen]:
+        """Find allergen by CAS number first, then by name.
+
+        Args:
+            cas_number: CAS registry number.
+            name: Ingredient name.
+
+        Returns:
+            Allergen if found, None otherwise.
+        """
+        # Try CAS first
+        allergen = self.get_allergen(cas_number)
+        if allergen:
+            return allergen
+
+        # Try name matching
+        return self.get_allergen_by_name(name)
 
     def is_allergen(self, cas_number: str) -> bool:
         """Check if a CAS number is a known allergen.
@@ -133,7 +197,8 @@ class AllergenService:
         disclosure_required: list[AllergenResult] = []
 
         for ingredient in formula.ingredients:
-            allergen = self.get_allergen(ingredient.cas_number)
+            # Try CAS first, then name matching
+            allergen = self.find_allergen(ingredient.cas_number, ingredient.name)
             if not allergen:
                 continue
 
