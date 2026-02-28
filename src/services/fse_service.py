@@ -1,6 +1,8 @@
 """Fragrance Safety Evaluation (FSE) service."""
 
+import json
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 from uuid import uuid4
 
@@ -19,13 +21,32 @@ from ..integrations.aroma_lab import FormulaData, AromaLabClient
 class FSEService:
     """Service for generating Fragrance Safety Evaluations."""
 
-    def __init__(self, aroma_lab_client: Optional[AromaLabClient] = None):
+    def __init__(
+        self,
+        aroma_lab_client: Optional[AromaLabClient] = None,
+        data_dir: Optional[Path] = None,
+    ):
         """Initialize the service.
 
         Args:
             aroma_lab_client: Client for aroma-lab safety data.
+            data_dir: Directory containing regulatory data files.
         """
         self.client = aroma_lab_client or AromaLabClient()
+        self._data_dir = data_dir or Path(__file__).parent.parent.parent / "data" / "regulatory"
+        self._toxicity_data: dict = {}
+        self._load_toxicity_data()
+
+    def _load_toxicity_data(self) -> None:
+        """Load toxicological data from JSON file."""
+        toxicity_file = self._data_dir / "toxicity_data.json"
+        if toxicity_file.exists():
+            try:
+                with open(toxicity_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    self._toxicity_data = data.get("ingredients", {})
+            except Exception as e:
+                print(f"Warning: Failed to load toxicity data: {e}")
 
     def generate_fse(
         self,
@@ -142,22 +163,130 @@ class FSEService:
         Returns:
             EndpointAssessment result.
         """
-        # Default assessment when no data available
-        if restriction is None:
-            return EndpointAssessment(
-                endpoint=endpoint,
-                risk_level=RiskLevel.INSUFFICIENT_DATA,
-                exposure_level=concentration,
-                data_source="No RIFM data available",
-                notes="Safety assessment requires additional data",
-            )
+        endpoint_key = endpoint.value
 
-        # Use IFRA data to inform assessment
+        # Check toxicity database first
+        if cas_number in self._toxicity_data:
+            tox_data = self._toxicity_data[cas_number]
+            endpoint_data = tox_data.get("endpoints", {}).get(endpoint_key, {})
+
+            if endpoint_data:
+                return self._assess_from_toxicity_data(
+                    endpoint, concentration, endpoint_data, tox_data.get("name", cas_number)
+                )
+
+        # Fall back to IFRA data
+        if restriction is not None:
+            return self._assess_from_ifra_data(endpoint, concentration, restriction)
+
+        # No data available
+        return EndpointAssessment(
+            endpoint=endpoint,
+            risk_level=RiskLevel.INSUFFICIENT_DATA,
+            exposure_level=concentration,
+            data_source="No toxicological data available",
+            notes="Safety assessment requires additional data",
+        )
+
+    def _assess_from_toxicity_data(
+        self,
+        endpoint: FSEEndpoint,
+        concentration: float,
+        endpoint_data: dict,
+        ingredient_name: str,
+    ) -> EndpointAssessment:
+        """Assess endpoint using toxicity database data.
+
+        Args:
+            endpoint: The endpoint to assess.
+            concentration: Concentration in product.
+            endpoint_data: Endpoint-specific toxicity data.
+            ingredient_name: Name of the ingredient.
+
+        Returns:
+            EndpointAssessment result.
+        """
+        risk_str = endpoint_data.get("risk", "insufficient_data")
+        notes = endpoint_data.get("notes", "")
+
+        # Map string risk to RiskLevel enum
+        risk_map = {
+            "safe": RiskLevel.SAFE,
+            "acceptable": RiskLevel.ACCEPTABLE,
+            "caution": RiskLevel.CAUTION,
+            "unacceptable": RiskLevel.UNACCEPTABLE,
+            "insufficient_data": RiskLevel.INSUFFICIENT_DATA,
+        }
+        base_risk = risk_map.get(risk_str, RiskLevel.INSUFFICIENT_DATA)
+
+        # For sensitization, check concentration against NESIL
         if endpoint == FSEEndpoint.SKIN_SENSITIZATION:
-            # Check IFRA limit for sensitization
-            from ..integrations.aroma_lab import RestrictionType
+            nesil = endpoint_data.get("nesil_percent")
+            if nesil is not None and concentration > 0:
+                # Calculate if within limit
+                if concentration > nesil:
+                    return EndpointAssessment(
+                        endpoint=endpoint,
+                        risk_level=RiskLevel.UNACCEPTABLE,
+                        exposure_level=concentration,
+                        threshold=nesil,
+                        margin_of_safety=nesil / concentration,
+                        data_source="Toxicity Database (RIFM/SCCS)",
+                        notes=f"Exceeds NESIL of {nesil}%. {notes}",
+                    )
+                elif concentration > nesil * 0.8:
+                    return EndpointAssessment(
+                        endpoint=endpoint,
+                        risk_level=RiskLevel.CAUTION,
+                        exposure_level=concentration,
+                        threshold=nesil,
+                        margin_of_safety=nesil / concentration,
+                        data_source="Toxicity Database (RIFM/SCCS)",
+                        notes=f"Approaching NESIL of {nesil}%. {notes}",
+                    )
+
+        # For irritation, check concentration threshold
+        if endpoint == FSEEndpoint.SKIN_IRRITATION:
+            threshold = endpoint_data.get("threshold_percent")
+            if threshold is not None and concentration > threshold:
+                return EndpointAssessment(
+                    endpoint=endpoint,
+                    risk_level=RiskLevel.CAUTION,
+                    exposure_level=concentration,
+                    threshold=threshold,
+                    data_source="Toxicity Database",
+                    notes=f"Above irritation threshold of {threshold}%. {notes}",
+                )
+
+        return EndpointAssessment(
+            endpoint=endpoint,
+            risk_level=base_risk,
+            exposure_level=concentration,
+            data_source="Toxicity Database (RIFM/SCCS/CIR)",
+            notes=notes,
+        )
+
+    def _assess_from_ifra_data(
+        self,
+        endpoint: FSEEndpoint,
+        concentration: float,
+        restriction,
+    ) -> EndpointAssessment:
+        """Assess endpoint using IFRA restriction data.
+
+        Args:
+            endpoint: The endpoint to assess.
+            concentration: Concentration in product.
+            restriction: IFRA restriction data.
+
+        Returns:
+            EndpointAssessment result.
+        """
+        from ..integrations.aroma_lab import RestrictionType
+
+        # Skin sensitization - use IFRA limit
+        if endpoint == FSEEndpoint.SKIN_SENSITIZATION:
             if restriction.restriction_type == RestrictionType.SENSITIZATION:
-                # Has sensitization restriction
                 limit = restriction.general_limit
                 if limit and concentration <= limit:
                     return EndpointAssessment(
@@ -180,12 +309,26 @@ class FSEService:
                         notes=f"Exceeds IFRA limit of {limit}%",
                     )
 
-        # For other endpoints, mark as safe if no specific restriction
+        # Phototoxicity - check IFRA restriction type
+        if endpoint == FSEEndpoint.PHOTOTOXICITY:
+            if restriction.restriction_type == RestrictionType.PHOTOTOXICITY:
+                limit = restriction.general_limit
+                if limit and concentration > limit:
+                    return EndpointAssessment(
+                        endpoint=endpoint,
+                        risk_level=RiskLevel.UNACCEPTABLE,
+                        exposure_level=concentration,
+                        threshold=limit,
+                        data_source="RIFM/IFRA",
+                        notes=f"Phototoxic - exceeds IFRA limit of {limit}%",
+                    )
+
+        # For other endpoints with IFRA data, assume acceptable if not specifically restricted
         return EndpointAssessment(
             endpoint=endpoint,
             risk_level=RiskLevel.SAFE,
             exposure_level=concentration,
-            data_source="RIFM/IFRA - no specific concern",
+            data_source="RIFM/IFRA - no specific concern for this endpoint",
         )
 
     def _aggregate_endpoints(

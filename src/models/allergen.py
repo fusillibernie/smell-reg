@@ -76,15 +76,16 @@ class AllergenResult:
     """Result of allergen detection for a single ingredient."""
     cas_number: str
     name: str
-    concentration_in_fragrance: float  # % in fragrance
+    concentration_in_fragrance: float  # % in fragrance (total: direct + incidentals)
     concentration_in_product: float  # % in final product
     threshold: float  # Disclosure threshold
     requires_disclosure: bool
     regulations: list[str] = field(default_factory=list)  # Which regulations apply
+    source_details: Optional[str] = None  # Details about sources (direct vs incidentals)
 
     def to_dict(self) -> dict:
         """Convert to dictionary."""
-        return {
+        result = {
             "cas_number": self.cas_number,
             "name": self.name,
             "concentration_in_fragrance": self.concentration_in_fragrance,
@@ -93,6 +94,9 @@ class AllergenResult:
             "requires_disclosure": self.requires_disclosure,
             "regulations": self.regulations,
         }
+        if self.source_details:
+            result["source_details"] = self.source_details
+        return result
 
 
 @dataclass

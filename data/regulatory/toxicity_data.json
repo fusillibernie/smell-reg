@@ -1,0 +1,209 @@
+{
+  "metadata": {
+    "description": "Toxicological data for FSE assessments",
+    "sources": ["RIFM", "SCCS", "CIR", "Literature"],
+    "version": "1.0.0",
+    "last_updated": "2026-02-27"
+  },
+  "ingredients": {
+    "64-17-5": {
+      "name": "Ethanol",
+      "endpoints": {
+        "skin_sensitization": {"risk": "safe", "nesil_percent": null, "notes": "Not a sensitizer"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 100, "notes": "Low irritation potential"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 7060, "notes": "Low acute toxicity"},
+        "repeated_dose_toxicity": {"risk": "safe", "noael_mg_kg_day": 1000, "notes": "Well-studied"},
+        "reproductive_toxicity": {"risk": "caution", "notes": "Embryofetal effects at high doses"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "78-70-6": {
+      "name": "Linalool",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 3.0, "notes": "Weak sensitizer when oxidized"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 20, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 2790, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "safe", "noael_mg_kg_day": 160, "notes": "Adequate margin"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No reproductive toxicity"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "106-22-9": {
+      "name": "Citronellol",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 8.3, "notes": "Weak sensitizer"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 20, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 3450, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "safe", "noael_mg_kg_day": 100, "notes": "RIFM data"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No concern"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "106-24-1": {
+      "name": "Geraniol",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 5.2, "notes": "Weak sensitizer"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 15, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 3600, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "safe", "noael_mg_kg_day": 150, "notes": "Adequate data"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No concern"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "97-53-0": {
+      "name": "Eugenol",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 2.5, "notes": "Moderate sensitizer"},
+        "skin_irritation": {"risk": "caution", "threshold_percent": 5, "notes": "May cause irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 2680, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "acceptable", "noael_mg_kg_day": 300, "notes": "RIFM data"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No reproductive effects"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic in vivo"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "5989-27-5": {
+      "name": "D-Limonene",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 4.4, "notes": "Sensitizer when oxidized"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 20, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 4400, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "safe", "noael_mg_kg_day": 250, "notes": "Good safety margin"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No concern"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Male rat nephropathy not relevant to humans"}
+      }
+    },
+    "91-64-5": {
+      "name": "Coumarin",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 1.2, "notes": "Moderate sensitizer"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 10, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 293, "notes": "Moderate oral toxicity"},
+        "repeated_dose_toxicity": {"risk": "caution", "noael_mg_kg_day": 10, "notes": "Hepatotoxicity concern"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No reproductive effects at relevant doses"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "acceptable", "notes": "Rodent hepatocarcinogen, not relevant to humans at low doses"}
+      }
+    },
+    "4602-84-0": {
+      "name": "Farnesol",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 2.9, "notes": "Moderate sensitizer"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 15, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 6000, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "safe", "noael_mg_kg_day": 200, "notes": "Adequate margin"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No concern"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "101-86-0": {
+      "name": "Hexyl Cinnamal",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 1.0, "notes": "Strong sensitizer"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 10, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 3100, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "safe", "noael_mg_kg_day": 125, "notes": "RIFM data"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No concern"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "122-40-7": {
+      "name": "Amyl Cinnamal",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 0.6, "notes": "Strong sensitizer"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 5, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 3730, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "safe", "noael_mg_kg_day": 150, "notes": "RIFM data"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No concern"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "80-54-6": {
+      "name": "Lilial (Butylphenyl Methylpropional)",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 1.5, "notes": "Moderate sensitizer"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 10, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 1390, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "caution", "noael_mg_kg_day": 25, "notes": "Endocrine effects"},
+        "reproductive_toxicity": {"risk": "unacceptable", "notes": "EU banned - reproductive toxicity Cat 1B"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "111-12-6": {
+      "name": "Methyl Octyne Carbonate (MOC)",
+      "endpoints": {
+        "skin_sensitization": {"risk": "caution", "nesil_percent": 0.5, "notes": "Strong sensitizer"},
+        "skin_irritation": {"risk": "caution", "threshold_percent": 2, "notes": "Moderate irritant"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 1850, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "acceptable", "noael_mg_kg_day": 80, "notes": "Limited data"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No concern"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "5392-40-5": {
+      "name": "Citral",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 0.8, "notes": "Strong sensitizer"},
+        "skin_irritation": {"risk": "caution", "threshold_percent": 3, "notes": "May cause irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 4960, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "safe", "noael_mg_kg_day": 200, "notes": "RIFM data"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No concern"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "7212-44-4": {
+      "name": "Nerolidol",
+      "endpoints": {
+        "skin_sensitization": {"risk": "safe", "nesil_percent": null, "notes": "Not a sensitizer"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 20, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 5000, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "safe", "noael_mg_kg_day": 300, "notes": "Good safety data"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No concern"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "140-11-4": {
+      "name": "Benzyl Acetate",
+      "endpoints": {
+        "skin_sensitization": {"risk": "safe", "nesil_percent": null, "notes": "Not a sensitizer"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 20, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 2490, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "safe", "noael_mg_kg_day": 500, "notes": "Well-studied"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No concern"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    }
+  },
+  "default_assessment": {
+    "insufficient_data_message": "Insufficient toxicological data available for this ingredient",
+    "default_risk": "insufficient_data"
+  }
+}

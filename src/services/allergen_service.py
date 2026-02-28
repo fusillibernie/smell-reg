@@ -1,4 +1,8 @@
-"""Allergen detection and disclosure service."""
+"""Allergen detection and disclosure service.
+
+Supports checking both directly added ingredients and incidentals
+from natural materials (e.g., linalool in lavender oil).
+"""
 
 import json
 import re
@@ -13,6 +17,7 @@ from ..models.allergen import (
     AllergenRegulation,
 )
 from ..integrations.aroma_lab import FormulaData
+from .naturals_service import NaturalsService
 
 
 # Default data file location
@@ -20,15 +25,25 @@ DEFAULT_ALLERGEN_DATA = Path(__file__).parent.parent.parent / "data" / "regulato
 
 
 class AllergenService:
-    """Service for allergen detection and disclosure requirements."""
+    """Service for allergen detection and disclosure requirements.
 
-    def __init__(self, data_file: Optional[Path] = None):
+    Properly accounts for incidentals (allergens naturally present
+    in essential oils and other natural materials).
+    """
+
+    def __init__(
+        self,
+        data_file: Optional[Path] = None,
+        naturals_service: Optional[NaturalsService] = None,
+    ):
         """Initialize the service.
 
         Args:
             data_file: Path to allergen data JSON file.
+            naturals_service: Service for natural material data.
         """
         self.data_file = data_file or DEFAULT_ALLERGEN_DATA
+        self.naturals_service = naturals_service or NaturalsService()
         self._allergens: dict[str, Allergen] = {}
         self._name_index: dict[str, str] = {}  # normalized name -> CAS
         self._loaded = False
@@ -179,51 +194,105 @@ class AllergenService:
         markets: list[Market],
         fragrance_concentration: float,
         is_leave_on: bool = True,
+        include_incidentals: bool = True,
     ) -> AllergenReport:
         """Check formula for allergen content and disclosure requirements.
+
+        Properly accounts for incidentals from natural materials when
+        include_incidentals is True. For example, if a formula contains
+        Lavender Oil, the linalool, citronellol, and geraniol naturally
+        present will be detected and included in the totals.
 
         Args:
             formula: Formula to check.
             markets: Target markets.
             fragrance_concentration: Fragrance % in final product.
             is_leave_on: True for leave-on products, False for rinse-off.
+            include_incidentals: If True, include allergens from natural materials.
 
         Returns:
             AllergenReport with detection and disclosure results.
         """
         self._ensure_loaded()
 
+        # Track allergen totals (direct + incidentals)
+        allergen_totals: dict[str, float] = {}
+        allergen_sources: dict[str, list[str]] = {}  # CAS -> list of sources
+
+        # Calculate incidentals from natural materials
+        if include_incidentals:
+            incidental_totals, incidental_reports = self.naturals_service.calculate_incidentals(formula)
+            for cas, contribution in incidental_totals.items():
+                if cas in allergen_totals:
+                    allergen_totals[cas] += contribution
+                else:
+                    allergen_totals[cas] = contribution
+                # Track sources
+                for report in incidental_reports:
+                    for inc in report.incidentals:
+                        if inc["cas_number"] == cas:
+                            if cas not in allergen_sources:
+                                allergen_sources[cas] = []
+                            allergen_sources[cas].append(f"{report.natural_name} ({inc['contributed_percentage']:.3f}%)")
+
+        # Add directly added allergens
+        for ingredient in formula.ingredients:
+            # Skip natural materials - their allergen content is handled via incidentals
+            if include_incidentals and self.naturals_service.is_natural(ingredient.cas_number):
+                continue
+
+            allergen = self.find_allergen(ingredient.cas_number, ingredient.name)
+            if allergen:
+                if ingredient.cas_number in allergen_totals:
+                    allergen_totals[ingredient.cas_number] += ingredient.percentage
+                else:
+                    allergen_totals[ingredient.cas_number] = ingredient.percentage
+                # Track source
+                if ingredient.cas_number not in allergen_sources:
+                    allergen_sources[ingredient.cas_number] = []
+                allergen_sources[ingredient.cas_number].append(f"Direct: {ingredient.name} ({ingredient.percentage:.3f}%)")
+
         detected: list[AllergenResult] = []
         disclosure_required: list[AllergenResult] = []
 
-        for ingredient in formula.ingredients:
-            # Try CAS first, then name matching
-            allergen = self.find_allergen(ingredient.cas_number, ingredient.name)
+        # Process all detected allergens
+        for cas_number, total_conc in allergen_totals.items():
+            allergen = self.get_allergen(cas_number)
             if not allergen:
+                # Try to find by checking if it's in our allergen list
                 continue
 
             # Calculate concentration in final product
-            conc_in_product = ingredient.percentage * (fragrance_concentration / 100.0)
+            conc_in_product = total_conc * (fragrance_concentration / 100.0)
 
             # Get threshold based on product type
             threshold = allergen.leave_on_threshold if is_leave_on else allergen.rinse_off_threshold
 
             # Get applicable regulations
-            regulations = self.get_applicable_regulations(ingredient.cas_number, markets)
+            regulations = self.get_applicable_regulations(cas_number, markets)
+
+            # Build source details
+            sources = allergen_sources.get(cas_number, [])
+            source_details = "; ".join(sources) if sources else None
 
             result = AllergenResult(
-                cas_number=ingredient.cas_number,
-                name=ingredient.name,
-                concentration_in_fragrance=ingredient.percentage,
+                cas_number=cas_number,
+                name=allergen.name,
+                concentration_in_fragrance=total_conc,
                 concentration_in_product=conc_in_product,
                 threshold=threshold,
                 requires_disclosure=conc_in_product >= threshold,
                 regulations=regulations,
+                source_details=source_details,
             )
 
             detected.append(result)
             if result.requires_disclosure:
                 disclosure_required.append(result)
+
+        # Sort by concentration (highest first)
+        detected.sort(key=lambda x: x.concentration_in_product, reverse=True)
+        disclosure_required.sort(key=lambda x: x.concentration_in_product, reverse=True)
 
         return AllergenReport(
             formula_name=formula.name,

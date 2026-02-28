@@ -1,105 +1,86 @@
 {
   "metadata": {
-    "description": "VOC classification of common fragrance ingredients",
-    "sources": ["CARB Tables", "Material Safety Data Sheets"],
-    "last_updated": "2024-01-15"
+    "description": "VOC classification of fragrance ingredients based on vapor pressure",
+    "sources": ["CARB Tables", "MSDS data", "ECHA", "PubChem"],
+    "notes": "VOC percent based on vapor pressure at 20°C. Exempt compounds have VP < 0.1 mmHg or BP > 250°C",
+    "last_updated": "2024-02-28"
   },
   "ingredients": [
-    {
-      "cas_number": "64-17-5",
-      "name": "Ethanol",
-      "voc_percent": 100.0,
-      "is_exempt": false
-    },
-    {
-      "cas_number": "67-63-0",
-      "name": "Isopropyl alcohol",
-      "voc_percent": 100.0,
-      "is_exempt": false
-    },
-    {
-      "cas_number": "67-64-1",
-      "name": "Acetone",
-      "voc_percent": 100.0,
-      "is_exempt": true,
-      "exempt_reason": "CARB exempt compound"
-    },
-    {
-      "cas_number": "141-78-6",
-      "name": "Ethyl acetate",
-      "voc_percent": 100.0,
-      "is_exempt": false
-    },
-    {
-      "cas_number": "57-55-6",
-      "name": "Propylene glycol",
-      "voc_percent": 0.0,
-      "is_exempt": true,
-      "exempt_reason": "Low vapor pressure"
-    },
-    {
-      "cas_number": "111-90-0",
-      "name": "Diethylene glycol monoethyl ether",
-      "voc_percent": 0.0,
-      "is_exempt": true,
-      "exempt_reason": "Low vapor pressure"
-    },
-    {
-      "cas_number": "78-70-6",
-      "name": "Linalool",
-      "voc_percent": 100.0,
-      "is_exempt": false
-    },
-    {
-      "cas_number": "5989-27-5",
-      "name": "d-Limonene",
-      "voc_percent": 100.0,
-      "is_exempt": false
-    },
-    {
-      "cas_number": "106-22-9",
-      "name": "Citronellol",
-      "voc_percent": 100.0,
-      "is_exempt": false
-    },
-    {
-      "cas_number": "106-24-1",
-      "name": "Geraniol",
-      "voc_percent": 100.0,
-      "is_exempt": false
-    },
-    {
-      "cas_number": "115-95-7",
-      "name": "Linalyl acetate",
-      "voc_percent": 100.0,
-      "is_exempt": false
-    },
-    {
-      "cas_number": "7212-44-4",
-      "name": "Nerolidol",
-      "voc_percent": 50.0,
-      "is_exempt": false,
-      "notes": "Low volatility"
-    },
-    {
-      "cas_number": "4180-23-8",
-      "name": "trans-Anethole",
-      "voc_percent": 100.0,
-      "is_exempt": false
-    },
-    {
-      "cas_number": "91-64-5",
-      "name": "Coumarin",
-      "voc_percent": 0.0,
-      "is_exempt": true,
-      "exempt_reason": "Solid at room temperature, low VP"
-    },
-    {
-      "cas_number": "121-33-5",
-      "name": "Vanillin",
-      "voc_percent": 0.0,
-      "is_exempt": true,
-      "exempt_reason": "Solid at room temperature, low VP"
-    }
+    {"cas_number": "64-17-5", "name": "Ethanol", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 43.89},
+    {"cas_number": "67-63-0", "name": "Isopropyl alcohol", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 33.0},
+    {"cas_number": "67-64-1", "name": "Acetone", "voc_percent": 100.0, "is_exempt": true, "exempt_reason": "CARB exempt compound"},
+    {"cas_number": "141-78-6", "name": "Ethyl acetate", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 73.0},
+    {"cas_number": "57-55-6", "name": "Propylene glycol", "voc_percent": 0.0, "is_exempt": true, "exempt_reason": "Low vapor pressure (<0.1 mmHg)"},
+    {"cas_number": "111-90-0", "name": "Diethylene glycol monoethyl ether", "voc_percent": 0.0, "is_exempt": true, "exempt_reason": "Low vapor pressure"},
+    {"cas_number": "56-81-5", "name": "Glycerin", "voc_percent": 0.0, "is_exempt": true, "exempt_reason": "Low vapor pressure (<0.01 mmHg)"},
+    {"cas_number": "8050-15-5", "name": "Dipropylene Glycol", "voc_percent": 0.0, "is_exempt": true, "exempt_reason": "Low vapor pressure"},
+
+    {"cas_number": "78-70-6", "name": "Linalool", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 0.16, "notes": "Heart note, borderline VP"},
+    {"cas_number": "5989-27-5", "name": "d-Limonene", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 1.98},
+    {"cas_number": "106-22-9", "name": "Citronellol", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 0.02},
+    {"cas_number": "106-24-1", "name": "Geraniol", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 0.03},
+    {"cas_number": "115-95-7", "name": "Linalyl acetate", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 0.17},
+    {"cas_number": "5392-40-5", "name": "Citral", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 0.09},
+    {"cas_number": "98-55-5", "name": "alpha-Terpineol", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 0.04},
+    {"cas_number": "470-82-6", "name": "Eucalyptol", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 1.9},
+    {"cas_number": "76-22-2", "name": "Camphor", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 0.65},
+    {"cas_number": "80-56-8", "name": "alpha-Pinene", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 4.75},
+    {"cas_number": "127-91-3", "name": "beta-Pinene", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 2.93},
+    {"cas_number": "4180-23-8", "name": "trans-Anethole", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 0.02},
+    {"cas_number": "105-87-3", "name": "Geranyl acetate", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 0.02},
+
+    {"cas_number": "7212-44-4", "name": "Nerolidol", "voc_percent": 30.0, "is_exempt": false, "notes": "Low volatility sesquiterpene alcohol"},
+    {"cas_number": "91-64-5", "name": "Coumarin", "voc_percent": 0.0, "is_exempt": true, "exempt_reason": "Solid at room temperature, BP 301°C"},
+    {"cas_number": "121-33-5", "name": "Vanillin", "voc_percent": 0.0, "is_exempt": true, "exempt_reason": "Solid at room temperature, BP 285°C"},
+    {"cas_number": "121-32-4", "name": "Ethyl Vanillin", "voc_percent": 0.0, "is_exempt": true, "exempt_reason": "Solid, BP 295°C"},
+
+    {"cas_number": "77-53-2", "name": "Cedrol", "voc_percent": 10.0, "is_exempt": false, "notes": "Low VP sesquiterpene alcohol, BP 274°C"},
+    {"cas_number": "54464-57-2", "name": "Iso E Super", "voc_percent": 20.0, "is_exempt": false, "notes": "Low volatility synthetic woody"},
+    {"cas_number": "1222-05-5", "name": "Galaxolide", "voc_percent": 5.0, "is_exempt": false, "notes": "Very low VP polycyclic musk"},
+    {"cas_number": "541-91-3", "name": "Muscone", "voc_percent": 10.0, "is_exempt": false, "notes": "Low VP macrocyclic musk"},
+    {"cas_number": "105-95-3", "name": "Ethylene Brassylate", "voc_percent": 5.0, "is_exempt": false, "notes": "Very low VP macrocyclic musk"},
+    {"cas_number": "3391-83-1", "name": "Ambroxan", "voc_percent": 15.0, "is_exempt": false, "notes": "Low VP amber compound"},
+    {"cas_number": "68911-97-3", "name": "Cashmeran", "voc_percent": 20.0, "is_exempt": false, "notes": "Low VP woody musk"},
+    {"cas_number": "68039-49-6", "name": "Javanol", "voc_percent": 15.0, "is_exempt": false, "notes": "Low VP sandalwood type"},
+
+    {"cas_number": "97-53-0", "name": "Eugenol", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 0.01},
+    {"cas_number": "97-54-1", "name": "Isoeugenol", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 0.008},
+    {"cas_number": "104-54-1", "name": "Cinnamyl Alcohol", "voc_percent": 50.0, "is_exempt": false, "notes": "Low VP, BP 257°C"},
+    {"cas_number": "104-55-2", "name": "Cinnamaldehyde", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 0.03},
+    {"cas_number": "100-51-6", "name": "Benzyl Alcohol", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 0.09},
+    {"cas_number": "120-51-4", "name": "Benzyl Benzoate", "voc_percent": 5.0, "is_exempt": false, "notes": "Very low VP, BP 323°C"},
+    {"cas_number": "118-58-1", "name": "Benzyl Salicylate", "voc_percent": 5.0, "is_exempt": false, "notes": "Very low VP, BP 320°C"},
+    {"cas_number": "103-41-3", "name": "Benzyl Cinnamate", "voc_percent": 0.0, "is_exempt": true, "exempt_reason": "Solid, very low VP"},
+
+    {"cas_number": "122-40-7", "name": "Amyl Cinnamal", "voc_percent": 30.0, "is_exempt": false, "notes": "Low VP aldehyde"},
+    {"cas_number": "101-86-0", "name": "Hexyl Cinnamal", "voc_percent": 25.0, "is_exempt": false, "notes": "Low VP aldehyde, BP 305°C"},
+    {"cas_number": "107-75-5", "name": "Hydroxycitronellal", "voc_percent": 50.0, "is_exempt": false},
+    {"cas_number": "127-51-5", "name": "alpha-Isomethyl Ionone", "voc_percent": 60.0, "is_exempt": false},
+    {"cas_number": "24851-98-7", "name": "Hedione", "voc_percent": 30.0, "is_exempt": false, "notes": "Low VP jasmine compound"},
+    {"cas_number": "4602-84-0", "name": "Farnesol", "voc_percent": 20.0, "is_exempt": false, "notes": "Low VP sesquiterpene"},
+    {"cas_number": "87-44-5", "name": "beta-Caryophyllene", "voc_percent": 40.0, "is_exempt": false, "notes": "Sesquiterpene, moderate VP"},
+
+    {"cas_number": "122-99-6", "name": "Phenethyl Alcohol", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 0.05},
+    {"cas_number": "140-11-4", "name": "Benzyl Acetate", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 0.17},
+    {"cas_number": "120-57-0", "name": "Piperonal", "voc_percent": 50.0, "is_exempt": false, "notes": "Solid, moderate VP"},
+    {"cas_number": "103-95-7", "name": "Cyclamen Aldehyde", "voc_percent": 60.0, "is_exempt": false},
+    {"cas_number": "93-92-5", "name": "Methyl Phenylacetate", "voc_percent": 100.0, "is_exempt": false},
+    {"cas_number": "93-08-3", "name": "2-Acetylnaphthalene", "voc_percent": 20.0, "is_exempt": false, "notes": "Low VP solid"},
+    {"cas_number": "119-36-8", "name": "Methyl Salicylate", "voc_percent": 100.0, "is_exempt": false, "vapor_pressure_mmhg": 0.04},
+    {"cas_number": "1205-17-0", "name": "Helional", "voc_percent": 40.0, "is_exempt": false},
+    {"cas_number": "5608-30-0", "name": "Calone 1951", "voc_percent": 80.0, "is_exempt": false},
+
+    {"cas_number": "105-13-5", "name": "Anisyl Alcohol", "voc_percent": 50.0, "is_exempt": false},
+    {"cas_number": "101-85-9", "name": "Amylcinnamyl Alcohol", "voc_percent": 30.0, "is_exempt": false},
+    {"cas_number": "80-54-6", "name": "Lilial", "voc_percent": 40.0, "is_exempt": false},
+    {"cas_number": "31906-04-4", "name": "Lyral", "voc_percent": 30.0, "is_exempt": false},
+
+    {"cas_number": "90028-68-5", "name": "Oakmoss Absolute", "voc_percent": 20.0, "is_exempt": false, "notes": "Complex natural, mostly low VP"},
+    {"cas_number": "90028-67-4", "name": "Treemoss Absolute", "voc_percent": 20.0, "is_exempt": false},
+    {"cas_number": "8007-00-9", "name": "Peru Balsam", "voc_percent": 15.0, "is_exempt": false, "notes": "Resinous, low VP"},
+    {"cas_number": "8016-36-2", "name": "Frankincense Oil", "voc_percent": 60.0, "is_exempt": false},
+    {"cas_number": "8014-19-5", "name": "Patchouli Oil", "voc_percent": 40.0, "is_exempt": false, "notes": "Sesquiterpene-rich"},
+    {"cas_number": "8006-87-9", "name": "Sandalwood Oil", "voc_percent": 30.0, "is_exempt": false, "notes": "Santalol-rich, low VP"},
+    {"cas_number": "8016-38-4", "name": "Vetiver Oil", "voc_percent": 35.0, "is_exempt": false}
   ]
 }
