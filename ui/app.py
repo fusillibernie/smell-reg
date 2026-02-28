@@ -6,6 +6,7 @@ Run with: streamlit run ui/app.py
 try:
     import streamlit as st
     import requests
+    import pandas as pd
     STREAMLIT_AVAILABLE = True
 except ImportError:
     STREAMLIT_AVAILABLE = False
@@ -13,9 +14,7 @@ except ImportError:
 
 if STREAMLIT_AVAILABLE:
     import sys
-    import base64
     from pathlib import Path
-    from io import BytesIO
     from datetime import datetime
 
     # Add project root to path
@@ -30,229 +29,114 @@ if STREAMLIT_AVAILABLE:
     # API base URL
     API_BASE = "http://localhost:8000"
 
-    # Custom CSS for modern look
+    # Compact CSS for spreadsheet-like UI
     CUSTOM_CSS = """
     <style>
-        /* Root variables */
-        :root {
-            --primary: #10b981;
-            --primary-dark: #059669;
-            --primary-light: #34d399;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --info: #3b82f6;
-            --success: #10b981;
-        }
+        /* Tighter spacing */
+        .main .block-container { padding: 1rem 2rem; max-width: 1400px; }
 
-        /* Main container */
-        .main .block-container {
-            padding-top: 2rem;
-            padding-bottom: 2rem;
-            max-width: 1200px;
-        }
+        /* Header */
+        h1 { color: #10b981 !important; font-size: 1.8rem !important; margin-bottom: 0 !important; }
 
-        /* Header styling */
-        h1 {
-            color: #10b981 !important;
-            font-weight: 700 !important;
-            letter-spacing: -0.5px;
-        }
-
-        /* Card styling */
-        .stExpander {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            border-radius: 12px !important;
-        }
-
-        /* Button styling */
-        .stButton > button {
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .stButton > button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        .stButton > button[kind="primary"] {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
-
-        /* Input styling */
+        /* Compact inputs */
         .stTextInput > div > div > input,
-        .stSelectbox > div > div > select,
-        .stNumberInput > div > div > input {
-            border-radius: 8px !important;
-            border: 1px solid rgba(255,255,255,0.2) !important;
-        }
-        .stTextInput > div > div > input:focus,
-        .stSelectbox > div > div > select:focus {
-            border-color: #10b981 !important;
-            box-shadow: 0 0 0 2px rgba(16,185,129,0.2) !important;
+        .stNumberInput > div > div > input,
+        .stSelectbox > div > div {
+            padding: 6px 10px !important;
+            font-size: 0.9rem !important;
+            min-height: 36px !important;
         }
 
-        /* Tab styling */
-        .stTabs [data-baseweb="tab-list"] {
-            gap: 8px;
-        }
-        .stTabs [data-baseweb="tab"] {
-            border-radius: 8px 8px 0 0;
-            padding: 12px 20px;
+        /* Spreadsheet table styling */
+        .spreadsheet-header {
+            display: grid;
+            grid-template-columns: 120px 1fr 80px 100px 40px;
+            gap: 4px;
+            padding: 8px 4px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 6px 6px 0 0;
             font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #64748b;
         }
+        .spreadsheet-row {
+            display: grid;
+            grid-template-columns: 120px 1fr 80px 100px 40px;
+            gap: 4px;
+            padding: 4px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            align-items: center;
+        }
+        .spreadsheet-row:hover { background: rgba(255,255,255,0.02); }
 
-        /* Metric styling */
-        [data-testid="stMetricValue"] {
-            font-size: 1.8rem !important;
-            color: #10b981 !important;
+        /* Compact status badges */
+        .status-ok { color: #10b981; font-size: 0.8rem; }
+        .status-warn { color: #f59e0b; font-size: 0.8rem; }
+        .status-err { color: #ef4444; font-size: 0.8rem; }
+
+        /* Search results dropdown */
+        .search-dropdown {
+            background: #1e293b;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
         }
+        .search-item {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .search-item:hover { background: rgba(16, 185, 129, 0.1); }
+
+        /* Metrics row */
+        .metrics-row {
+            display: flex;
+            gap: 20px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+        .metric-item { text-align: center; }
+        .metric-value { font-size: 1.4rem; font-weight: 700; color: #10b981; }
+        .metric-label { font-size: 0.75rem; color: #64748b; }
 
         /* Badge styles */
         .badge {
             display: inline-block;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin: 2px;
-        }
-        .badge-allergen {
-            background: rgba(239, 68, 68, 0.2);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-        .badge-ifra {
-            background: rgba(245, 158, 11, 0.2);
-            color: #fbbf24;
-            border: 1px solid rgba(245, 158, 11, 0.3);
-        }
-        .badge-compliant {
-            background: rgba(16, 185, 129, 0.2);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-        .badge-warning {
-            background: rgba(245, 158, 11, 0.2);
-            color: #fbbf24;
-        }
-
-        /* Progress step styling */
-        .step-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .step {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.05);
-            border: 2px solid transparent;
-        }
-        .step.active {
-            border-color: #10b981;
-            background: rgba(16, 185, 129, 0.1);
-        }
-        .step.complete {
-            background: rgba(16, 185, 129, 0.15);
-            border-color: #10b981;
-        }
-        .step-num {
-            width: 28px;
-            height: 28px;
-            line-height: 28px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            display: inline-block;
-            margin-bottom: 6px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
             font-weight: 600;
         }
-        .step.active .step-num, .step.complete .step-num {
-            background: #10b981;
-            color: #fff;
-        }
+        .badge-allergen { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .badge-ifra { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .badge-ok { background: rgba(16, 185, 129, 0.2); color: #34d399; }
 
-        /* Material card */
-        .material-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px;
-            padding: 14px;
-            margin-bottom: 10px;
-            transition: all 0.2s;
-        }
-        .material-card:hover {
-            background: rgba(255,255,255,0.06);
-            border-color: rgba(16, 185, 129, 0.3);
-        }
+        /* Hide Streamlit elements */
+        #MainMenu, footer, header { visibility: hidden; }
+        .stDeployButton { display: none; }
 
-        /* Ingredient row */
-        .ingredient-row {
-            background: rgba(255,255,255,0.03);
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        /* Tab styling */
+        .stTabs [data-baseweb="tab-list"] { gap: 4px; }
+        .stTabs [data-baseweb="tab"] { padding: 8px 16px; font-size: 0.9rem; }
 
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #64748b;
-        }
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
+        /* Buttons */
+        .stButton > button { padding: 6px 12px; font-size: 0.85rem; }
 
-        /* Info cards */
-        .info-card {
-            background: linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(16,185,129,0.05) 100%);
-            border: 1px solid rgba(16,185,129,0.2);
-            border-radius: 12px;
-            padding: 16px;
+        /* Data editor styling */
+        [data-testid="stDataEditor"] { font-size: 0.9rem !important; }
+
+        /* Autocomplete container */
+        .autocomplete-container {
+            position: relative;
             margin-bottom: 16px;
         }
-
-        /* Compliance result */
-        .result-compliant {
-            background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%);
-            border: 2px solid #10b981;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-        }
-        .result-non-compliant {
-            background: linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(239,68,68,0.05) 100%);
-            border: 2px solid #ef4444;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        /* Document cards */
-        .doc-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 20px;
-            height: 100%;
-        }
-        .doc-card h4 {
-            color: #10b981;
-            margin-bottom: 12px;
-        }
-
-        /* Hide streamlit elements */
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
     </style>
     """
 
@@ -269,6 +153,25 @@ if STREAMLIT_AVAILABLE:
     def get_formula_library():
         return FormulaLibrary()
 
+    @st.cache_data
+    def get_all_materials_for_autocomplete():
+        """Get all materials formatted for autocomplete dropdown."""
+        materials = get_materials_service()
+        all_mats = materials.get_all()
+        options = []
+        for m in all_mats:
+            # Format: "Name (CAS)" for display
+            label = f"{m.name} ({m.cas_number})"
+            options.append({
+                "label": label,
+                "cas_number": m.cas_number,
+                "name": m.name,
+                "allergen": m.allergen,
+                "ifra_restricted": m.ifra_restricted,
+                "volatility": m.volatility,
+            })
+        return options
+
     def search_materials(query: str, limit: int = 10) -> list:
         """Search materials database."""
         materials = get_materials_service()
@@ -277,14 +180,12 @@ if STREAMLIT_AVAILABLE:
 
     def autofill_ingredient(cas_or_name: str) -> dict | None:
         """Try to autofill ingredient details from database."""
+        if not cas_or_name:
+            return None
         materials = get_materials_service()
-
-        # Try CAS first
         material = materials.get_by_cas(cas_or_name)
         if not material:
-            # Try name
             material = materials.get_by_name(cas_or_name)
-
         if material:
             return {
                 "cas_number": material.cas_number,
@@ -304,7 +205,6 @@ if STREAMLIT_AVAILABLE:
                 "formula": formula_data,
                 **settings,
             }, timeout=30)
-
             if response.status_code == 200:
                 return response.content
             else:
@@ -317,346 +217,258 @@ if STREAMLIT_AVAILABLE:
             st.error(f"Error: {e}")
             return None
 
-    def render_progress_steps(current_step: int):
-        """Render workflow progress steps."""
-        steps = ["Formula Input", "Compliance Check", "Generate Documents"]
-        html = '<div class="step-container">'
-        for i, step in enumerate(steps):
-            status = "complete" if i < current_step else ("active" if i == current_step else "")
-            html += f'''
-                <div class="step {status}">
-                    <div class="step-num">{i + 1}</div>
-                    <div>{step}</div>
-                </div>
-            '''
-        html += '</div>'
-        st.markdown(html, unsafe_allow_html=True)
-
-    def render_material_badges(info: dict) -> str:
-        """Render badges for material properties."""
+    def get_status_badge(info: dict | None) -> str:
+        """Get status badge HTML for an ingredient."""
+        if not info:
+            return '<span style="color: #64748b;">-</span>'
         badges = []
         if info.get("allergen"):
-            badges.append('<span class="badge badge-allergen">Allergen</span>')
+            badges.append('<span class="badge badge-allergen">A</span>')
         if info.get("ifra_restricted"):
-            badges.append('<span class="badge badge-ifra">IFRA Restricted</span>')
+            badges.append('<span class="badge badge-ifra">I</span>')
         if not badges:
-            badges.append('<span class="badge badge-compliant">Clear</span>')
+            return '<span class="badge badge-ok">OK</span>'
         return " ".join(badges)
 
     def main():
         st.set_page_config(
-            page_title="Smell-Reg: Fragrance Compliance",
-            page_icon="&#129514;",
+            page_title="Smell-Reg",
+            page_icon="🧪",
             layout="wide",
-            initial_sidebar_state="expanded",
+            initial_sidebar_state="collapsed",
         )
-
-        # Inject custom CSS
         st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
-        # Header
-        col1, col2 = st.columns([3, 1])
+        # Header row
+        col1, col2, col3 = st.columns([2, 1, 1])
         with col1:
             st.markdown("# Smell-Reg")
-            st.caption("Fragrance Regulatory Compliance Application")
         with col2:
             materials = get_materials_service()
+            st.caption(f"{materials.get_count()} materials")
+        with col3:
             library = get_formula_library()
-            st.markdown(f"""
-                <div style="text-align: right; color: #64748b; font-size: 0.85rem;">
-                    <strong>{materials.get_count()}</strong> materials |
-                    <strong>{library.get_count()}</strong> formulas
-                </div>
-            """, unsafe_allow_html=True)
+            st.caption(f"{library.get_count()} formulas")
 
-        # Sidebar for settings
+        # Initialize session state
+        if "ingredients" not in st.session_state:
+            st.session_state.ingredients = []
+        if "formula_name" not in st.session_state:
+            st.session_state.formula_name = "New Formula"
+
+        # Sidebar settings
         with st.sidebar:
             st.markdown("### Settings")
-
             product_type = st.selectbox(
                 "Product Type",
                 options=[pt.value for pt in ProductType],
                 format_func=lambda x: x.replace("_", " ").title(),
-                help="Select the type of product this fragrance will be used in",
             )
-
             markets = st.multiselect(
-                "Target Markets",
+                "Markets",
                 options=[m.value for m in Market],
                 default=["us", "eu"],
                 format_func=lambda x: x.upper(),
-                help="Select all markets where the product will be sold",
             )
-
-            fragrance_concentration = st.slider(
-                "Fragrance Concentration (%)",
-                min_value=0.1,
-                max_value=100.0,
-                value=20.0,
-                step=0.1,
-                help="Percentage of fragrance in the final product",
-            )
-
-            is_leave_on = st.toggle("Leave-on Product", value=True, help="Products that remain on skin vs rinse-off")
+            fragrance_concentration = st.slider("Fragrance %", 0.1, 100.0, 20.0, 0.1)
+            is_leave_on = st.toggle("Leave-on", value=True)
 
             st.divider()
-
-            # Quick actions
-            st.markdown("### Quick Actions")
-            if st.button("Clear Formula", use_container_width=True):
-                st.session_state.ingredients = []
-                st.rerun()
-
-            if st.button("Sample Formula", use_container_width=True):
+            if st.button("Load Sample", use_container_width=True):
                 st.session_state.ingredients = [
                     {"cas_number": "115-95-7", "name": "Linalyl Acetate", "percentage": 25.0},
                     {"cas_number": "78-70-6", "name": "Linalool", "percentage": 20.0},
                     {"cas_number": "106-22-9", "name": "Citronellol", "percentage": 15.0},
                     {"cas_number": "106-24-1", "name": "Geraniol", "percentage": 10.0},
                     {"cas_number": "101-86-0", "name": "Hexyl Cinnamal", "percentage": 8.0},
+                    {"cas_number": "121-33-5", "name": "Vanillin", "percentage": 5.0},
                 ]
-                st.success("Sample formula loaded!")
                 st.rerun()
 
-        # Initialize session state
-        if "ingredients" not in st.session_state:
-            st.session_state.ingredients = []
-        if "formula_name" not in st.session_state:
-            st.session_state.formula_name = "My Fragrance"
-        if "current_step" not in st.session_state:
-            st.session_state.current_step = 0
-
-        # Main content tabs
-        tab1, tab2, tab3, tab4, tab5 = st.tabs([
-            "Formula Input",
-            "Compliance Check",
-            "Documents",
-            "Formula Library",
-            "Reports",
-        ])
+        # Main tabs
+        tab1, tab2, tab3, tab4 = st.tabs(["Formula", "Compliance", "Documents", "Library"])
 
         with tab1:
-            render_progress_steps(0)
-
-            # Formula name and save
+            # Formula name row
             col1, col2 = st.columns([4, 1])
             with col1:
                 formula_name = st.text_input(
                     "Formula Name",
                     value=st.session_state.formula_name,
-                    placeholder="Enter a name for your formula...",
+                    label_visibility="collapsed",
+                    placeholder="Formula name...",
                 )
                 st.session_state.formula_name = formula_name
             with col2:
-                st.write("")  # Spacing
-                st.write("")
-                if st.button("Save to Library", type="primary", use_container_width=True):
-                    if st.session_state.get("ingredients"):
+                if st.button("Save", type="primary", use_container_width=True):
+                    if st.session_state.ingredients:
                         library = get_formula_library()
-                        library.save(
-                            name=formula_name,
-                            ingredients=st.session_state.ingredients,
-                        )
-                        st.success("Formula saved!")
+                        library.save(name=formula_name, ingredients=st.session_state.ingredients)
+                        st.success("Saved!")
                     else:
                         st.warning("Add ingredients first")
 
-            st.divider()
+            st.markdown("---")
 
-            # Ingredient search
-            st.markdown("### Add Ingredients")
-            st.caption("Search by name, CAS number, or INCI name")
+            # Add ingredient with autocomplete
+            st.markdown("**Add Ingredient**")
+            all_materials = get_all_materials_for_autocomplete()
+            material_options = [""] + [m["label"] for m in all_materials]
 
-            search_query = st.text_input(
-                "Search materials",
-                placeholder="Type to search (e.g., 'linalool', '78-70-6', 'citrus')...",
-                key="material_search",
-                label_visibility="collapsed",
-            )
+            col1, col2, col3 = st.columns([5, 1, 1])
+            with col1:
+                selected = st.selectbox(
+                    "Search material",
+                    options=material_options,
+                    format_func=lambda x: x if x else "Type to search...",
+                    label_visibility="collapsed",
+                    key="material_autocomplete",
+                )
+            with col2:
+                add_pct = st.number_input("Pct", value=1.0, min_value=0.1, max_value=100.0, step=0.1, label_visibility="collapsed")
+            with col3:
+                if st.button("Add", use_container_width=True, disabled=not selected):
+                    # Find the selected material
+                    for m in all_materials:
+                        if m["label"] == selected:
+                            # Check for duplicates
+                            existing = [i["cas_number"] for i in st.session_state.ingredients]
+                            if m["cas_number"] not in existing:
+                                st.session_state.ingredients.append({
+                                    "cas_number": m["cas_number"],
+                                    "name": m["name"],
+                                    "percentage": add_pct,
+                                })
+                                st.rerun()
+                            else:
+                                st.warning("Already added")
+                            break
 
-            if search_query and len(search_query) >= 2:
-                results = search_materials(search_query)
-                if results:
-                    st.caption(f"Found {len(results)} materials")
-                    for mat in results[:6]:
-                        with st.container():
-                            col1, col2, col3 = st.columns([4, 2, 1])
-                            with col1:
-                                badges_html = render_material_badges(mat)
-                                st.markdown(f"""
-                                    <div class="material-card">
-                                        <strong style="color: #f0f0f0;">{mat['name']}</strong> {badges_html}
-                                        <div style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">
-                                            CAS: {mat['cas_number']} | INCI: {mat.get('inci_name', '-')}
-                                        </div>
-                                    </div>
-                                """, unsafe_allow_html=True)
-                            with col2:
-                                vol = mat.get("volatility", "heart")
-                                vol_colors = {"top": "#ef4444", "heart": "#10b981", "base": "#8b5cf6"}
-                                st.markdown(f"""
-                                    <div style="text-align: center; padding: 10px;">
-                                        <span style="color: {vol_colors.get(vol, '#888')}; font-weight: 600;">
-                                            {vol.upper() if vol else 'HEART'}
-                                        </span>
-                                    </div>
-                                """, unsafe_allow_html=True)
-                            with col3:
-                                if st.button("Add", key=f"add_{mat['cas_number']}", use_container_width=True):
-                                    # Check for duplicates
-                                    existing_cas = [i["cas_number"] for i in st.session_state.ingredients]
-                                    if mat["cas_number"] in existing_cas:
-                                        st.warning("Already added!")
-                                    else:
-                                        st.session_state.ingredients.append({
-                                            "cas_number": mat["cas_number"],
-                                            "name": mat["name"],
-                                            "percentage": 1.0,
-                                        })
-                                        st.rerun()
-                else:
-                    st.info("No materials found. Try a different search term.")
+            st.markdown("---")
 
-            st.divider()
-
-            # Current ingredients
-            st.markdown("### Formula Ingredients")
-
+            # Ingredients spreadsheet
             if not st.session_state.ingredients:
-                st.markdown("""
-                    <div class="empty-state">
-                        <div class="empty-icon">&#128218;</div>
-                        <div><strong>No ingredients yet</strong></div>
-                        <div style="font-size: 0.9rem;">Search above to add ingredients to your formula</div>
-                    </div>
-                """, unsafe_allow_html=True)
+                st.info("No ingredients. Use the dropdown above to add materials, or load a sample from the sidebar.")
             else:
-                # Column headers
-                col1, col2, col3, col4, col5 = st.columns([2, 3, 1.5, 1.5, 0.5])
-                with col1:
-                    st.caption("CAS NUMBER")
-                with col2:
-                    st.caption("NAME")
-                with col3:
-                    st.caption("PERCENTAGE")
-                with col4:
-                    st.caption("STATUS")
+                # Create DataFrame for editing
+                df = pd.DataFrame(st.session_state.ingredients)
 
-                # Ingredient rows
-                for i, ing in enumerate(st.session_state.ingredients):
-                    col1, col2, col3, col4, col5 = st.columns([2, 3, 1.5, 1.5, 0.5])
+                # Display as editable data editor
+                edited_df = st.data_editor(
+                    df,
+                    column_config={
+                        "cas_number": st.column_config.TextColumn(
+                            "CAS",
+                            width="small",
+                            help="CAS Registry Number",
+                        ),
+                        "name": st.column_config.TextColumn(
+                            "Name",
+                            width="medium",
+                        ),
+                        "percentage": st.column_config.NumberColumn(
+                            "%",
+                            width="small",
+                            min_value=0.0,
+                            max_value=100.0,
+                            step=0.1,
+                            format="%.2f",
+                        ),
+                    },
+                    hide_index=True,
+                    use_container_width=True,
+                    num_rows="dynamic",
+                    key="ingredient_editor",
+                )
 
-                    with col1:
-                        new_cas = st.text_input(
-                            "CAS", value=ing["cas_number"], key=f"cas_{i}",
-                            label_visibility="collapsed",
-                        )
-                        if new_cas != ing["cas_number"]:
-                            autofill = autofill_ingredient(new_cas)
-                            if autofill:
-                                st.session_state.ingredients[i]["cas_number"] = autofill["cas_number"]
-                                st.session_state.ingredients[i]["name"] = autofill["name"]
-                                st.rerun()
-                            else:
-                                st.session_state.ingredients[i]["cas_number"] = new_cas
+                # Update session state from edited dataframe
+                st.session_state.ingredients = edited_df.to_dict('records')
 
-                    with col2:
-                        new_name = st.text_input(
-                            "Name", value=ing["name"], key=f"name_{i}",
-                            label_visibility="collapsed",
-                        )
-                        if new_name != ing["name"]:
-                            autofill = autofill_ingredient(new_name)
-                            if autofill:
-                                st.session_state.ingredients[i]["cas_number"] = autofill["cas_number"]
-                                st.session_state.ingredients[i]["name"] = autofill["name"]
-                                st.rerun()
-                            else:
-                                st.session_state.ingredients[i]["name"] = new_name
-
-                    with col3:
-                        st.session_state.ingredients[i]["percentage"] = st.number_input(
-                            "%", value=float(ing["percentage"]), min_value=0.0, max_value=100.0,
-                            key=f"pct_{i}", step=0.1,
-                            label_visibility="collapsed",
-                        )
-
-                    with col4:
-                        info = autofill_ingredient(ing["cas_number"])
+                # Status indicators below the table
+                st.markdown("**Status:**")
+                status_cols = st.columns(min(len(st.session_state.ingredients), 8))
+                for i, ing in enumerate(st.session_state.ingredients[:8]):
+                    info = autofill_ingredient(ing.get("cas_number", ""))
+                    with status_cols[i]:
                         if info:
-                            if info.get("allergen") or info.get("ifra_restricted"):
-                                badges = []
-                                if info.get("allergen"):
-                                    badges.append("Allergen")
-                                if info.get("ifra_restricted"):
-                                    badges.append("IFRA")
-                                st.warning(", ".join(badges))
+                            flags = []
+                            if info.get("allergen"):
+                                flags.append("🔴 A")
+                            if info.get("ifra_restricted"):
+                                flags.append("🟡 I")
+                            if not flags:
+                                st.caption(f"✅ {ing.get('name', '')[:8]}")
                             else:
-                                st.success("Clear")
+                                st.caption(f"{' '.join(flags)} {ing.get('name', '')[:8]}")
                         else:
-                            st.caption("Unknown")
-
-                    with col5:
-                        if st.button("X", key=f"del_{i}", help="Remove ingredient"):
-                            st.session_state.ingredients.pop(i)
-                            st.rerun()
-
-            # Add manual ingredient button
-            if st.button("Add Manual Ingredient"):
-                st.session_state.ingredients.append({
-                    "cas_number": "",
-                    "name": "",
-                    "percentage": 0.0,
-                })
-                st.rerun()
+                            st.caption(f"⚪ {ing.get('name', '')[:8]}")
 
             # Summary metrics
-            st.divider()
-            total_pct = sum(ing["percentage"] for ing in st.session_state.ingredients)
-            col1, col2, col3, col4 = st.columns(4)
+            st.markdown("---")
+            total_pct = sum(ing.get("percentage", 0) for ing in st.session_state.ingredients)
+            allergen_count = sum(1 for ing in st.session_state.ingredients
+                                if autofill_ingredient(ing.get("cas_number", "")) and
+                                autofill_ingredient(ing.get("cas_number", "")).get("allergen"))
+            ifra_count = sum(1 for ing in st.session_state.ingredients
+                            if autofill_ingredient(ing.get("cas_number", "")) and
+                            autofill_ingredient(ing.get("cas_number", "")).get("ifra_restricted"))
+
+            col1, col2, col3, col4, col5 = st.columns(5)
             with col1:
-                st.metric("Total %", f"{total_pct:.1f}%")
+                st.metric("Total", f"{total_pct:.1f}%")
             with col2:
-                st.metric("Ingredients", len(st.session_state.ingredients))
+                st.metric("Count", len(st.session_state.ingredients))
             with col3:
-                allergen_count = sum(1 for ing in st.session_state.ingredients
-                                    if autofill_ingredient(ing["cas_number"]) and
-                                    autofill_ingredient(ing["cas_number"]).get("allergen"))
                 st.metric("Allergens", allergen_count)
             with col4:
-                if abs(total_pct - 100.0) <= 0.1:
-                    st.success("Formula complete")
+                st.metric("IFRA", ifra_count)
+            with col5:
+                if abs(total_pct - 100.0) <= 0.5:
+                    st.success("Complete")
+                elif total_pct > 100:
+                    st.error(f"+{total_pct - 100:.1f}%")
                 else:
-                    st.warning(f"{100 - total_pct:.1f}% remaining")
+                    st.warning(f"-{100 - total_pct:.1f}%")
+
+            # Action buttons
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                if st.button("Clear All", use_container_width=True):
+                    st.session_state.ingredients = []
+                    st.rerun()
+            with col2:
+                if st.button("Normalize to 100%", use_container_width=True, disabled=total_pct == 0):
+                    if total_pct > 0:
+                        factor = 100.0 / total_pct
+                        for ing in st.session_state.ingredients:
+                            ing["percentage"] = round(ing["percentage"] * factor, 2)
+                        st.rerun()
+            with col3:
+                # Export CSV
+                if st.session_state.ingredients:
+                    csv = "CAS,Name,Percentage\n"
+                    for ing in st.session_state.ingredients:
+                        csv += f'"{ing.get("cas_number", "")}","{ing.get("name", "")}",{ing.get("percentage", 0)}\n'
+                    st.download_button("Export CSV", csv, f"{formula_name}.csv", "text/csv", use_container_width=True)
 
         with tab2:
-            render_progress_steps(1)
-
             st.markdown("### Compliance Check")
 
-            if not st.session_state.get("ingredients"):
-                st.info("Add ingredients in the Formula Input tab first")
+            if not st.session_state.ingredients:
+                st.info("Add ingredients in the Formula tab first")
             else:
-                st.markdown(f"""
-                    <div class="info-card">
-                        <strong>Ready to check:</strong> {len(st.session_state.ingredients)} ingredients
-                        for {', '.join([m.upper() for m in markets])} markets
-                    </div>
-                """, unsafe_allow_html=True)
-
-                if st.button("Run Full Compliance Check", type="primary", use_container_width=True):
+                if st.button("Run Compliance Check", type="primary", use_container_width=True):
                     engine = get_engine()
-
                     formula = FormulaData(
                         name=formula_name,
                         ingredients=[
                             FormulaIngredientData(**ing)
                             for ing in st.session_state.ingredients
-                            if ing["cas_number"] and ing["percentage"] > 0
+                            if ing.get("cas_number") and ing.get("percentage", 0) > 0
                         ],
                     )
 
-                    with st.spinner("Checking compliance across all regulations..."):
+                    with st.spinner("Checking..."):
                         report = engine.check_compliance(
                             formula=formula,
                             product_type=ProductType(product_type),
@@ -665,26 +477,11 @@ if STREAMLIT_AVAILABLE:
                             is_leave_on=is_leave_on,
                         )
 
-                    # Results header
+                    # Results
                     if report.is_compliant:
-                        st.markdown(f"""
-                            <div class="result-compliant">
-                                <div style="font-size: 3rem;">&#10003;</div>
-                                <h2 style="color: #10b981; margin: 10px 0;">COMPLIANT</h2>
-                                <p style="color: #64748b;">Formula meets all regulatory requirements</p>
-                                {f'<p><strong>Certificate:</strong> {report.certificate_number}</p>' if report.certificate_number else ''}
-                            </div>
-                        """, unsafe_allow_html=True)
+                        st.success(f"✅ COMPLIANT - Certificate: {report.certificate_number}")
                     else:
-                        st.markdown(f"""
-                            <div class="result-non-compliant">
-                                <div style="font-size: 3rem;">&#10005;</div>
-                                <h2 style="color: #ef4444; margin: 10px 0;">NON-COMPLIANT</h2>
-                                <p style="color: #64748b;">Formula has {len(report.non_compliant_items)} violation(s)</p>
-                            </div>
-                        """, unsafe_allow_html=True)
-
-                    st.divider()
+                        st.error(f"❌ NON-COMPLIANT - {len(report.non_compliant_items)} violations")
 
                     # Violations
                     if report.non_compliant_items:
@@ -698,9 +495,9 @@ if STREAMLIT_AVAILABLE:
                         for w in report.warnings:
                             st.warning(f"**{w.requirement}**: {w.details}")
 
-                    # Detailed results table
-                    with st.expander("View All Results", expanded=False):
-                        results_data = [
+                    # All results
+                    with st.expander("All Results"):
+                        results_df = pd.DataFrame([
                             {
                                 "Requirement": r.requirement,
                                 "Status": r.status.value.upper(),
@@ -709,30 +506,23 @@ if STREAMLIT_AVAILABLE:
                                 "Details": r.details or "-",
                             }
                             for r in report.results
-                        ]
-                        st.dataframe(results_data, use_container_width=True)
+                        ])
+                        st.dataframe(results_df, use_container_width=True, hide_index=True)
 
         with tab3:
-            render_progress_steps(2)
-
             st.markdown("### Generate Documents")
 
-            if not st.session_state.get("ingredients"):
-                st.info("Add ingredients in the Formula Input tab first")
+            if not st.session_state.ingredients:
+                st.info("Add ingredients first")
             else:
                 formula_data = {
                     "name": formula_name,
                     "ingredients": [
-                        {
-                            "cas_number": ing["cas_number"],
-                            "name": ing["name"],
-                            "percentage": ing["percentage"],
-                        }
+                        {"cas_number": ing["cas_number"], "name": ing["name"], "percentage": ing["percentage"]}
                         for ing in st.session_state.ingredients
-                        if ing["cas_number"] and ing["percentage"] > 0
+                        if ing.get("cas_number") and ing.get("percentage", 0) > 0
                     ],
                 }
-
                 common_settings = {
                     "product_type": product_type,
                     "markets": markets,
@@ -741,118 +531,55 @@ if STREAMLIT_AVAILABLE:
                 }
 
                 col1, col2 = st.columns(2)
-
                 with col1:
-                    st.markdown("""
-                        <div class="doc-card">
-                            <h4>IFRA Certificate of Conformity</h4>
-                            <p style="color: #64748b; font-size: 0.9rem;">
-                                Certifies compliance with IFRA standards
-                            </p>
-                        </div>
-                    """, unsafe_allow_html=True)
-                    signatory_name = st.text_input("Signatory Name", value="Quality Manager", key="sig_name")
-                    signatory_title = st.text_input("Signatory Title", value="Quality Assurance", key="sig_title")
-
-                    if st.button("Generate IFRA Certificate", type="primary", key="gen_ifra", use_container_width=True):
-                        with st.spinner("Generating PDF..."):
-                            pdf_bytes = generate_pdf_document(
-                                "ifra-certificate",
-                                formula_data,
-                                {**common_settings, "signatory_name": signatory_name, "signatory_title": signatory_title},
-                            )
-                            if pdf_bytes:
-                                st.download_button(
-                                    "Download IFRA Certificate",
-                                    data=pdf_bytes,
-                                    file_name=f"IFRA_Certificate_{formula_name}_{datetime.now().strftime('%Y%m%d')}.pdf",
-                                    mime="application/pdf",
-                                    use_container_width=True,
-                                )
+                    st.markdown("**IFRA Certificate**")
+                    sig_name = st.text_input("Signatory", value="Quality Manager", key="sig1")
+                    sig_title = st.text_input("Title", value="QA Manager", key="sig2")
+                    if st.button("Generate IFRA Certificate", use_container_width=True):
+                        with st.spinner("Generating..."):
+                            pdf = generate_pdf_document("ifra-certificate", formula_data,
+                                {**common_settings, "signatory_name": sig_name, "signatory_title": sig_title})
+                            if pdf:
+                                st.download_button("Download IFRA", pdf,
+                                    f"IFRA_{formula_name}_{datetime.now().strftime('%Y%m%d')}.pdf",
+                                    "application/pdf", use_container_width=True)
 
                 with col2:
-                    st.markdown("""
-                        <div class="doc-card">
-                            <h4>Allergen Declaration</h4>
-                            <p style="color: #64748b; font-size: 0.9rem;">
-                                Lists allergens requiring disclosure by market
-                            </p>
-                        </div>
-                    """, unsafe_allow_html=True)
-                    st.write("")  # Spacing
+                    st.markdown("**Allergen Statement**")
                     st.write("")
-                    if st.button("Generate Allergen Statement", type="primary", key="gen_allergen", use_container_width=True):
-                        with st.spinner("Generating PDF..."):
-                            pdf_bytes = generate_pdf_document(
-                                "allergen-statement",
-                                formula_data,
-                                common_settings,
-                            )
-                            if pdf_bytes:
-                                st.download_button(
-                                    "Download Allergen Statement",
-                                    data=pdf_bytes,
-                                    file_name=f"Allergen_Statement_{formula_name}_{datetime.now().strftime('%Y%m%d')}.pdf",
-                                    mime="application/pdf",
-                                    use_container_width=True,
-                                )
+                    st.write("")
+                    if st.button("Generate Allergen Statement", use_container_width=True):
+                        with st.spinner("Generating..."):
+                            pdf = generate_pdf_document("allergen-statement", formula_data, common_settings)
+                            if pdf:
+                                st.download_button("Download Allergen", pdf,
+                                    f"Allergen_{formula_name}_{datetime.now().strftime('%Y%m%d')}.pdf",
+                                    "application/pdf", use_container_width=True)
 
-                st.divider()
+                st.markdown("---")
 
                 col3, col4 = st.columns(2)
-
                 with col3:
-                    st.markdown("""
-                        <div class="doc-card">
-                            <h4>VOC Compliance Statement</h4>
-                            <p style="color: #64748b; font-size: 0.9rem;">
-                                CARB and Canada VOC compliance
-                            </p>
-                        </div>
-                    """, unsafe_allow_html=True)
-                    if st.button("Generate VOC Statement", type="primary", key="gen_voc", use_container_width=True):
-                        with st.spinner("Generating PDF..."):
-                            pdf_bytes = generate_pdf_document(
-                                "voc-statement",
-                                formula_data,
-                                common_settings,
-                            )
-                            if pdf_bytes:
-                                st.download_button(
-                                    "Download VOC Statement",
-                                    data=pdf_bytes,
-                                    file_name=f"VOC_Statement_{formula_name}_{datetime.now().strftime('%Y%m%d')}.pdf",
-                                    mime="application/pdf",
-                                    use_container_width=True,
-                                )
+                    st.markdown("**VOC Statement**")
+                    if st.button("Generate VOC Statement", use_container_width=True):
+                        with st.spinner("Generating..."):
+                            pdf = generate_pdf_document("voc-statement", formula_data, common_settings)
+                            if pdf:
+                                st.download_button("Download VOC", pdf,
+                                    f"VOC_{formula_name}_{datetime.now().strftime('%Y%m%d')}.pdf",
+                                    "application/pdf", use_container_width=True)
 
                 with col4:
-                    st.markdown("""
-                        <div class="doc-card">
-                            <h4>Fragrance Safety Evaluation</h4>
-                            <p style="color: #64748b; font-size: 0.9rem;">
-                                Complete safety assessment report
-                            </p>
-                        </div>
-                    """, unsafe_allow_html=True)
-                    assessor = st.text_input("Assessor Name", value="", key="assessor")
-                    intended_use = st.text_area("Intended Use", value="", key="intended_use", height=68)
-
-                    if st.button("Generate FSE Report", type="primary", key="gen_fse", use_container_width=True):
-                        with st.spinner("Generating PDF..."):
-                            pdf_bytes = generate_pdf_document(
-                                "fse",
-                                formula_data,
-                                {**common_settings, "assessor": assessor, "intended_use": intended_use},
-                            )
-                            if pdf_bytes:
-                                st.download_button(
-                                    "Download FSE Report",
-                                    data=pdf_bytes,
-                                    file_name=f"FSE_{formula_name}_{datetime.now().strftime('%Y%m%d')}.pdf",
-                                    mime="application/pdf",
-                                    use_container_width=True,
-                                )
+                    st.markdown("**FSE Report**")
+                    assessor = st.text_input("Assessor", key="assessor")
+                    if st.button("Generate FSE", use_container_width=True):
+                        with st.spinner("Generating..."):
+                            pdf = generate_pdf_document("fse", formula_data,
+                                {**common_settings, "assessor": assessor})
+                            if pdf:
+                                st.download_button("Download FSE", pdf,
+                                    f"FSE_{formula_name}_{datetime.now().strftime('%Y%m%d')}.pdf",
+                                    "application/pdf", use_container_width=True)
 
         with tab4:
             st.markdown("### Formula Library")
@@ -860,132 +587,35 @@ if STREAMLIT_AVAILABLE:
             library = get_formula_library()
             formulas = library.list_all()
 
-            # Search
-            search = st.text_input("Search formulas...", placeholder="Search by name or tags", key="lib_search")
+            search = st.text_input("Search formulas...", key="lib_search", label_visibility="collapsed", placeholder="Search...")
             if search:
                 formulas = library.search(search)
 
             if not formulas:
-                st.markdown("""
-                    <div class="empty-state">
-                        <div class="empty-icon">&#128218;</div>
-                        <div><strong>No formulas saved</strong></div>
-                        <div style="font-size: 0.9rem;">Save a formula from the Formula Input tab</div>
-                    </div>
-                """, unsafe_allow_html=True)
+                st.info("No saved formulas")
             else:
-                st.caption(f"Showing {len(formulas)} formula(s)")
+                for f in formulas:
+                    with st.expander(f"{f.name} ({len(f.ingredients)} ingredients)"):
+                        # Show ingredients as table
+                        if f.ingredients:
+                            ing_df = pd.DataFrame(f.ingredients)
+                            st.dataframe(ing_df, use_container_width=True, hide_index=True)
 
-                for formula in formulas:
-                    with st.expander(f"{formula.name}", expanded=False):
-                        col1, col2 = st.columns([3, 1])
-
-                        with col1:
-                            st.caption(f"ID: {formula.id[:8]}... | Updated: {formula.updated_at[:10]}")
-                            if formula.description:
-                                st.write(formula.description)
-                            if formula.tags:
-                                st.write("Tags: " + ", ".join(formula.tags))
-
-                            # Ingredients
-                            st.write("**Ingredients:**")
-                            ing_data = [
-                                {"CAS": ing["cas_number"], "Name": ing["name"], "%": ing["percentage"]}
-                                for ing in formula.ingredients
-                            ]
-                            st.dataframe(ing_data, use_container_width=True, hide_index=True)
-
-                        with col2:
-                            st.metric("Ingredients", len(formula.ingredients))
-                            if formula.compliance_status:
-                                if formula.compliance_status == "compliant":
-                                    st.success("Compliant")
-                                else:
-                                    st.error("Non-compliant")
-
-                        # Actions
                         col1, col2, col3 = st.columns(3)
                         with col1:
-                            if st.button("Load", key=f"load_{formula.id}", use_container_width=True):
-                                st.session_state.ingredients = formula.ingredients.copy()
-                                st.session_state.formula_name = formula.name
-                                st.success(f"Loaded: {formula.name}")
+                            if st.button("Load", key=f"load_{f.id}", use_container_width=True):
+                                st.session_state.ingredients = f.ingredients.copy()
+                                st.session_state.formula_name = f.name
+                                st.success(f"Loaded: {f.name}")
                                 st.rerun()
                         with col2:
-                            if st.button("Duplicate", key=f"dup_{formula.id}", use_container_width=True):
-                                library.duplicate(formula.id)
-                                st.success("Duplicated!")
+                            if st.button("Duplicate", key=f"dup_{f.id}", use_container_width=True):
+                                library.duplicate(f.id)
                                 st.rerun()
                         with col3:
-                            if st.button("Delete", key=f"del_lib_{formula.id}", use_container_width=True):
-                                library.delete(formula.id)
-                                st.success("Deleted")
+                            if st.button("Delete", key=f"del_{f.id}", use_container_width=True):
+                                library.delete(f.id)
                                 st.rerun()
-
-        with tab5:
-            st.markdown("### Quick Checks")
-
-            if not st.session_state.get("ingredients"):
-                st.info("Add ingredients in the Formula Input tab first")
-            else:
-                check_type = st.selectbox(
-                    "Select Check Type",
-                    options=["IFRA Only", "Allergens Only", "VOC Only", "FSE Generation"],
-                )
-
-                if st.button("Run Quick Check", type="primary"):
-                    engine = get_engine()
-
-                    formula = FormulaData(
-                        name=formula_name,
-                        ingredients=[
-                            FormulaIngredientData(**ing)
-                            for ing in st.session_state.ingredients
-                            if ing["cas_number"] and ing["percentage"] > 0
-                        ],
-                    )
-
-                    with st.spinner("Running check..."):
-                        if check_type == "IFRA Only":
-                            result = engine.check_ifra(
-                                formula=formula,
-                                product_type=ProductType(product_type),
-                                fragrance_concentration=fragrance_concentration,
-                            )
-                            if result.is_compliant:
-                                st.success("IFRA Compliant")
-                            else:
-                                st.error("IFRA Non-Compliant")
-                            st.json({
-                                "is_compliant": result.is_compliant,
-                                "violations": [v.to_dict() for v in result.violations],
-                                "warnings": [w.to_dict() for w in result.warnings],
-                            })
-
-                        elif check_type == "Allergens Only":
-                            report = engine.check_allergens(
-                                formula=formula,
-                                markets=[Market(m) for m in markets],
-                                fragrance_concentration=fragrance_concentration,
-                                is_leave_on=is_leave_on,
-                            )
-                            st.json(report.to_dict())
-
-                        elif check_type == "VOC Only":
-                            report = engine.check_voc(
-                                formula=formula,
-                                product_type=ProductType(product_type),
-                                markets=[Market(m) for m in markets],
-                            )
-                            st.json(report.to_dict())
-
-                        elif check_type == "FSE Generation":
-                            report = engine.generate_fse(
-                                formula=formula,
-                                product_type=ProductType(product_type),
-                                fragrance_concentration=fragrance_concentration,
-                            )
-                            st.json(report.to_dict())
 
     if __name__ == "__main__":
         main()
