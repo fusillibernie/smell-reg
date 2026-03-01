@@ -2,23 +2,18 @@
 
 @page {
     size: letter;
-    margin: 2cm;
-    @top-center {
-        content: string(document-title);
-        font-size: 10pt;
-        color: #666;
-    }
+    margin: 1.5cm 1.5cm 2cm 1.5cm;
     @bottom-center {
         content: "Page " counter(page) " of " counter(pages);
-        font-size: 9pt;
-        color: #666;
+        font-size: 8pt;
+        color: #888;
     }
 }
 
 body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 11pt;
-    line-height: 1.5;
+    font-size: 9.5pt;
+    line-height: 1.35;
     color: #333;
 }
 
@@ -31,14 +26,14 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #2c5aa0;
-    padding-bottom: 20px;
-    margin-bottom: 30px;
+    border-bottom: 2px solid #1a4480;
+    padding-bottom: 12px;
+    margin-bottom: 15px;
 }
 
 .header-logo {
-    max-height: 60px;
-    max-width: 200px;
+    max-height: 45px;
+    max-width: 150px;
 }
 
 .header-info {
@@ -46,43 +41,46 @@ body {
 }
 
 .company-name {
-    font-size: 18pt;
+    font-size: 14pt;
     font-weight: bold;
-    color: #2c5aa0;
+    color: #1a4480;
 }
 
 /* Document Title */
 h1 {
-    font-size: 20pt;
-    color: #2c5aa0;
+    font-size: 16pt;
+    color: #1a4480;
     text-align: center;
-    margin: 30px 0;
-    padding: 15px;
-    background-color: #f5f8fc;
-    border-radius: 5px;
+    margin: 15px 0;
+    padding: 10px;
+    background: linear-gradient(135deg, #f0f4f8 0%, #e8eef5 100%);
+    border-radius: 4px;
+    border-left: 4px solid #1a4480;
 }
 
 h2 {
-    font-size: 14pt;
-    color: #2c5aa0;
+    font-size: 11pt;
+    color: #1a4480;
     border-bottom: 1px solid #ddd;
-    padding-bottom: 5px;
-    margin-top: 25px;
+    padding-bottom: 4px;
+    margin-top: 18px;
+    margin-bottom: 8px;
 }
 
 h3 {
-    font-size: 12pt;
+    font-size: 10pt;
     color: #444;
-    margin-top: 20px;
+    margin-top: 12px;
+    margin-bottom: 6px;
 }
 
 /* Certificate Info Box */
 .certificate-info {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 15px;
-    margin: 20px 0;
+    background-color: #fafbfc;
+    border: 1px solid #e1e4e8;
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin: 12px 0;
 }
 
 .certificate-info table {
@@ -91,38 +89,41 @@ h3 {
 }
 
 .certificate-info td {
-    padding: 8px;
+    padding: 4px 6px;
     border-bottom: 1px solid #eee;
 }
 
 .certificate-info td:first-child {
-    font-weight: bold;
-    width: 40%;
+    font-weight: 600;
+    width: 35%;
     color: #555;
+    font-size: 9pt;
 }
 
 /* Tables */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin: 15px 0;
+    margin: 10px 0;
 }
 
 th {
-    background-color: #2c5aa0;
+    background: linear-gradient(180deg, #1a4480 0%, #153a6b 100%);
     color: white;
-    padding: 10px;
+    padding: 6px 8px;
     text-align: left;
-    font-weight: bold;
+    font-weight: 600;
+    font-size: 9pt;
 }
 
 td {
-    padding: 8px 10px;
-    border-bottom: 1px solid #ddd;
+    padding: 5px 8px;
+    border-bottom: 1px solid #e1e4e8;
+    font-size: 9pt;
 }
 
 tr:nth-child(even) {
-    background-color: #f9f9f9;
+    background-color: #f8f9fa;
 }
 
 tr:hover {
@@ -132,11 +133,12 @@ tr:hover {
 /* Status Badges */
 .status {
     display: inline-block;
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-size: 9pt;
-    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 8pt;
+    font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 .status-compliant {
@@ -178,10 +180,10 @@ tr:hover {
 .compliance-summary {
     display: flex;
     justify-content: space-around;
-    margin: 20px 0;
-    padding: 15px;
-    background-color: #f5f8fc;
-    border-radius: 5px;
+    margin: 12px 0;
+    padding: 10px;
+    background: linear-gradient(135deg, #f0f4f8 0%, #e8eef5 100%);
+    border-radius: 4px;
 }
 
 .summary-item {
@@ -189,110 +191,149 @@ tr:hover {
 }
 
 .summary-value {
-    font-size: 24pt;
+    font-size: 18pt;
     font-weight: bold;
-    color: #2c5aa0;
+    color: #1a4480;
 }
 
 .summary-label {
-    font-size: 10pt;
+    font-size: 8pt;
     color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 /* Signature Block */
 .signature-block {
-    margin-top: 50px;
+    margin-top: 25px;
     page-break-inside: avoid;
 }
 
 .signature-line {
-    width: 250px;
+    width: 220px;
     border-top: 1px solid #333;
-    margin-top: 40px;
-    padding-top: 5px;
+    margin-top: 30px;
+    padding-top: 4px;
 }
 
 .signature-name {
-    font-weight: bold;
+    font-weight: 600;
+    font-size: 9pt;
 }
 
 .signature-title {
-    font-size: 10pt;
+    font-size: 8pt;
     color: #666;
 }
 
 /* Footer */
 .footer {
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid #ddd;
-    font-size: 9pt;
-    color: #666;
-    text-align: center;
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #e1e4e8;
+    font-size: 8pt;
+    color: #888;
 }
 
 .footer p {
-    margin: 5px 0;
+    margin: 3px 0;
 }
 
 /* Disclaimer */
 .disclaimer {
-    margin-top: 30px;
-    padding: 15px;
-    background-color: #fff8e6;
-    border: 1px solid #ffecb3;
-    border-radius: 5px;
-    font-size: 9pt;
-    color: #666;
+    margin-top: 15px;
+    padding: 10px 12px;
+    background-color: #fffbf0;
+    border: 1px solid #f0e6cc;
+    border-left: 3px solid #d4a940;
+    border-radius: 3px;
+    font-size: 8pt;
+    color: #6b5a30;
+    line-height: 1.4;
 }
 
 /* Allergen List */
 .allergen-list {
     column-count: 2;
-    column-gap: 30px;
+    column-gap: 20px;
 }
 
 .allergen-item {
     break-inside: avoid;
-    padding: 5px 0;
+    padding: 3px 0;
+    font-size: 8.5pt;
 }
 
 /* VOC Bar Chart (simple) */
 .voc-bar {
-    height: 20px;
+    height: 16px;
     background-color: #e9ecef;
-    border-radius: 3px;
+    border-radius: 8px;
     overflow: hidden;
-    margin: 10px 0;
+    margin: 8px 0;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .voc-fill {
     height: 100%;
-    background-color: #2c5aa0;
-    transition: width 0.3s;
+    background: linear-gradient(90deg, #1a4480 0%, #2d5aa0 100%);
+    border-radius: 8px;
 }
 
 .voc-fill.warning {
-    background-color: #ffc107;
+    background: linear-gradient(90deg, #e6a817 0%, #ffc107 100%);
 }
 
 .voc-fill.danger {
-    background-color: #dc3545;
+    background: linear-gradient(90deg, #c82333 0%, #dc3545 100%);
 }
 
 /* FSE Risk Matrix */
 .risk-matrix {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin: 20px 0;
+    gap: 8px;
+    margin: 12px 0;
 }
 
 .risk-cell {
-    padding: 15px;
+    padding: 10px;
     text-align: center;
-    border-radius: 5px;
-    font-size: 10pt;
+    border-radius: 4px;
+    font-size: 8pt;
+}
+
+/* Compact data rows for allergens */
+.compact-table td {
+    padding: 3px 6px;
+    font-size: 8.5pt;
+}
+
+.compact-table th {
+    padding: 5px 6px;
+    font-size: 8.5pt;
+}
+
+/* Product info grid */
+.product-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.product-grid-item {
+    padding: 6px 10px;
+    background: #f8f9fa;
+    border-radius: 3px;
+    font-size: 9pt;
+}
+
+.product-grid-item strong {
+    color: #1a4480;
+    font-size: 8pt;
+    display: block;
+    margin-bottom: 2px;
 }
 
 /* Print optimizations */

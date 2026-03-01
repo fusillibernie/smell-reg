@@ -3,6 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Allergen Declaration</title>
+    <style>
+        .allergen-table { font-size: 8pt; }
+        .allergen-table td, .allergen-table th { padding: 3px 6px; }
+        .allergen-table tr:nth-child(even) { background: #f8f9fa; }
+        .present { font-weight: 600; color: #1a4480; }
+        .absent { color: #999; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 10px 0; }
+        .info-item { background: #f8f9fa; padding: 8px 10px; border-radius: 3px; border-left: 3px solid #1a4480; }
+        .info-label { font-size: 7pt; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-value { font-size: 10pt; font-weight: 600; color: #333; margin-top: 2px; }
+    </style>
 </head>
 <body>
     <div class="header">
@@ -13,159 +24,64 @@
         </div>
         <div class="header-info">
             <div class="company-name">{{ company_name }}</div>
-            <div>Regulatory Compliance</div>
         </div>
     </div>
 
     <h1 class="document-title">Allergen Declaration</h1>
 
-    <div class="certificate-info">
-        <table>
-            <tr>
-                <td>Formula Name:</td>
-                <td><strong>{{ report.formula_name }}</strong></td>
-            </tr>
-            <tr>
-                <td>Fragrance Concentration:</td>
-                <td>{{ report.fragrance_concentration }}%</td>
-            </tr>
-            <tr>
-                <td>Product Type:</td>
-                <td>{{ 'Leave-on' if report.is_leave_on else 'Rinse-off' }}</td>
-            </tr>
-            <tr>
-                <td>Target Markets:</td>
-                <td>{{ report.markets | map(attribute='value') | join(', ') | upper }}</td>
-            </tr>
-            <tr>
-                <td>Issue Date:</td>
-                <td>{{ generated_date | format_date }}</td>
-            </tr>
-        </table>
+    <div class="info-grid">
+        <div class="info-item">
+            <div class="info-label">Formula Code</div>
+            <div class="info-value">{{ metadata.formula_code or 'N/A' }}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Formula Name</div>
+            <div class="info-value">{{ report.formula_name }}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Issue Date</div>
+            <div class="info-value">{{ generated_date | format_date }}</div>
+        </div>
     </div>
 
-    <h2>Allergen Disclosure Requirements</h2>
-
-    {% if report.disclosure_required %}
-    <p>
-        The following allergens are present in this fragrance composition at concentrations
-        that require disclosure under applicable regulations:
+    <p style="font-size: 8.5pt; color: #555; margin: 12px 0 8px 0;">
+        Allergen content in undiluted fragrance per EU Regulation 2023/1545 (amending EC 1223/2009 Annex III).
     </p>
 
-    <table>
+    <table class="allergen-table">
         <thead>
             <tr>
-                <th>Allergen Name</th>
-                <th>CAS Number</th>
-                <th>% in Fragrance</th>
-                <th>% in Product</th>
-                <th>Threshold</th>
-                <th>Regulations</th>
+                <th style="width: 45%;">Allergen (INCI)</th>
+                <th style="width: 25%;">CAS Number</th>
+                <th style="width: 30%; text-align: right;">% in Fragrance</th>
             </tr>
         </thead>
         <tbody>
-            {% for allergen in report.disclosure_required %}
+            {% for allergen in all_allergens %}
             <tr>
-                <td><strong>{{ allergen.name }}</strong></td>
-                <td>{{ allergen.cas_number }}</td>
-                <td>{{ allergen.concentration_in_fragrance | format_percent }}</td>
-                <td>{{ allergen.concentration_in_product | format_percent }}</td>
-                <td>{{ allergen.threshold | format_percent }}</td>
-                <td>{{ allergen.regulations | join(', ') | upper }}</td>
+                <td class="{{ 'present' if allergen.concentration > 0 else 'absent' }}">{{ allergen.name }}</td>
+                <td class="{{ 'present' if allergen.concentration > 0 else 'absent' }}">{{ allergen.cas_number }}</td>
+                <td style="text-align: right;" class="{{ 'present' if allergen.concentration > 0 else 'absent' }}">{{ "%.4f" | format(allergen.concentration) }}%</td>
             </tr>
             {% endfor %}
-        </tbody>
-    </table>
-
-    <h3>Labeling Statement</h3>
-    <p>Based on the analysis above, the following allergens should be declared on the product label:</p>
-    <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 15px 0;">
-        <strong>
-            {% for allergen in report.disclosure_required %}
-            {{ allergen.name }}{% if not loop.last %}, {% endif %}
-            {% endfor %}
-        </strong>
-    </div>
-
-    {% else %}
-    <p>
-        No allergens are present in this fragrance composition at concentrations that require
-        disclosure under the applicable regulations for the specified markets and product type.
-    </p>
-    {% endif %}
-
-    {% if report.detected_allergens and report.detected_allergens | length > report.disclosure_required | length %}
-    <h2>Additional Allergens Detected (Below Disclosure Threshold)</h2>
-    <p>
-        The following allergens are present but below the disclosure threshold:
-    </p>
-    <table>
-        <thead>
-            <tr>
-                <th>Allergen Name</th>
-                <th>CAS Number</th>
-                <th>% in Product</th>
-                <th>Threshold</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for allergen in report.detected_allergens %}
-            {% if not allergen.requires_disclosure %}
-            <tr>
-                <td>{{ allergen.name }}</td>
-                <td>{{ allergen.cas_number }}</td>
-                <td>{{ allergen.concentration_in_product | format_percent }}</td>
-                <td>{{ allergen.threshold | format_percent }}</td>
-            </tr>
-            {% endif %}
-            {% endfor %}
-        </tbody>
-    </table>
-    {% endif %}
-
-    <h2>Regulatory References</h2>
-    <ul>
-        <li><strong>EU:</strong> Regulation (EC) No 1223/2009 (Cosmetics Regulation), Annex III;
-            Regulation (EU) 2023/1545 (expanded allergen list)</li>
-        <li><strong>UK:</strong> UK Cosmetic Products Enforcement Regulations 2013</li>
-        <li><strong>Canada:</strong> Health Canada Cosmetic Ingredient Hotlist,
-            Allergen Labeling Requirements</li>
-        <li><strong>US:</strong> Fair Packaging and Labeling Act, IFRA Guidelines</li>
-    </ul>
-
-    <h3>Disclosure Thresholds</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Product Type</th>
-                <th>Leave-on Products</th>
-                <th>Rinse-off Products</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>EU/UK</td>
-                <td>0.001% (10 ppm)</td>
-                <td>0.01% (100 ppm)</td>
-            </tr>
-            <tr>
-                <td>Canada</td>
-                <td>0.001% (10 ppm)</td>
-                <td>0.01% (100 ppm)</td>
-            </tr>
         </tbody>
     </table>
 
     <div class="disclaimer">
-        <strong>Disclaimer:</strong> This allergen declaration is based on the composition
-        provided and regulations in effect at the time of issuance. The manufacturer/supplier
-        is responsible for ensuring accuracy of the composition data and compliance with all
-        applicable labeling requirements.
+        <strong>Disclaimer:</strong> This declaration is based on composition data provided. Concentrations shown are in undiluted fragrance; final product concentrations depend on fragrance usage level. Manufacturer is responsible for accuracy and compliance with labeling requirements.
     </div>
 
     <div class="footer">
-        <p>{{ company_name }} | Regulatory Compliance Department</p>
-        <p>Generated: {{ generated_date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+        <table style="width: 100%; border: none; font-size: 8pt;">
+            <tr>
+                <td style="border: none; text-align: left; padding: 0; background: none;">
+                    {{ company_name }}
+                </td>
+                <td style="border: none; text-align: right; padding: 0; background: none;">
+                    {{ metadata.formula_code }} | {{ report.formula_name }} | v{{ metadata.version }} | {{ metadata.date_created }}
+                </td>
+            </tr>
+        </table>
     </div>
 </body>
 </html>

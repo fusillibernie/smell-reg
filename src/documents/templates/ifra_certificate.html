@@ -3,6 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <title>IFRA Certificate of Conformity</title>
+    <style>
+        .ifra-header {
+            text-align: center;
+            border-bottom: 2px solid #1a4480;
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+        .ifra-title {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #1a4480;
+            margin: 10px 0 5px 0;
+            letter-spacing: 1px;
+        }
+        .ifra-subtitle {
+            font-size: 11pt;
+            color: #444;
+        }
+        .ifra-amendment {
+            font-size: 9pt;
+            color: #666;
+            margin-top: 3px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .info-item {
+            background: #f8f9fa;
+            padding: 8px 10px;
+            border-radius: 3px;
+            border-left: 3px solid #1a4480;
+        }
+        .info-label {
+            font-size: 7pt;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .info-value {
+            font-size: 10pt;
+            font-weight: 600;
+            color: #333;
+            margin-top: 2px;
+        }
+        .category-table {
+            margin: 10px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .category-table th {
+            background: linear-gradient(180deg, #1a4480 0%, #153a6b 100%);
+            color: white;
+            padding: 6px 8px;
+            text-align: left;
+            font-size: 8pt;
+            font-weight: 600;
+        }
+        .category-table td {
+            padding: 4px 8px;
+            border-bottom: 1px solid #e1e4e8;
+            font-size: 8pt;
+        }
+        .category-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .max-use {
+            font-weight: 600;
+            color: #1a4480;
+        }
+        .certification-box {
+            background: linear-gradient(135deg, #f0f4f8 0%, #e8eef5 100%);
+            border: 2px solid #1a4480;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .certification-text {
+            font-size: 9.5pt;
+            line-height: 1.5;
+            color: #333;
+        }
+        .compliant-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #28a745 0%, #20913a 100%);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 11pt;
+            margin: 8px 0;
+            letter-spacing: 0.5px;
+        }
+        .non-compliant-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 11pt;
+            margin: 8px 0;
+            letter-spacing: 0.5px;
+        }
+    </style>
 </head>
 <body>
     <div class="header">
@@ -13,71 +121,94 @@
         </div>
         <div class="header-info">
             <div class="company-name">{{ company_name }}</div>
-            <div>Regulatory Compliance</div>
         </div>
     </div>
 
-    <h1 class="document-title">IFRA Certificate of Conformity</h1>
-
-    <div class="certificate-info">
-        <table>
-            <tr>
-                <td>Certificate Number:</td>
-                <td><strong>{{ report.certificate_number or 'Pending' }}</strong></td>
-            </tr>
-            <tr>
-                <td>Formula Name:</td>
-                <td>{{ report.formula_name }}</td>
-            </tr>
-            <tr>
-                <td>Product Type:</td>
-                <td>{{ report.product_type.value | replace('_', ' ') | title }}</td>
-            </tr>
-            <tr>
-                <td>Fragrance Concentration:</td>
-                <td>{{ report.fragrance_concentration }}%</td>
-            </tr>
-            <tr>
-                <td>Issue Date:</td>
-                <td>{{ generated_date | format_date }}</td>
-            </tr>
-            <tr>
-                <td>IFRA Amendment:</td>
-                <td>51st Amendment (January 2024)</td>
-            </tr>
-        </table>
+    <div class="ifra-header">
+        <div class="ifra-title">CERTIFICATE OF CONFORMITY</div>
+        <div class="ifra-subtitle">to the IFRA Code of Practice</div>
+        <div class="ifra-amendment">51st Amendment (January 2024)</div>
     </div>
 
-    <h2>Compliance Statement</h2>
+    <div class="info-grid">
+        <div class="info-item">
+            <div class="info-label">Formula Code</div>
+            <div class="info-value">{{ metadata.formula_code or 'N/A' }}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Formula Name</div>
+            <div class="info-value">{{ report.formula_name }}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Certificate #</div>
+            <div class="info-value">{{ report.certificate_number or 'Pending' }}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Issue Date</div>
+            <div class="info-value">{{ generated_date | format_date }}</div>
+        </div>
+    </div>
 
-    {% if report.is_compliant %}
-    <p>
-        This is to certify that the fragrance composition identified above, when used at the
-        specified concentration in the indicated product type, conforms to the standards of
-        the <strong>International Fragrance Association (IFRA)</strong> as set forth in the
-        <strong>51st Amendment</strong> to the IFRA Code of Practice.
-    </p>
-    <p>
-        All ingredients in this fragrance have been evaluated and are within the permissible
-        limits for the specified product category.
-    </p>
-    {% else %}
-    <p style="color: #dc3545;">
-        <strong>NON-COMPLIANT:</strong> This fragrance composition does not conform to IFRA
-        standards due to the violations listed below.
-    </p>
-    {% endif %}
+    <div class="certification-box">
+        {% if report.is_compliant %}
+        <span class="compliant-badge">COMPLIANT</span>
+        <div class="certification-text">
+            This fragrance mixture is in conformity with IFRA Standards<br>
+            when used at the following maximum concentrations:
+        </div>
+        {% else %}
+        <span class="non-compliant-badge">NON-COMPLIANT</span>
+        <div class="certification-text">
+            This fragrance does not conform to IFRA Standards<br>
+            due to restrictions listed below.
+        </div>
+        {% endif %}
+    </div>
+
+    <h2 style="margin-top: 12px;">Maximum Use Levels by IFRA Category</h2>
+    <table class="category-table">
+        <thead>
+            <tr>
+                <th style="width: 15%;">Category</th>
+                <th style="width: 55%;">Product Type</th>
+                <th style="width: 30%; text-align: right;">Max Use Level</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>1</td><td>Lip Products</td><td class="max-use" style="text-align: right;">{{ max_levels.get('1', 'See restrictions') }}</td></tr>
+            <tr><td>2</td><td>Deodorants / Antiperspirants</td><td class="max-use" style="text-align: right;">{{ max_levels.get('2', 'See restrictions') }}</td></tr>
+            <tr><td>3</td><td>Hydroalcoholic Products (face)</td><td class="max-use" style="text-align: right;">{{ max_levels.get('3', 'See restrictions') }}</td></tr>
+            <tr><td>4</td><td>Fine Fragrance</td><td class="max-use" style="text-align: right;">{{ max_levels.get('4', 'See restrictions') }}</td></tr>
+            <tr><td>5A</td><td>Body Lotion</td><td class="max-use" style="text-align: right;">{{ max_levels.get('5A', 'See restrictions') }}</td></tr>
+            <tr><td>5B</td><td>Face Cream</td><td class="max-use" style="text-align: right;">{{ max_levels.get('5B', 'See restrictions') }}</td></tr>
+            <tr><td>5C</td><td>Hand Cream</td><td class="max-use" style="text-align: right;">{{ max_levels.get('5C', 'See restrictions') }}</td></tr>
+            <tr><td>5D</td><td>Baby Products</td><td class="max-use" style="text-align: right;">{{ max_levels.get('5D', 'See restrictions') }}</td></tr>
+            <tr><td>6</td><td>Mouthwash / Oral Products</td><td class="max-use" style="text-align: right;">{{ max_levels.get('6', 'See restrictions') }}</td></tr>
+            <tr><td>7A</td><td>Rinse-off Hair Products</td><td class="max-use" style="text-align: right;">{{ max_levels.get('7A', 'See restrictions') }}</td></tr>
+            <tr><td>7B</td><td>Leave-on Hair Products</td><td class="max-use" style="text-align: right;">{{ max_levels.get('7B', 'See restrictions') }}</td></tr>
+            <tr><td>8</td><td>Intimate Products</td><td class="max-use" style="text-align: right;">{{ max_levels.get('8', 'See restrictions') }}</td></tr>
+            <tr><td>9</td><td>Rinse-off Body Products</td><td class="max-use" style="text-align: right;">{{ max_levels.get('9', 'See restrictions') }}</td></tr>
+            <tr><td>10A</td><td>Household Aerosol Products</td><td class="max-use" style="text-align: right;">{{ max_levels.get('10A', 'See restrictions') }}</td></tr>
+            <tr><td>10B</td><td>Household Non-Aerosol Products</td><td class="max-use" style="text-align: right;">{{ max_levels.get('10B', 'See restrictions') }}</td></tr>
+            <tr><td>11A</td><td>Candles</td><td class="max-use" style="text-align: right;">{{ max_levels.get('11A', 'See restrictions') }}</td></tr>
+            <tr><td>11B</td><td>Reed Diffusers</td><td class="max-use" style="text-align: right;">{{ max_levels.get('11B', 'See restrictions') }}</td></tr>
+            <tr><td>12</td><td>Other Air Care Products</td><td class="max-use" style="text-align: right;">{{ max_levels.get('12', 'See restrictions') }}</td></tr>
+        </tbody>
+    </table>
 
     {% if report.non_compliant_items %}
-    <h2>Violations</h2>
-    <table>
+    <h2 style="color: #c82333;">Restrictions</h2>
+    <p style="font-size: 8pt; color: #666; margin-bottom: 8px;">
+        The following ingredients exceed IFRA limits for certain categories:
+    </p>
+    <table style="font-size: 8pt;">
         <thead>
             <tr>
                 <th>Ingredient</th>
-                <th>CAS Number</th>
-                <th>Current %</th>
-                <th>Limit %</th>
-                <th>Details</th>
+                <th>CAS</th>
+                <th style="text-align: right;">In Formula</th>
+                <th style="text-align: right;">Limit</th>
+                <th>Note</th>
             </tr>
         </thead>
         <tbody>
@@ -85,8 +216,8 @@
             <tr>
                 <td>{{ item.ingredient_name }}</td>
                 <td>{{ item.cas_number }}</td>
-                <td>{{ item.current_value | format_percent }}</td>
-                <td>{{ item.limit_value | format_percent }}</td>
+                <td style="text-align: right;">{{ item.current_value | format_percent }}</td>
+                <td style="text-align: right;">{{ item.limit_value | format_percent }}</td>
                 <td>{{ item.details }}</td>
             </tr>
             {% endfor %}
@@ -94,56 +225,31 @@
     </table>
     {% endif %}
 
-    {% if report.warnings %}
-    <h2>Warnings</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Ingredient</th>
-                <th>CAS Number</th>
-                <th>Current %</th>
-                <th>Limit %</th>
-                <th>Details</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in report.warnings %}
-            <tr>
-                <td>{{ item.ingredient_name }}</td>
-                <td>{{ item.cas_number }}</td>
-                <td>{{ item.current_value | format_percent }}</td>
-                <td>{{ item.limit_value | format_percent }}</td>
-                <td>{{ item.details }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% endif %}
-
-    <div class="signature-block no-break">
-        <h2>Certification</h2>
-        <p>
+    <div class="signature-block no-break" style="margin-top: 20px;">
+        <h3 style="font-size: 10pt; margin-bottom: 8px;">Certification</h3>
+        <p style="font-size: 8.5pt; color: #555; margin-bottom: 15px;">
             I hereby certify that the information provided in this certificate is accurate
-            and complete to the best of my knowledge.
+            and complete to the best of my knowledge based on the composition data provided.
         </p>
 
         <div class="signature-line">
             <div class="signature-name">{{ signatory_name }}</div>
             <div class="signature-title">{{ signatory_title }}</div>
-            <div>Date: {{ generated_date | format_date }}</div>
+            <div style="font-size: 8pt; color: #666;">{{ generated_date | format_date }}</div>
         </div>
     </div>
 
-    <div class="disclaimer">
-        <strong>Disclaimer:</strong> This certificate is based on the formula composition
-        provided and the IFRA standards in effect at the time of issuance. Changes to the
-        formula or updates to IFRA standards may require re-evaluation. The fragrance
-        supplier/manufacturer remains responsible for ensuring ongoing compliance.
-    </div>
-
     <div class="footer">
-        <p>{{ company_name }} | Regulatory Compliance Department</p>
-        <p>Generated: {{ generated_date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+        <table style="width: 100%; border: none; font-size: 8pt;">
+            <tr>
+                <td style="border: none; text-align: left; padding: 0; background: none;">
+                    {{ company_name }}
+                </td>
+                <td style="border: none; text-align: right; padding: 0; background: none;">
+                    {{ metadata.formula_code }} | {{ report.formula_name }} | v{{ metadata.version }} | {{ metadata.date_created }}
+                </td>
+            </tr>
+        </table>
     </div>
 </body>
 </html>

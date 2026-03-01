@@ -237,10 +237,8 @@ class AllergenService:
 
         # Add directly added allergens
         for ingredient in formula.ingredients:
-            # Skip natural materials - their allergen content is handled via incidentals
-            if include_incidentals and self.naturals_service.is_natural(ingredient.cas_number):
-                continue
-
+            # Check if this ingredient itself is an allergen (including natural materials)
+            # Natural materials like citrus oils are EU 82 allergens themselves
             allergen = self.find_allergen(ingredient.cas_number, ingredient.name)
             if allergen:
                 if ingredient.cas_number in allergen_totals:

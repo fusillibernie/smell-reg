@@ -315,3 +315,111 @@ class IFRAService:
             limits[category.value] = limit
 
         return limits
+
+    def calculate_max_use_levels(
+        self,
+        formula: FormulaData,
+        include_incidentals: bool = True,
+    ) -> dict[str, str]:
+        """Calculate the maximum use level of the fragrance for each IFRA category.
+
+        The max use level is determined by the most restrictive ingredient.
+        For each category, find the ingredient with the lowest limit and
+        calculate: max_fragrance_% = ingredient_limit / ingredient_concentration * 100
+
+        Args:
+            formula: Formula to analyze.
+            include_incidentals: If True, include incidentals from natural materials.
+
+        Returns:
+            Dictionary mapping category strings to max use level strings (e.g., "5.00%").
+        """
+        # Calculate incidentals from natural materials
+        incidental_totals: dict[str, float] = {}
+        if include_incidentals:
+            incidental_totals, _ = self.naturals_service.calculate_incidentals(formula)
+
+        # Track the minimum max use level for each category
+        category_max_use: dict[str, float] = {}
+        category_limiting_ing: dict[str, str] = {}
+
+        # Initialize all categories with unlimited (100%)
+        for category in IFRACategory:
+            category_max_use[category.value] = 100.0
+            category_limiting_ing[category.value] = None
+
+        # Check each ingredient
+        for ingredient in formula.ingredients:
+            # Skip natural materials - their restricted content is handled via incidentals
+            if self.naturals_service.is_natural(ingredient.cas_number):
+                continue
+
+            restriction = self.client.get_ifra_restriction(ingredient.cas_number)
+            if not restriction:
+                continue
+
+            # Calculate total concentration (direct + incidentals)
+            direct_conc = ingredient.percentage
+            incidental_conc = incidental_totals.get(ingredient.cas_number, 0.0)
+            total_conc = direct_conc + incidental_conc
+
+            if total_conc <= 0:
+                continue
+
+            # Check each category
+            for category in IFRACategory:
+                if restriction.restriction_type == RestrictionType.PROHIBITION:
+                    # Prohibited = 0% max use
+                    if category_max_use[category.value] > 0:
+                        category_max_use[category.value] = 0.0
+                        category_limiting_ing[category.value] = ingredient.name
+                else:
+                    limit = restriction.get_limit_for_category(category)
+                    if limit is not None:
+                        # Calculate max fragrance level for this category
+                        # If limit is X% and ingredient is Y% in formula,
+                        # max fragrance = (X / Y) * 100
+                        max_frag_level = (limit / total_conc) * 100.0
+                        if max_frag_level < category_max_use[category.value]:
+                            category_max_use[category.value] = max_frag_level
+                            category_limiting_ing[category.value] = ingredient.name
+
+        # Check incidentals that aren't directly added
+        for cas_number, incidental_conc in incidental_totals.items():
+            # Skip if already checked above
+            already_checked = any(
+                ing.cas_number == cas_number
+                for ing in formula.ingredients
+                if not self.naturals_service.is_natural(ing.cas_number)
+            )
+            if already_checked:
+                continue
+
+            restriction = self.client.get_ifra_restriction(cas_number)
+            if not restriction or incidental_conc <= 0:
+                continue
+
+            for category in IFRACategory:
+                if restriction.restriction_type == RestrictionType.PROHIBITION:
+                    if category_max_use[category.value] > 0:
+                        category_max_use[category.value] = 0.0
+                        category_limiting_ing[category.value] = f"{restriction.name} (incidental)"
+                else:
+                    limit = restriction.get_limit_for_category(category)
+                    if limit is not None:
+                        max_frag_level = (limit / incidental_conc) * 100.0
+                        if max_frag_level < category_max_use[category.value]:
+                            category_max_use[category.value] = max_frag_level
+                            category_limiting_ing[category.value] = f"{restriction.name} (incidental)"
+
+        # Format results as strings
+        result: dict[str, str] = {}
+        for cat_value, max_level in category_max_use.items():
+            if max_level >= 100.0:
+                result[cat_value] = "Not Limited"
+            elif max_level <= 0.0:
+                result[cat_value] = "Not Approved"
+            else:
+                result[cat_value] = f"{max_level:.2f}%"
+
+        return result
