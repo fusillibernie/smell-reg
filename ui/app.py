@@ -793,13 +793,14 @@ if STREAMLIT_AVAILABLE:
                 st.info("No saved formulas")
             else:
                 for f in formulas:
-                    with st.expander(f"📋 {f.name} ({len(f.ingredients)} ingredients)"):
+                    version_badge = f"v{f.current_version}" if hasattr(f, 'current_version') and f.current_version else "v1"
+                    with st.expander(f"📋 {f.name} ({len(f.ingredients)} ingredients) • {version_badge}"):
                         if f.description:
                             st.caption(f.description)
                         if f.ingredients:
                             st.dataframe(pd.DataFrame(f.ingredients), use_container_width=True, hide_index=True)
 
-                        col1, col2, col3 = st.columns(3)
+                        col1, col2, col3, col4 = st.columns(4)
                         with col1:
                             if st.button("📂 Load", key=f"load_{f.id}", use_container_width=True):
                                 st.session_state.ingredients = f.ingredients.copy()
@@ -810,9 +811,50 @@ if STREAMLIT_AVAILABLE:
                                 formula_library.duplicate(f.id)
                                 st.rerun()
                         with col3:
+                            if st.button("📜 History", key=f"hist_{f.id}", use_container_width=True):
+                                st.session_state[f"show_history_{f.id}"] = not st.session_state.get(f"show_history_{f.id}", False)
+                                st.rerun()
+                        with col4:
                             if st.button("🗑️ Delete", key=f"del_{f.id}", use_container_width=True):
                                 formula_library.delete(f.id)
                                 st.rerun()
+
+                        # Version History Section
+                        if st.session_state.get(f"show_history_{f.id}", False):
+                            st.markdown("---")
+                            st.markdown("##### 📜 Version History")
+
+                            versions = formula_library.get_version_history(f.id)
+                            if not versions:
+                                st.info("No version history available")
+                            else:
+                                for v in versions:
+                                    is_current = v.version == f.current_version
+                                    version_label = f"**v{v.version}** {'(current)' if is_current else ''}"
+                                    timestamp = v.timestamp[:10] if v.timestamp else "Unknown"
+
+                                    vcol1, vcol2, vcol3 = st.columns([2, 4, 2])
+                                    with vcol1:
+                                        st.markdown(version_label)
+                                        st.caption(timestamp)
+                                    with vcol2:
+                                        st.caption(v.change_summary or "No changes recorded")
+                                        # Show detailed changes
+                                        if v.changes:
+                                            change_details = []
+                                            for c in v.changes[:3]:  # Show first 3 changes
+                                                change_details.append(f"• {c.get('details', '')}")
+                                            if len(v.changes) > 3:
+                                                change_details.append(f"• ... and {len(v.changes) - 3} more")
+                                            st.caption("\n".join(change_details))
+                                    with vcol3:
+                                        if not is_current:
+                                            if st.button("↩️ Restore", key=f"restore_{f.id}_{v.version}", use_container_width=True):
+                                                formula_library.restore_version(f.id, v.version)
+                                                st.success(f"Restored to v{v.version}")
+                                                st.rerun()
+
+                                    st.markdown("---")
 
         # ==================== SETTINGS TAB ====================
         with tab5:
