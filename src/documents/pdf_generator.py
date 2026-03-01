@@ -47,11 +47,15 @@ class PDFGenerator:
         template_dir: Optional[Path] = None,
         company_name: str = "Fragrance Company",
         company_logo: Optional[Path] = None,
+        company_address: Optional[str] = None,
+        company_phone: Optional[str] = None,
     ):
         """Initialize the PDF generator."""
         self.template_dir = template_dir or TEMPLATE_DIR
         self.company_name = company_name
         self.company_logo = company_logo
+        self.company_address = company_address
+        self.company_phone = company_phone
 
         # Set up Jinja2 environment
         self.env = Environment(
@@ -148,6 +152,8 @@ class PDFGenerator:
             "report": report,
             "company_name": self.company_name,
             "company_logo": self.company_logo,
+            "company_address": self.company_address,
+            "company_phone": self.company_phone,
             "signatory_name": signatory_name or "Quality Assurance Manager",
             "signatory_title": signatory_title or "Quality Assurance",
             "generated_date": datetime.now(),
@@ -198,6 +204,8 @@ class PDFGenerator:
             "all_allergens": all_allergens,
             "company_name": self.company_name,
             "company_logo": self.company_logo,
+            "company_address": self.company_address,
+            "company_phone": self.company_phone,
             "generated_date": datetime.now(),
             "document_type": "Allergen Declaration",
             "metadata": meta,
@@ -221,6 +229,8 @@ class PDFGenerator:
             "report": report,
             "company_name": self.company_name,
             "company_logo": self.company_logo,
+            "company_address": self.company_address,
+            "company_phone": self.company_phone,
             "generated_date": datetime.now(),
             "document_type": "VOC Compliance Statement",
             "metadata": meta,
@@ -248,6 +258,8 @@ class PDFGenerator:
             "report": report,
             "company_name": self.company_name,
             "company_logo": self.company_logo,
+            "company_address": self.company_address,
+            "company_phone": self.company_phone,
             "generated_date": datetime.now(),
             "document_type": "Fragrance Safety Evaluation",
             "metadata": meta,

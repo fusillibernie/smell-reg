@@ -28,9 +28,14 @@
         }
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
             margin: 12px 0;
+        }
+        .company-address {
+            font-size: 8pt;
+            color: #666;
+            margin-top: 2px;
         }
         .info-item {
             background: #f8f9fa;
@@ -121,6 +126,13 @@
         </div>
         <div class="header-info">
             <div class="company-name">{{ company_name }}</div>
+            {% if company_address or company_phone %}
+            <div class="company-address">
+                {% if company_address %}{{ company_address }}{% endif %}
+                {% if company_address and company_phone %} | {% endif %}
+                {% if company_phone %}{{ company_phone }}{% endif %}
+            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -138,10 +150,6 @@
         <div class="info-item">
             <div class="info-label">Formula Name</div>
             <div class="info-value">{{ report.formula_name }}</div>
-        </div>
-        <div class="info-item">
-            <div class="info-label">Certificate #</div>
-            <div class="info-value">{{ report.certificate_number or 'Pending' }}</div>
         </div>
         <div class="info-item">
             <div class="info-label">Issue Date</div>

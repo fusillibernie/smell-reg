@@ -13,6 +13,8 @@ from ..models.voc import (
     VOCReport,
     CARB_PRODUCT_CATEGORIES,
     CARB_VOC_LIMITS,
+    CANADA_PRODUCT_CATEGORIES,
+    CANADA_VOC_LIMITS,
 )
 from ..integrations.aroma_lab import FormulaData
 
@@ -88,9 +90,11 @@ class VOCService:
             if limit.regulation == regulation and limit.product_category == product_category:
                 return limit.limit_percent
 
-        # Fallback to CARB hardcoded limits
+        # Fallback to hardcoded limits
         if regulation == VOCRegulation.CARB:
             return CARB_VOC_LIMITS.get(product_category)
+        elif regulation == VOCRegulation.CANADA:
+            return CANADA_VOC_LIMITS.get(product_category)
 
         return None
 
@@ -227,8 +231,8 @@ class VOCService:
         if regulation == VOCRegulation.CARB:
             return CARB_PRODUCT_CATEGORIES.get(product_type, "Personal Fragrance Products")
         elif regulation == VOCRegulation.CANADA:
-            # Canada uses similar categories
-            return CARB_PRODUCT_CATEGORIES.get(product_type, "Personal Fragrance Products")
+            # Canada uses CEPA VOC Concentration Limits Regulations (SOR/2009-161)
+            return CANADA_PRODUCT_CATEGORIES.get(product_type, "Personal Care Products")
         return "General"
 
     def _get_regulations_for_market(self, market: Market) -> list[VOCRegulation]:

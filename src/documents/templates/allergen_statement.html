@@ -24,6 +24,13 @@
         </div>
         <div class="header-info">
             <div class="company-name">{{ company_name }}</div>
+            {% if company_address or company_phone %}
+            <div style="font-size: 8pt; color: #666; margin-top: 2px;">
+                {% if company_address %}{{ company_address }}{% endif %}
+                {% if company_address and company_phone %} | {% endif %}
+                {% if company_phone %}{{ company_phone }}{% endif %}
+            </div>
+            {% endif %}
         </div>
     </div>
 

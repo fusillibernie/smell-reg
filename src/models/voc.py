@@ -157,3 +157,30 @@ CARB_VOC_LIMITS = {
     "Hair Styling Products": 6.0,
     "Laundry Detergents": 0.0,  # No limit for most
 }
+
+# Canada CEPA VOC Concentration Limits Regulations (SOR/2009-161)
+# As amended, these limits apply to consumer products
+CANADA_PRODUCT_CATEGORIES = {
+    ProductType.AIR_FRESHENER: "Air Fresheners - Single Phase",
+    ProductType.HOUSEHOLD_CLEANER: "Multi-Purpose Cleaners",
+    ProductType.LAUNDRY_DETERGENT: "Laundry Products",
+    ProductType.DEODORANT: "Personal Care Products",
+    ProductType.SHAMPOO: "Personal Care Products",
+    ProductType.BODY_WASH: "Personal Care Products",
+    ProductType.FINE_FRAGRANCE: "Personal Fragrance Products",
+    ProductType.CANDLE: "Fragrance Products",
+    ProductType.REED_DIFFUSER: "Air Fresheners - Solid/Gel",
+}
+
+# Canada VOC limits (CEPA VOC Concentration Limits Regulations)
+# Limits are expressed as % by weight
+CANADA_VOC_LIMITS = {
+    "Air Fresheners - Single Phase": 30.0,
+    "Air Fresheners - Double Phase": 25.0,
+    "Air Fresheners - Solid/Gel": 17.0,
+    "Multi-Purpose Cleaners": 4.0,
+    "Personal Care Products": 80.0,  # General limit
+    "Personal Fragrance Products": 75.0,
+    "Laundry Products": 5.0,
+    "Fragrance Products": 100.0,  # No specific limit
+}

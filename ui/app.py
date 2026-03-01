@@ -291,6 +291,8 @@ if STREAMLIT_AVAILABLE:
 
             # Update PDF generator with company settings
             pdf_gen.company_name = company_settings.get("company_name", "Fragrance Company")
+            pdf_gen.company_address = company_settings.get("company_address", "")
+            pdf_gen.company_phone = company_settings.get("company_phone", "")
 
             formula = FormulaData(
                 name=formula_data["name"],
