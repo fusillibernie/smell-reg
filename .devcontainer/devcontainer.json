@@ -1,0 +1,26 @@
+{
+  "name": "smell-reg",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "forwardPorts": [8000],
+  "portsAttributes": {
+    "8000": {
+      "label": "smell-reg app",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postCreateCommand": "pip install -e '.[dev]' && playwright install chromium",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      }
+    }
+  },
+  "remoteEnv": {
+    "AROMA_LAB_PATH": "/workspaces/aroma-lab"
+  }
+}

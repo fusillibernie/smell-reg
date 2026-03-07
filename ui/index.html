@@ -1,0 +1,2055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smell-Reg - Fragrance Regulatory Compliance</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #34d399;
+            --primary-glow: rgba(16, 185, 129, 0.25);
+            --bg-dark: #0d1b2a;
+            --bg-card: #1b2838;
+            --bg-input: #233445;
+            --bg-hover: #2a3a4e;
+            --text: #e8eaed;
+            --text-muted: #8b9aab;
+            --text-dim: #5a6a7a;
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.15);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.15);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.15);
+            --info: #3b82f6;
+            --info-bg: rgba(59, 130, 246, 0.15);
+            --border: #2a3a4e;
+            --border-light: #3a4e62;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -2px rgba(0,0,0,0.2);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -4px rgba(0,0,0,0.2);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.2s ease;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: linear-gradient(180deg, var(--bg-dark) 0%, #152238 100%);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--bg-card), #1e3048);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo { display: flex; align-items: center; gap: 0.75rem; }
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        header h1 {
+            font-size: 1.5rem; font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-subtitle { color: var(--text-muted); font-size: 0.85rem; }
+
+        .header-actions { display: flex; align-items: center; gap: 1rem; }
+        .header-stat {
+            text-align: center;
+            padding: 0 0.75rem;
+            border-right: 1px solid var(--border);
+        }
+        .header-stat:last-child { border-right: none; }
+        .header-stat-value { font-size: 1.1rem; font-weight: 700; color: var(--primary-light); }
+        .header-stat-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Tab Navigation */
+        .tabs {
+            display: flex;
+            background: var(--bg-card);
+            padding: 0.5rem 1rem;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 0.75rem 1.25rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+            border-radius: var(--radius-sm);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab:hover { color: var(--text); background: var(--bg-hover); }
+        .tab.active { color: var(--primary-light); background: var(--primary-glow); }
+        .tab-icon { font-size: 1.1rem; }
+
+        /* Main Content */
+        main { padding: 1.5rem; max-width: 1600px; margin: 0 auto; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Grid */
+        .grid { display: grid; gap: 1.5rem; }
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+        @media (max-width: 1200px) { .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .tabs { padding: 0.5rem; }
+            main { padding: 1rem; }
+            header { padding: 0.75rem 1rem; }
+            .header-actions { display: none; }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover { border-color: var(--border-light); }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1rem; font-weight: 600;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        .card-title-icon { color: var(--primary-light); }
+
+        /* Forms */
+        .form-group { margin-bottom: 1.25rem; }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-size: 0.9rem;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        input::placeholder { color: var(--text-dim); }
+        select option { background: var(--bg-card); color: var(--text); }
+
+        /* Buttons */
+        button {
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-family: inherit;
+        }
+
+        button:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: var(--shadow); }
+        button:active { transform: translateY(0); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        button.secondary { background: var(--bg-input); border: 1px solid var(--border); color: var(--text); }
+        button.secondary:hover { background: var(--bg-hover); border-color: var(--border-light); }
+
+        button.danger-btn { background: var(--danger); }
+        button.danger-btn:hover { background: #dc2626; }
+
+        button.warning-btn { background: var(--warning); color: #000; }
+        button.small { padding: 0.5rem 1rem; font-size: 0.8rem; }
+        button.icon-btn { padding: 0.5rem; width: 36px; height: 36px; }
+        button.full-width { width: 100%; }
+
+        /* Badges */
+        .badge {
+            display: inline-flex; align-items: center;
+            padding: 0.25rem 0.75rem; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 600;
+        }
+        .badge-success { background: var(--success-bg); color: var(--success); }
+        .badge-warning { background: var(--warning-bg); color: var(--warning); }
+        .badge-danger { background: var(--danger-bg); color: var(--danger); }
+        .badge-info { background: var(--info-bg); color: var(--info); }
+        .badge-primary { background: var(--primary-glow); color: var(--primary-light); }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+        th {
+            background: var(--bg-input);
+            color: var(--text-muted); font-weight: 600; font-size: 0.8rem;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        tbody tr:hover { background: var(--bg-hover); }
+
+        /* Autocomplete */
+        .autocomplete-wrap { position: relative; }
+        .autocomplete-results {
+            position: absolute; top: 100%; left: 0; right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            max-height: 300px; overflow-y: auto;
+            z-index: 50;
+            box-shadow: var(--shadow-lg);
+            display: none;
+        }
+        .autocomplete-results.show { display: block; }
+        .autocomplete-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 1px solid var(--border);
+        }
+        .autocomplete-item:hover { background: var(--bg-hover); }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-name { font-weight: 500; }
+        .autocomplete-detail { font-size: 0.8rem; color: var(--text-muted); }
+        .autocomplete-badges { display: flex; gap: 0.25rem; margin-top: 0.25rem; }
+        .autocomplete-badges .badge { font-size: 0.65rem; padding: 0.1rem 0.5rem; }
+
+        /* Allergen Strip */
+        .allergen-strip {
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .allergen-strip.clean { background: var(--success-bg); border: 1px solid rgba(16,185,129,0.3); }
+        .allergen-strip.warn { background: var(--warning-bg); border: 1px solid rgba(245,158,11,0.3); }
+        .allergen-strip.alert { background: var(--danger-bg); border: 1px solid rgba(239,68,68,0.3); }
+        .allergen-strip-title { font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
+        .allergen-strip.clean .allergen-strip-title { color: var(--success); }
+        .allergen-strip.warn .allergen-strip-title { color: var(--warning); }
+        .allergen-strip.alert .allergen-strip-title { color: var(--danger); }
+        .allergen-tag {
+            display: inline-block;
+            padding: 0.15rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .allergen-strip.alert .allergen-tag { background: rgba(239,68,68,0.2); color: #fca5a5; }
+        .allergen-strip.warn .allergen-tag { background: rgba(245,158,11,0.2); color: #fcd34d; }
+
+        /* Metrics Row */
+        .metrics-row { display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap; }
+        .metric-card {
+            flex: 1; min-width: 120px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem 1rem;
+            text-align: center;
+        }
+        .metric-value { font-size: 1.3rem; font-weight: 700; color: var(--primary-light); }
+        .metric-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+        .metric-card.warning .metric-value { color: var(--warning); }
+        .metric-card.danger .metric-value { color: var(--danger); }
+        .metric-card.success .metric-value { color: var(--success); }
+
+        /* Compliance Status Bar */
+        .compliance-bar {
+            display: flex; gap: 0.75rem; padding: 0.75rem 0; margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .compliance-chip {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem; font-weight: 500;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+        }
+        .compliance-chip.pass { background: var(--success-bg); border-color: rgba(16,185,129,0.3); color: var(--success); }
+        .compliance-chip.fail { background: var(--danger-bg); border-color: rgba(239,68,68,0.3); color: var(--danger); }
+        .compliance-chip.warn { background: var(--warning-bg); border-color: rgba(245,158,11,0.3); color: var(--warning); }
+        .compliance-chip.unknown { color: var(--text-muted); }
+        .chip-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+        }
+        .compliance-chip.pass .chip-dot { background: var(--success); }
+        .compliance-chip.fail .chip-dot { background: var(--danger); }
+        .compliance-chip.warn .chip-dot { background: var(--warning); }
+        .compliance-chip.unknown .chip-dot { background: var(--text-dim); }
+
+        /* Violation Cards */
+        .violation-card {
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.75rem;
+            border-left: 4px solid;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .violation-card.violation {
+            background: var(--danger-bg);
+            border-left-color: var(--danger);
+        }
+        .violation-card.warning {
+            background: var(--warning-bg);
+            border-left-color: var(--warning);
+        }
+        .violation-card.compliant {
+            background: var(--success-bg);
+            border-left-color: var(--success);
+        }
+        .violation-card:hover { opacity: 0.9; }
+        .violation-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 0.25rem;
+        }
+        .violation-title { font-weight: 600; font-size: 0.9rem; }
+        .violation-details {
+            font-size: 0.85rem; color: var(--text-muted);
+            overflow: hidden; transition: max-height 0.3s ease;
+            max-height: 0;
+        }
+        .violation-card.expanded .violation-details { max-height: 200px; margin-top: 0.75rem; }
+        .violation-detail-row {
+            display: flex; justify-content: space-between;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .violation-detail-label { color: var(--text-muted); }
+        .violation-detail-value { font-weight: 500; font-family: 'Consolas', monospace; }
+
+        /* Document Cards */
+        .doc-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: var(--transition);
+        }
+        .doc-card:hover { border-color: var(--primary); }
+        .doc-card-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+        .doc-card-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+        .doc-card-desc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; }
+        .doc-card-actions { display: flex; gap: 0.5rem; }
+
+        /* Document Preview */
+        .doc-preview-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center; justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        .doc-preview-overlay.active { display: flex; }
+        .doc-preview-frame {
+            width: 90%; max-width: 900px; height: 85vh;
+            background: white; border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+        .doc-preview-header {
+            background: var(--bg-card);
+            padding: 0.75rem 1.25rem;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .doc-preview-frame iframe { width: 100%; height: calc(100% - 52px); border: none; }
+
+        /* Library Grid */
+        .library-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1rem;
+        }
+        .formula-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            transition: var(--transition);
+        }
+        .formula-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .formula-card-top { display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem; }
+        .formula-card-name { font-weight: 600; font-size: 1rem; }
+        .formula-card-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .formula-card-tags { display: flex; gap: 0.25rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+        .formula-card-actions { display: flex; gap: 0.5rem; }
+
+        /* Version History */
+        .version-list { max-height: 300px; overflow-y: auto; }
+        .version-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .version-item:last-child { border-bottom: none; }
+        .version-info { flex: 1; }
+        .version-num { font-weight: 600; font-size: 0.85rem; }
+        .version-date { font-size: 0.75rem; color: var(--text-muted); }
+        .version-summary { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.15rem; }
+
+        /* Toggle */
+        .toggle-wrap { display: flex; align-items: center; gap: 0.75rem; }
+        .toggle {
+            width: 44px; height: 24px;
+            background: var(--border);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .toggle.on { background: var(--primary); }
+        .toggle::after {
+            content: '';
+            width: 18px; height: 18px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px; left: 3px;
+            transition: var(--transition);
+        }
+        .toggle.on::after { left: 23px; }
+        .toggle-label { font-size: 0.875rem; color: var(--text-muted); font-weight: 500; }
+
+        /* Inline-flex helpers */
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .flex-gap { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+        .flex-col { display: flex; flex-direction: column; gap: 0.5rem; }
+        .mt-1 { margin-top: 1rem; }
+        .mb-1 { margin-bottom: 1rem; }
+        .text-muted { color: var(--text-muted); }
+        .text-sm { font-size: 0.8rem; }
+        .font-mono { font-family: 'Consolas', monospace; }
+
+        /* Ingredient row in formula builder */
+        .ing-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 100px 40px;
+            gap: 0.5rem;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-input);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            margin-bottom: 0.5rem;
+            transition: var(--transition);
+        }
+        .ing-row:hover { border-color: var(--border-light); }
+        .ing-row .ing-cas { font-size: 0.8rem; color: var(--text-muted); font-family: 'Consolas', monospace; }
+        .ing-row .ing-name { font-weight: 500; font-size: 0.9rem; }
+        .ing-row input[type="number"] {
+            padding: 0.4rem 0.5rem;
+            text-align: right;
+            font-family: 'Consolas', monospace;
+            font-weight: 600;
+        }
+        .ing-remove {
+            background: transparent; border: none; color: var(--text-dim);
+            cursor: pointer; font-size: 1.1rem; padding: 0.25rem;
+            border-radius: 4px; width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .ing-remove:hover { color: var(--danger); background: var(--danger-bg); transform: none; box-shadow: none; }
+
+        /* Sidebar config panel within formula builder */
+        .config-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-input);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+        .config-panel .form-group { margin-bottom: 0; }
+        .config-panel label { margin-bottom: 0.3rem; font-size: 0.8rem; }
+        .config-panel input, .config-panel select { padding: 0.5rem 0.75rem; font-size: 0.85rem; }
+
+        /* Donut chart container */
+        .chart-container { width: 100%; min-height: 280px; }
+
+        /* Loading/Spinner */
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-overlay {
+            display: none;
+            position: absolute; inset: 0;
+            background: rgba(13,27,42,0.7);
+            align-items: center; justify-content: center;
+            border-radius: var(--radius);
+            z-index: 10;
+        }
+        .loading-overlay.active { display: flex; }
+
+        /* Toast */
+        .toast-container {
+            position: fixed; bottom: 1.5rem; right: 1.5rem;
+            z-index: 1000;
+            display: flex; flex-direction: column; gap: 0.75rem;
+        }
+        .toast {
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-sm);
+            color: white; font-weight: 500;
+            display: flex; align-items: center; gap: 0.75rem;
+            animation: slideIn 0.3s ease;
+            box-shadow: var(--shadow-lg);
+            min-width: 280px;
+        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        .toast.warning { background: var(--warning); color: #000; }
+        .toast.info { background: var(--info); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center; justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 600px; width: 90%;
+            max-height: 80vh; overflow-y: auto;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-title { font-size: 1.25rem; font-weight: 600; }
+        .modal-close {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 1.5rem; cursor: pointer; padding: 0.25rem;
+        }
+        .modal-close:hover { color: var(--text); transform: none; box-shadow: none; }
+
+        /* Keyboard shortcuts */
+        kbd {
+            padding: 0.15rem 0.4rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-family: 'Consolas', monospace;
+        }
+
+        /* Help button */
+        .help-trigger {
+            position: fixed; bottom: 1.5rem; left: 1.5rem;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white; border: none;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.15rem;
+            z-index: 100;
+        }
+        .help-trigger:hover { background: var(--primary-light); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+        /* Empty state */
+        .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
+        .empty-state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+
+        /* Section headings within tabs */
+        .section-heading {
+            font-size: 0.8rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        /* Settings logo preview */
+        .logo-preview {
+            width: 200px; max-height: 100px;
+            object-fit: contain;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: white;
+            padding: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <div class="logo-icon">&#129514;</div>
+            <div>
+                <h1>Smell-Reg</h1>
+                <div class="header-subtitle" id="header-company">Fragrance Regulatory Compliance</div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <div class="header-stat">
+                <div class="header-stat-value" id="stat-materials">--</div>
+                <div class="header-stat-label">Materials</div>
+            </div>
+            <div class="header-stat">
+                <div class="header-stat-value" id="stat-formulas">--</div>
+                <div class="header-stat-label">Formulas</div>
+            </div>
+            <button class="secondary small" onclick="loadSampleFormula()">Load Sample</button>
+        </div>
+    </header>
+
+    <nav class="tabs">
+        <button class="tab active" data-tab="formula">
+            <span class="tab-icon">&#128221;</span><span>Formula Builder</span>
+        </button>
+        <button class="tab" data-tab="compliance">
+            <span class="tab-icon">&#9989;</span><span>Compliance</span>
+        </button>
+        <button class="tab" data-tab="documents">
+            <span class="tab-icon">&#128196;</span><span>Documents</span>
+        </button>
+        <button class="tab" data-tab="library">
+            <span class="tab-icon">&#128218;</span><span>Library</span>
+        </button>
+        <button class="tab" data-tab="settings">
+            <span class="tab-icon">&#9881;</span><span>Settings</span>
+        </button>
+    </nav>
+
+    <main>
+        <!-- =================== FORMULA BUILDER TAB =================== -->
+        <section id="tab-formula" class="tab-content active">
+            <!-- Allergen Strip -->
+            <div id="allergen-strip" class="allergen-strip clean" style="display:none;">
+                <span class="allergen-strip-title" id="allergen-strip-title"></span>
+                <span id="allergen-strip-tags"></span>
+            </div>
+
+            <!-- Config Panel -->
+            <div class="config-panel">
+                <div class="form-group">
+                    <label>Formula Name</label>
+                    <input type="text" id="formula-name" value="New Formula" placeholder="Formula name">
+                </div>
+                <div class="form-group">
+                    <label>Product Type</label>
+                    <select id="product-type"></select>
+                </div>
+                <div class="form-group">
+                    <label>Markets</label>
+                    <select id="markets" multiple style="min-height:68px;"></select>
+                </div>
+                <div class="form-group">
+                    <label>Fragrance % in Product</label>
+                    <input type="number" id="frag-concentration" value="20" min="0.1" max="100" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>Application</label>
+                    <div class="toggle-wrap" style="margin-top:0.25rem;">
+                        <div class="toggle on" id="leave-on-toggle" onclick="toggleLeaveOn()"></div>
+                        <span class="toggle-label" id="leave-on-label">Leave-on</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-2" style="grid-template-columns: 1fr 340px;">
+                <!-- Left: Ingredients -->
+                <div>
+                    <!-- Search -->
+                    <div class="card mb-1">
+                        <div class="section-heading">Add Ingredient</div>
+                        <div class="autocomplete-wrap">
+                            <input type="text" id="ingredient-search" placeholder="Search by name, CAS, or INCI..."
+                                   autocomplete="off">
+                            <div class="autocomplete-results" id="search-results"></div>
+                        </div>
+                    </div>
+
+                    <!-- Ingredients Table -->
+                    <div class="card" style="position:relative;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span class="card-title-icon">&#129514;</span>
+                                Formula Ingredients
+                            </h3>
+                            <div class="flex-gap">
+                                <button class="small secondary" onclick="normalizeFormula()">Normalize 100%</button>
+                                <button class="small secondary" onclick="clearFormula()">Clear</button>
+                            </div>
+                        </div>
+                        <div id="ingredients-list">
+                            <div class="empty-state" id="ingredients-empty">
+                                <div class="empty-state-icon">&#129514;</div>
+                                <p>No ingredients yet. Search above or load a sample formula.</p>
+                            </div>
+                        </div>
+                        <!-- Metrics -->
+                        <div class="metrics-row" id="formula-metrics" style="display:none;">
+                            <div class="metric-card" id="metric-total">
+                                <div class="metric-value" id="metric-total-val">0%</div>
+                                <div class="metric-label">Total</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value" id="metric-count-val">0</div>
+                                <div class="metric-label">Ingredients</div>
+                            </div>
+                            <div class="metric-card" id="metric-allergens">
+                                <div class="metric-value" id="metric-allergen-val">0</div>
+                                <div class="metric-label">Allergens</div>
+                            </div>
+                            <div class="metric-card" id="metric-remaining">
+                                <div class="metric-value" id="metric-remaining-val">100%</div>
+                                <div class="metric-label">Remaining</div>
+                            </div>
+                        </div>
+                        <!-- Save/Export -->
+                        <div class="flex-gap mt-1" id="formula-actions" style="display:none;">
+                            <button class="small" onclick="saveFormula()">Save Formula</button>
+                            <button class="small secondary" onclick="exportCSV()">Export CSV</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Donut Chart -->
+                <div>
+                    <div class="card">
+                        <div class="section-heading">Composition</div>
+                        <div class="chart-container" id="donut-chart"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================== COMPLIANCE TAB =================== -->
+        <section id="tab-compliance" class="tab-content">
+            <!-- Status Bar -->
+            <div class="compliance-bar" id="compliance-bar">
+                <div class="compliance-chip unknown" id="chip-ifra">
+                    <span class="chip-dot"></span> IFRA
+                </div>
+                <div class="compliance-chip unknown" id="chip-allergen">
+                    <span class="chip-dot"></span> Allergens
+                </div>
+                <div class="compliance-chip unknown" id="chip-voc">
+                    <span class="chip-dot"></span> VOC
+                </div>
+                <div class="compliance-chip unknown" id="chip-market">
+                    <span class="chip-dot"></span> Market
+                </div>
+            </div>
+
+            <div class="flex-gap mb-1">
+                <button onclick="runFullComplianceCheck()" id="btn-compliance-check">Run Full Compliance Check</button>
+                <span class="text-muted text-sm" id="compliance-timestamp"></span>
+            </div>
+
+            <div id="compliance-results">
+                <div class="empty-state">
+                    <div class="empty-state-icon">&#9989;</div>
+                    <p>Run a compliance check to see results.</p>
+                    <p class="text-sm text-muted mt-1">Make sure you have ingredients and settings configured in the Formula Builder.</p>
+                </div>
+            </div>
+
+            <!-- Compliance chart -->
+            <div class="card mt-1" id="compliance-chart-card" style="display:none;">
+                <div class="section-heading">Compliance Overview</div>
+                <div id="compliance-chart" style="min-height:300px;"></div>
+            </div>
+        </section>
+
+        <!-- =================== DOCUMENTS TAB =================== -->
+        <section id="tab-documents" class="tab-content">
+            <div class="section-heading mb-1">Generate Regulatory Documents</div>
+
+            <!-- Extra fields for documents -->
+            <div class="config-panel mb-1">
+                <div class="form-group">
+                    <label>Signatory Name</label>
+                    <input type="text" id="doc-signatory" value="Quality Manager" placeholder="Name">
+                </div>
+                <div class="form-group">
+                    <label>Signatory Title</label>
+                    <input type="text" id="doc-signatory-title" value="QA Manager" placeholder="Title">
+                </div>
+                <div class="form-group">
+                    <label>Assessor (FSE)</label>
+                    <input type="text" id="doc-assessor" placeholder="Assessor name">
+                </div>
+                <div class="form-group">
+                    <label>Intended Use (FSE)</label>
+                    <input type="text" id="doc-intended-use" value="Cat 4 - Fine Fragrance" placeholder="IFRA category">
+                </div>
+            </div>
+
+            <div class="grid grid-4" id="doc-cards">
+                <!-- IFRA Certificate -->
+                <div class="doc-card">
+                    <div class="doc-card-icon">&#128220;</div>
+                    <div class="doc-card-title">IFRA Certificate</div>
+                    <div class="doc-card-desc">Certificate of Conformity per IFRA standards</div>
+                    <div class="doc-card-actions">
+                        <button class="small" onclick="downloadDocument('ifra-certificate')">Download PDF</button>
+                    </div>
+                </div>
+                <!-- Allergen Statement -->
+                <div class="doc-card">
+                    <div class="doc-card-icon">&#127991;</div>
+                    <div class="doc-card-title">Allergen Statement</div>
+                    <div class="doc-card-desc">Allergen declaration per EU/UK/CA regulations</div>
+                    <div class="doc-card-actions">
+                        <button class="small" onclick="downloadDocument('allergen-statement')">Download PDF</button>
+                    </div>
+                </div>
+                <!-- VOC Statement -->
+                <div class="doc-card">
+                    <div class="doc-card-icon">&#127807;</div>
+                    <div class="doc-card-title">VOC Statement</div>
+                    <div class="doc-card-desc">VOC compliance per CARB/EPA regulations</div>
+                    <div class="doc-card-actions">
+                        <button class="small" onclick="downloadDocument('voc-statement')">Download PDF</button>
+                    </div>
+                </div>
+                <!-- FSE Report -->
+                <div class="doc-card">
+                    <div class="doc-card-icon">&#128203;</div>
+                    <div class="doc-card-title">FSE Report</div>
+                    <div class="doc-card-desc">Fragrance Safety Evaluation report</div>
+                    <div class="doc-card-actions">
+                        <button class="small" onclick="downloadDocument('fse')">Download PDF</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================== LIBRARY TAB =================== -->
+        <section id="tab-library" class="tab-content">
+            <div class="flex-between mb-1">
+                <div class="section-heading" style="margin-bottom:0;">Saved Formulas</div>
+                <div class="flex-gap">
+                    <input type="text" id="library-search" placeholder="Search formulas..."
+                           style="width:260px;" oninput="debounce(loadLibrary, 300)()">
+                </div>
+            </div>
+            <div class="library-grid" id="library-grid">
+                <div class="empty-state">
+                    <div class="empty-state-icon">&#128218;</div>
+                    <p>No saved formulas yet.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================== SETTINGS TAB =================== -->
+        <section id="tab-settings" class="tab-content">
+            <div class="card" style="max-width:700px;">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <span class="card-title-icon">&#9881;</span>
+                        Company Settings
+                    </h3>
+                </div>
+                <div class="form-group">
+                    <label>Company Name</label>
+                    <input type="text" id="settings-company" placeholder="Your company name">
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <textarea id="settings-address" rows="3" placeholder="Street, City, State, Zip"></textarea>
+                </div>
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="text" id="settings-phone" placeholder="+1 555-0100">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="settings-email" placeholder="info@company.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Website</label>
+                    <input type="text" id="settings-website" placeholder="https://company.com">
+                </div>
+                <div class="form-group">
+                    <label>Signatory Name</label>
+                    <input type="text" id="settings-signatory-name" placeholder="Default signatory for documents">
+                </div>
+                <div class="form-group">
+                    <label>Signatory Title</label>
+                    <input type="text" id="settings-signatory-title" placeholder="QA Manager">
+                </div>
+                <div class="form-group">
+                    <label>Company Logo</label>
+                    <input type="file" id="settings-logo-input" accept="image/png,image/jpeg"
+                           style="padding:0.5rem;" onchange="handleLogoUpload(event)">
+                    <div id="settings-logo-preview" style="margin-top:0.75rem;"></div>
+                </div>
+                <div class="flex-gap mt-1">
+                    <button onclick="saveSettings()">Save Settings</button>
+                    <button class="secondary" onclick="loadSettings()">Reset</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Document Preview Overlay -->
+    <div class="doc-preview-overlay" id="doc-preview-overlay" onclick="closeDocPreview(event)">
+        <div class="doc-preview-frame">
+            <div class="doc-preview-header">
+                <span id="doc-preview-title">Document Preview</span>
+                <button class="small secondary" onclick="document.getElementById('doc-preview-overlay').classList.remove('active')">Close</button>
+            </div>
+            <iframe id="doc-preview-iframe"></iframe>
+        </div>
+    </div>
+
+    <!-- Version History Modal -->
+    <div class="modal-overlay" id="version-modal" onclick="if(event.target===this)this.classList.remove('active')">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">Version History</span>
+                <button class="modal-close" onclick="document.getElementById('version-modal').classList.remove('active')">&times;</button>
+            </div>
+            <div class="version-list" id="version-list"></div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div class="modal-overlay" id="shortcuts-modal" onclick="if(event.target===this)this.classList.remove('active')">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">Keyboard Shortcuts</span>
+                <button class="modal-close" onclick="document.getElementById('shortcuts-modal').classList.remove('active')">&times;</button>
+            </div>
+            <table>
+                <tr><td><kbd>Ctrl</kbd> + <kbd>1-5</kbd></td><td>Switch tabs</td></tr>
+                <tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td>Save formula</td></tr>
+                <tr><td><kbd>Ctrl</kbd> + <kbd>K</kbd></td><td>Focus ingredient search</td></tr>
+                <tr><td><kbd>Ctrl</kbd> + <kbd>Enter</kbd></td><td>Run compliance check</td></tr>
+                <tr><td><kbd>Escape</kbd></td><td>Close modals</td></tr>
+                <tr><td><kbd>?</kbd></td><td>Show shortcuts</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Help Button -->
+    <button class="help-trigger" onclick="document.getElementById('shortcuts-modal').classList.add('active')" title="Keyboard shortcuts">?</button>
+
+<script>
+// =================== STATE ===================
+const state = {
+    ingredients: [],
+    formulaName: 'New Formula',
+    productTypes: [],
+    markets: [],
+    settings: {},
+    complianceReport: null,
+    allergenDebounceTimer: null,
+    libraryDebounceTimer: null,
+    isLeaveOn: true,
+    currentEditFormulaId: null,
+};
+
+const API = '';
+
+// =================== INITIALIZATION ===================
+document.addEventListener('DOMContentLoaded', async () => {
+    setupTabs();
+    setupKeyboardShortcuts();
+    setupSearchAutocomplete();
+    await Promise.all([
+        loadReferenceData(),
+        loadSettings(),
+        loadLibrary(),
+    ]);
+    updateHeaderStats();
+});
+
+async function loadReferenceData() {
+    try {
+        const [ptRes, mktRes] = await Promise.all([
+            fetch(`${API}/api/reference/product-types`),
+            fetch(`${API}/api/reference/markets`),
+        ]);
+        state.productTypes = await ptRes.json();
+        state.markets = await mktRes.json();
+        populateSelects();
+    } catch (e) {
+        toast('Failed to load reference data', 'error');
+    }
+}
+
+function populateSelects() {
+    const ptSel = document.getElementById('product-type');
+    ptSel.innerHTML = state.productTypes.map(pt =>
+        `<option value="${pt.value}" ${pt.value === 'fine_fragrance' ? 'selected' : ''}>${pt.value.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</option>`
+    ).join('');
+
+    const mktSel = document.getElementById('markets');
+    mktSel.innerHTML = state.markets.map(m =>
+        `<option value="${m.value}" ${['us','eu'].includes(m.value) ? 'selected' : ''}>${m.value.toUpperCase()}</option>`
+    ).join('');
+}
+
+async function updateHeaderStats() {
+    try {
+        const [matRes, libRes] = await Promise.all([
+            fetch(`${API}/api/materials/search?q=a&limit=1`).then(r => r.json()).catch(() => []),
+            fetch(`${API}/api/library/formulas`).then(r => r.json()).catch(() => []),
+        ]);
+        document.getElementById('stat-formulas').textContent = Array.isArray(libRes) ? libRes.length : '--';
+    } catch {}
+    // Materials count is approximate -- search for common letter
+    document.getElementById('stat-materials').textContent = '--';
+}
+
+// =================== TABS ===================
+function setupTabs() {
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+    });
+}
+
+function switchTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === `tab-${name}`));
+    if (name === 'library') loadLibrary();
+    if (name === 'compliance' && state.ingredients.length === 0) {
+        // leave empty state
+    }
+}
+
+// =================== KEYBOARD SHORTCUTS ===================
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay.active, .doc-preview-overlay.active').forEach(m => m.classList.remove('active'));
+            document.getElementById('search-results').classList.remove('show');
+            return;
+        }
+        if (e.key === '?' && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) {
+            document.getElementById('shortcuts-modal').classList.add('active');
+            e.preventDefault();
+            return;
+        }
+        if (e.ctrlKey || e.metaKey) {
+            const tabs = ['formula','compliance','documents','library','settings'];
+            if (e.key >= '1' && e.key <= '5') {
+                e.preventDefault();
+                switchTab(tabs[parseInt(e.key) - 1]);
+            }
+            if (e.key === 's') {
+                e.preventDefault();
+                saveFormula();
+            }
+            if (e.key === 'k') {
+                e.preventDefault();
+                switchTab('formula');
+                document.getElementById('ingredient-search').focus();
+            }
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                switchTab('compliance');
+                runFullComplianceCheck();
+            }
+        }
+    });
+}
+
+// =================== TOAST ===================
+function toast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    const icons = { success: '\u2713', error: '\u2717', warning: '\u26A0', info: '\u2139' };
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<span>${icons[type] || ''}</span><span>${message}</span>`;
+    container.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(100%)'; setTimeout(() => el.remove(), 300); }, 3500);
+}
+
+// =================== DEBOUNCE ===================
+function debounce(fn, ms) {
+    let timer;
+    return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), ms);
+    };
+}
+
+// =================== INGREDIENT SEARCH / AUTOCOMPLETE ===================
+function setupSearchAutocomplete() {
+    const input = document.getElementById('ingredient-search');
+    const results = document.getElementById('search-results');
+    let debounceTimer;
+
+    input.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        const q = input.value.trim();
+        if (q.length < 2) { results.classList.remove('show'); return; }
+        debounceTimer = setTimeout(async () => {
+            try {
+                const res = await fetch(`${API}/api/materials/search?q=${encodeURIComponent(q)}&limit=15`);
+                const materials = await res.json();
+                if (!materials.length) {
+                    results.innerHTML = '<div class="autocomplete-item text-muted">No results found</div>';
+                } else {
+                    results.innerHTML = materials.map(m => `
+                        <div class="autocomplete-item" data-cas="${m.cas_number}" data-name="${m.name}">
+                            <div class="autocomplete-name">${highlightMatch(m.name, q)}</div>
+                            <div class="autocomplete-detail">${m.cas_number} &middot; ${m.inci_name || ''}</div>
+                            <div class="autocomplete-badges">
+                                ${m.allergen ? '<span class="badge badge-danger">Allergen</span>' : ''}
+                                ${m.ifra_restricted ? '<span class="badge badge-warning">IFRA Restricted</span>' : ''}
+                                ${(m.odor_families || []).slice(0,2).map(f => `<span class="badge badge-primary">${f}</span>`).join('')}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                results.classList.add('show');
+            } catch { results.classList.remove('show'); }
+        }, 200);
+    });
+
+    results.addEventListener('click', e => {
+        const item = e.target.closest('.autocomplete-item');
+        if (!item || !item.dataset.cas) return;
+        addIngredient(item.dataset.cas, item.dataset.name);
+        input.value = '';
+        results.classList.remove('show');
+    });
+
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.autocomplete-wrap')) results.classList.remove('show');
+    });
+}
+
+function highlightMatch(text, query) {
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return text;
+    return text.slice(0, idx) + '<strong>' + text.slice(idx, idx + query.length) + '</strong>' + text.slice(idx + query.length);
+}
+
+// =================== INGREDIENTS MANAGEMENT ===================
+function addIngredient(cas, name, pct = 1.0) {
+    if (state.ingredients.find(i => i.cas_number === cas)) {
+        toast('Ingredient already in formula', 'warning');
+        return;
+    }
+    state.ingredients.push({ cas_number: cas, name: name, percentage: pct });
+    renderIngredients();
+    scheduleAllergenCheck();
+    toast(`Added ${name}`, 'success');
+}
+
+function removeIngredient(cas) {
+    state.ingredients = state.ingredients.filter(i => i.cas_number !== cas);
+    renderIngredients();
+    scheduleAllergenCheck();
+}
+
+function updateIngredientPct(cas, value) {
+    const ing = state.ingredients.find(i => i.cas_number === cas);
+    if (ing) {
+        ing.percentage = Math.max(0, Math.min(100, parseFloat(value) || 0));
+    }
+    updateMetrics();
+    updateDonutChart();
+    scheduleAllergenCheck();
+}
+
+function renderIngredients() {
+    const list = document.getElementById('ingredients-list');
+    const empty = document.getElementById('ingredients-empty');
+    const metrics = document.getElementById('formula-metrics');
+    const actions = document.getElementById('formula-actions');
+
+    if (!state.ingredients.length) {
+        list.innerHTML = '';
+        list.appendChild(empty.cloneNode ? createEmptyState() : empty);
+        if (empty.parentNode !== list) list.appendChild(createEmptyState());
+        metrics.style.display = 'none';
+        actions.style.display = 'none';
+        updateDonutChart();
+        return;
+    }
+
+    list.innerHTML = state.ingredients.map(ing => `
+        <div class="ing-row" data-cas="${ing.cas_number}">
+            <span class="ing-cas">${ing.cas_number}</span>
+            <span class="ing-name">${ing.name}</span>
+            <input type="number" value="${ing.percentage}" min="0" max="100" step="0.01"
+                   onchange="updateIngredientPct('${ing.cas_number}', this.value)"
+                   oninput="updateIngredientPct('${ing.cas_number}', this.value)">
+            <button class="ing-remove" onclick="removeIngredient('${ing.cas_number}')" title="Remove">&times;</button>
+        </div>
+    `).join('');
+
+    metrics.style.display = 'flex';
+    actions.style.display = 'flex';
+    updateMetrics();
+    updateDonutChart();
+}
+
+function createEmptyState() {
+    const div = document.createElement('div');
+    div.className = 'empty-state';
+    div.id = 'ingredients-empty';
+    div.innerHTML = '<div class="empty-state-icon">&#129514;</div><p>No ingredients yet. Search above or load a sample formula.</p>';
+    return div;
+}
+
+function updateMetrics() {
+    const total = state.ingredients.reduce((s, i) => s + i.percentage, 0);
+    const count = state.ingredients.length;
+    const remaining = 100 - total;
+
+    const totalEl = document.getElementById('metric-total');
+    document.getElementById('metric-total-val').textContent = total.toFixed(1) + '%';
+    totalEl.className = 'metric-card' + (Math.abs(total - 100) <= 0.5 ? ' success' : total > 100 ? ' danger' : ' warning');
+
+    document.getElementById('metric-count-val').textContent = count;
+    document.getElementById('metric-remaining-val').textContent = remaining.toFixed(1) + '%';
+
+    const remEl = document.getElementById('metric-remaining');
+    remEl.className = 'metric-card' + (Math.abs(remaining) <= 0.5 ? ' success' : '');
+}
+
+function normalizeFormula() {
+    const total = state.ingredients.reduce((s, i) => s + i.percentage, 0);
+    if (total <= 0) { toast('No ingredients to normalize', 'warning'); return; }
+    const factor = 100 / total;
+    state.ingredients.forEach(i => i.percentage = Math.round(i.percentage * factor * 100) / 100);
+    renderIngredients();
+    scheduleAllergenCheck();
+    toast('Normalized to 100%', 'success');
+}
+
+function clearFormula() {
+    state.ingredients = [];
+    state.currentEditFormulaId = null;
+    document.getElementById('formula-name').value = 'New Formula';
+    renderIngredients();
+    updateAllergenStrip({ allergens: [], requiring_disclosure: [], count: 0 });
+    toast('Formula cleared', 'info');
+}
+
+function loadSampleFormula() {
+    state.ingredients = [
+        { cas_number: '115-95-7', name: 'Linalyl Acetate', percentage: 20.0 },
+        { cas_number: '78-70-6', name: 'Linalool', percentage: 15.0 },
+        { cas_number: '106-22-9', name: 'Citronellol', percentage: 10.0 },
+        { cas_number: '106-24-1', name: 'Geraniol', percentage: 8.0 },
+        { cas_number: '101-86-0', name: 'Hexyl Cinnamal', percentage: 5.0 },
+        { cas_number: '121-33-5', name: 'Vanillin', percentage: 3.0 },
+        { cas_number: '8008-56-8', name: 'Lemon Oil', percentage: 5.0 },
+        { cas_number: '8008-57-9', name: 'Orange Oil Sweet', percentage: 4.0 },
+    ];
+    document.getElementById('formula-name').value = 'Sample Citrus Floral';
+    renderIngredients();
+    scheduleAllergenCheck();
+    toast('Sample formula loaded', 'success');
+}
+
+// =================== DONUT CHART ===================
+function updateDonutChart() {
+    const container = document.getElementById('donut-chart');
+    if (!state.ingredients.length) {
+        Plotly.purge(container);
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#127856;</div><p class="text-sm text-muted">Add ingredients to see composition</p></div>';
+        return;
+    }
+    container.innerHTML = '';
+    const sorted = [...state.ingredients].sort((a, b) => b.percentage - a.percentage);
+    const total = sorted.reduce((s, i) => s + i.percentage, 0);
+    const remaining = Math.max(0, 100 - total);
+
+    const labels = sorted.map(i => i.name);
+    const values = sorted.map(i => i.percentage);
+    if (remaining > 0.01) { labels.push('Remaining'); values.push(remaining); }
+
+    const colors = [
+        '#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899',
+        '#06b6d4','#84cc16','#f97316','#6366f1','#14b8a6','#e11d48',
+        '#a855f7','#eab308','#22d3ee','#f43f5e'
+    ];
+    if (remaining > 0.01) colors.push('#334155');
+
+    Plotly.newPlot(container, [{
+        type: 'pie',
+        hole: 0.5,
+        labels: labels,
+        values: values,
+        marker: { colors: colors.slice(0, values.length) },
+        textinfo: 'percent',
+        textposition: 'outside',
+        textfont: { color: '#8b9aab', size: 11 },
+        hovertemplate: '<b>%{label}</b><br>%{value:.2f}%<extra></extra>',
+    }], {
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent',
+        margin: { t: 10, b: 10, l: 10, r: 10 },
+        showlegend: false,
+        height: 280,
+        font: { color: '#8b9aab' },
+    }, { responsive: true, displayModeBar: false });
+}
+
+// =================== ALLERGEN LIVE CHECK ===================
+function scheduleAllergenCheck() {
+    clearTimeout(state.allergenDebounceTimer);
+    state.allergenDebounceTimer = setTimeout(runAllergenCheck, 500);
+}
+
+async function runAllergenCheck() {
+    const valid = state.ingredients.filter(i => i.cas_number && i.percentage > 0);
+    if (!valid.length) {
+        updateAllergenStrip({ allergens: [], requiring_disclosure: [], count: 0 });
+        return;
+    }
+
+    try {
+        const selectedMarkets = getSelectedMarkets();
+        const res = await fetch(`${API}/api/compliance/allergens`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                formula: {
+                    name: document.getElementById('formula-name').value || 'Live Check',
+                    ingredients: valid,
+                },
+                markets: selectedMarkets.length ? selectedMarkets : ['eu'],
+                fragrance_concentration: parseFloat(document.getElementById('frag-concentration').value) || 20,
+                is_leave_on: state.isLeaveOn,
+            }),
+        });
+        const report = await res.json();
+
+        const result = {
+            allergens: (report.detected_allergens || []).map(a => a.name),
+            requiring_disclosure: (report.disclosure_required || []).map(a => a.name),
+            count: (report.detected_allergens || []).length,
+            disclosure_count: (report.disclosure_required || []).length,
+        };
+        updateAllergenStrip(result);
+    } catch {
+        // Silently fail for live check
+    }
+}
+
+function updateAllergenStrip(result) {
+    const strip = document.getElementById('allergen-strip');
+    const title = document.getElementById('allergen-strip-title');
+    const tags = document.getElementById('allergen-strip-tags');
+
+    document.getElementById('metric-allergen-val').textContent = result.disclosure_count || result.count || 0;
+    const metricEl = document.getElementById('metric-allergens');
+    metricEl.className = 'metric-card' + ((result.disclosure_count || 0) > 0 ? ' danger' : '');
+
+    if (!state.ingredients.length) {
+        strip.style.display = 'none';
+        return;
+    }
+
+    strip.style.display = 'flex';
+
+    if (result.requiring_disclosure && result.requiring_disclosure.length > 0) {
+        strip.className = 'allergen-strip alert';
+        title.textContent = `Allergens Requiring Disclosure (${result.requiring_disclosure.length})`;
+        tags.innerHTML = result.requiring_disclosure.map(n => `<span class="allergen-tag">${n}</span>`).join('');
+    } else if (result.allergens && result.allergens.length > 0) {
+        strip.className = 'allergen-strip warn';
+        title.textContent = `Allergens Detected (below threshold)`;
+        tags.innerHTML = result.allergens.map(n => `<span class="allergen-tag">${n}</span>`).join('');
+    } else {
+        strip.className = 'allergen-strip clean';
+        title.textContent = 'No allergens requiring disclosure';
+        tags.innerHTML = '';
+    }
+}
+
+// =================== TOGGLE ===================
+function toggleLeaveOn() {
+    state.isLeaveOn = !state.isLeaveOn;
+    const toggle = document.getElementById('leave-on-toggle');
+    const label = document.getElementById('leave-on-label');
+    toggle.classList.toggle('on', state.isLeaveOn);
+    label.textContent = state.isLeaveOn ? 'Leave-on' : 'Rinse-off';
+    scheduleAllergenCheck();
+}
+
+// =================== HELPERS ===================
+function getSelectedMarkets() {
+    const sel = document.getElementById('markets');
+    return Array.from(sel.selectedOptions).map(o => o.value);
+}
+
+function getFormulaPayload() {
+    const valid = state.ingredients.filter(i => i.cas_number && i.percentage > 0);
+    return {
+        name: document.getElementById('formula-name').value || 'Unnamed',
+        ingredients: valid,
+    };
+}
+
+function getComplianceRequest() {
+    return {
+        formula: getFormulaPayload(),
+        product_type: document.getElementById('product-type').value,
+        markets: getSelectedMarkets().length ? getSelectedMarkets() : ['us','eu'],
+        fragrance_concentration: parseFloat(document.getElementById('frag-concentration').value) || 20,
+        is_leave_on: state.isLeaveOn,
+    };
+}
+
+// =================== COMPLIANCE ===================
+async function runFullComplianceCheck() {
+    if (!state.ingredients.length) {
+        toast('Add ingredients first', 'warning');
+        return;
+    }
+
+    const btn = document.getElementById('btn-compliance-check');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="width:18px;height:18px;border-width:2px;margin:0;"></span> Checking...';
+
+    try {
+        const payload = getComplianceRequest();
+        const res = await fetch(`${API}/api/compliance/check`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || 'Compliance check failed');
+        }
+
+        const report = await res.json();
+        state.complianceReport = report;
+        renderComplianceResults(report);
+
+        document.getElementById('compliance-timestamp').textContent =
+            'Last checked: ' + new Date().toLocaleTimeString();
+
+        toast(report.is_compliant ? 'Formula is COMPLIANT' : 'Compliance issues found', report.is_compliant ? 'success' : 'warning');
+    } catch (e) {
+        toast(e.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Run Full Compliance Check';
+    }
+}
+
+function renderComplianceResults(report) {
+    // Update chips
+    updateComplianceChips(report);
+
+    const container = document.getElementById('compliance-results');
+
+    // Overall status
+    const statusClass = report.is_compliant ? 'compliant' : 'violation';
+    const statusIcon = report.is_compliant ? '\u2713' : '\u2717';
+    const statusText = report.is_compliant ? 'COMPLIANT' : 'NON-COMPLIANT';
+
+    // Group results by type
+    const results = report.results || [];
+    const violations = results.filter(r => r.status === 'non_compliant');
+    const warnings = results.filter(r => r.status === 'warning');
+    const compliant = results.filter(r => r.status === 'compliant');
+    const na = results.filter(r => r.status === 'not_applicable');
+
+    let html = `
+        <div class="violation-card ${statusClass}" style="cursor:default;">
+            <div class="violation-header">
+                <span class="violation-title">${statusIcon} ${statusText}</span>
+                ${report.certificate_number ? `<span class="badge badge-primary">${report.certificate_number}</span>` : ''}
+            </div>
+            <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">
+                ${violations.length} violation(s), ${warnings.length} warning(s), ${compliant.length} passed
+            </div>
+        </div>
+    `;
+
+    if (violations.length) {
+        html += '<div class="section-heading mt-1">Violations</div>';
+        html += violations.map(r => renderViolationCard(r, 'violation')).join('');
+    }
+    if (warnings.length) {
+        html += '<div class="section-heading mt-1">Warnings</div>';
+        html += warnings.map(r => renderViolationCard(r, 'warning')).join('');
+    }
+    if (compliant.length) {
+        html += '<div class="section-heading mt-1">Passed</div>';
+        html += compliant.map(r => renderViolationCard(r, 'compliant')).join('');
+    }
+
+    container.innerHTML = html;
+
+    // Click to expand
+    container.querySelectorAll('.violation-card[data-expandable]').forEach(card => {
+        card.addEventListener('click', () => card.classList.toggle('expanded'));
+    });
+
+    // Render chart
+    renderComplianceChart(report);
+}
+
+function renderViolationCard(r, type) {
+    const icon = type === 'violation' ? '\u2717' : type === 'warning' ? '\u26A0' : '\u2713';
+    return `
+        <div class="violation-card ${type}" data-expandable>
+            <div class="violation-header">
+                <span class="violation-title">${icon} ${r.ingredient_name || r.requirement}</span>
+                <span class="badge badge-${type === 'violation' ? 'danger' : type === 'warning' ? 'warning' : 'success'}">${r.market ? r.market.toUpperCase() : ''}</span>
+            </div>
+            <div style="font-size:0.8rem;color:var(--text-muted);">${r.requirement}</div>
+            <div class="violation-details">
+                ${r.details ? `<div class="violation-detail-row"><span class="violation-detail-label">Details</span><span class="violation-detail-value">${r.details}</span></div>` : ''}
+                ${r.current_value !== null && r.current_value !== undefined ? `<div class="violation-detail-row"><span class="violation-detail-label">Current</span><span class="violation-detail-value">${r.current_value}%</span></div>` : ''}
+                ${r.limit_value !== null && r.limit_value !== undefined ? `<div class="violation-detail-row"><span class="violation-detail-label">Limit</span><span class="violation-detail-value">${r.limit_value}%</span></div>` : ''}
+                ${r.regulation_reference ? `<div class="violation-detail-row"><span class="violation-detail-label">Regulation</span><span class="violation-detail-value">${r.regulation_reference}</span></div>` : ''}
+                ${r.cas_number ? `<div class="violation-detail-row"><span class="violation-detail-label">CAS</span><span class="violation-detail-value">${r.cas_number}</span></div>` : ''}
+            </div>
+        </div>
+    `;
+}
+
+function updateComplianceChips(report) {
+    const results = report.results || [];
+
+    const categories = {
+        ifra: r => r.requirement.toLowerCase().includes('ifra'),
+        allergen: r => r.requirement.toLowerCase().includes('allergen') || r.requirement.toLowerCase().includes('disclosure'),
+        voc: r => r.requirement.toLowerCase().includes('voc'),
+        market: r => !['ifra','allergen','disclosure','voc'].some(k => r.requirement.toLowerCase().includes(k)),
+    };
+
+    for (const [key, filter] of Object.entries(categories)) {
+        const items = results.filter(filter);
+        const chip = document.getElementById(`chip-${key}`);
+        if (!items.length) {
+            chip.className = 'compliance-chip unknown';
+        } else if (items.some(r => r.status === 'non_compliant')) {
+            chip.className = 'compliance-chip fail';
+        } else if (items.some(r => r.status === 'warning')) {
+            chip.className = 'compliance-chip warn';
+        } else {
+            chip.className = 'compliance-chip pass';
+        }
+    }
+}
+
+function renderComplianceChart(report) {
+    const card = document.getElementById('compliance-chart-card');
+    const container = document.getElementById('compliance-chart');
+    const results = report.results || [];
+
+    if (!results.length) { card.style.display = 'none'; return; }
+    card.style.display = 'block';
+
+    const statusCounts = { compliant: 0, non_compliant: 0, warning: 0, not_applicable: 0 };
+    results.forEach(r => { statusCounts[r.status] = (statusCounts[r.status] || 0) + 1; });
+
+    Plotly.newPlot(container, [{
+        type: 'bar',
+        x: ['Compliant', 'Non-Compliant', 'Warning', 'N/A'],
+        y: [statusCounts.compliant, statusCounts.non_compliant, statusCounts.warning, statusCounts.not_applicable],
+        marker: {
+            color: ['#10b981', '#ef4444', '#f59e0b', '#475569'],
+            borderRadius: 4,
+        },
+        text: [statusCounts.compliant, statusCounts.non_compliant, statusCounts.warning, statusCounts.not_applicable],
+        textposition: 'outside',
+        textfont: { color: '#8b9aab' },
+    }], {
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent',
+        margin: { t: 20, b: 40, l: 40, r: 20 },
+        height: 300,
+        font: { color: '#8b9aab' },
+        xaxis: { color: '#8b9aab' },
+        yaxis: { color: '#8b9aab', gridcolor: '#2a3a4e' },
+    }, { responsive: true, displayModeBar: false });
+}
+
+// =================== DOCUMENTS ===================
+async function downloadDocument(docType) {
+    if (!state.ingredients.length) {
+        toast('Add ingredients first', 'warning');
+        return;
+    }
+
+    const endpoints = {
+        'ifra-certificate': '/api/documents/ifra-certificate',
+        'allergen-statement': '/api/documents/allergen-statement',
+        'voc-statement': '/api/documents/voc-statement',
+        'fse': '/api/documents/fse',
+    };
+
+    const endpoint = endpoints[docType];
+    if (!endpoint) return;
+
+    toast('Generating document...', 'info');
+
+    try {
+        const payload = {
+            formula: getFormulaPayload(),
+            product_type: document.getElementById('product-type').value,
+            markets: getSelectedMarkets().length ? getSelectedMarkets() : ['us','eu'],
+            fragrance_concentration: parseFloat(document.getElementById('frag-concentration').value) || 20,
+            is_leave_on: state.isLeaveOn,
+            signatory_name: document.getElementById('doc-signatory').value || null,
+            signatory_title: document.getElementById('doc-signatory-title').value || null,
+            assessor: document.getElementById('doc-assessor').value || null,
+            intended_use: document.getElementById('doc-intended-use').value || null,
+        };
+
+        const res = await fetch(`${API}${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || 'Document generation failed');
+        }
+
+        const blob = await res.blob();
+        const filename = getFilenameFromResponse(res, docType);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast('Document downloaded', 'success');
+    } catch (e) {
+        toast(e.message, 'error');
+    }
+}
+
+function getFilenameFromResponse(res, docType) {
+    const cd = res.headers.get('content-disposition');
+    if (cd) {
+        const match = cd.match(/filename="?([^"]+)"?/);
+        if (match) return match[1];
+    }
+    const name = document.getElementById('formula-name').value.replace(/\s+/g, '_');
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const prefixes = { 'ifra-certificate': 'IFRA', 'allergen-statement': 'Allergen', 'voc-statement': 'VOC', 'fse': 'FSE' };
+    return `${prefixes[docType] || 'Doc'}_${name}_${date}.pdf`;
+}
+
+function closeDocPreview(e) {
+    if (e.target === document.getElementById('doc-preview-overlay')) {
+        document.getElementById('doc-preview-overlay').classList.remove('active');
+    }
+}
+
+// =================== LIBRARY ===================
+async function loadLibrary() {
+    const container = document.getElementById('library-grid');
+    const query = document.getElementById('library-search')?.value?.trim() || '';
+
+    try {
+        const url = query
+            ? `${API}/api/library/search?q=${encodeURIComponent(query)}`
+            : `${API}/api/library/formulas`;
+        const res = await fetch(url);
+        const formulas = await res.json();
+
+        if (!formulas.length) {
+            container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#128218;</div><p>No saved formulas yet.</p></div>';
+            return;
+        }
+
+        container.innerHTML = formulas.map(f => {
+            const ingCount = (f.ingredients || []).length;
+            const total = (f.ingredients || []).reduce((s, i) => s + (i.percentage || 0), 0);
+            const statusBadge = f.compliance_status
+                ? `<span class="badge badge-${f.compliance_status === 'compliant' ? 'success' : f.compliance_status === 'warning' ? 'warning' : 'danger'}">${f.compliance_status}</span>`
+                : '';
+            const updatedDate = f.updated_at ? new Date(f.updated_at).toLocaleDateString() : '';
+
+            return `
+                <div class="formula-card">
+                    <div class="formula-card-top">
+                        <span class="formula-card-name">${escapeHtml(f.name)}</span>
+                        <span class="badge badge-primary">v${f.current_version || 1}</span>
+                    </div>
+                    <div class="formula-card-meta">
+                        ${ingCount} ingredients &middot; ${total.toFixed(1)}% &middot; ${updatedDate}
+                        ${statusBadge}
+                    </div>
+                    ${f.description ? `<div class="text-sm text-muted" style="margin-bottom:0.5rem;">${escapeHtml(f.description)}</div>` : ''}
+                    ${f.tags && f.tags.length ? `<div class="formula-card-tags">${f.tags.map(t => `<span class="badge badge-info">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+                    <div class="formula-card-actions">
+                        <button class="small" onclick="loadFormulaFromLibrary('${f.id}')">Load</button>
+                        <button class="small secondary" onclick="duplicateFormula('${f.id}')">Duplicate</button>
+                        <button class="small secondary" onclick="showVersionHistory('${f.id}')">History</button>
+                        <button class="small danger-btn" onclick="deleteFormula('${f.id}', '${escapeHtml(f.name)}')">Delete</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (e) {
+        container.innerHTML = '<div class="empty-state"><p class="text-muted">Failed to load library</p></div>';
+    }
+}
+
+async function loadFormulaFromLibrary(id) {
+    try {
+        const res = await fetch(`${API}/api/library/formulas/${id}`);
+        if (!res.ok) throw new Error('Formula not found');
+        const f = await res.json();
+
+        state.ingredients = (f.ingredients || []).map(i => ({
+            cas_number: i.cas_number,
+            name: i.name,
+            percentage: i.percentage,
+        }));
+        state.currentEditFormulaId = f.id;
+        document.getElementById('formula-name').value = f.name;
+        renderIngredients();
+        scheduleAllergenCheck();
+        switchTab('formula');
+        toast(`Loaded: ${f.name}`, 'success');
+    } catch (e) {
+        toast(e.message, 'error');
+    }
+}
+
+async function duplicateFormula(id) {
+    try {
+        const res = await fetch(`${API}/api/library/formulas/${id}/duplicate`, { method: 'POST' });
+        if (!res.ok) throw new Error('Duplicate failed');
+        toast('Formula duplicated', 'success');
+        loadLibrary();
+    } catch (e) {
+        toast(e.message, 'error');
+    }
+}
+
+async function deleteFormula(id, name) {
+    if (!confirm(`Delete "${name}"?`)) return;
+    try {
+        const res = await fetch(`${API}/api/library/formulas/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Delete failed');
+        toast('Formula deleted', 'success');
+        if (state.currentEditFormulaId === id) state.currentEditFormulaId = null;
+        loadLibrary();
+    } catch (e) {
+        toast(e.message, 'error');
+    }
+}
+
+async function showVersionHistory(id) {
+    const modal = document.getElementById('version-modal');
+    const list = document.getElementById('version-list');
+    list.innerHTML = '<div class="flex-gap" style="justify-content:center;padding:2rem;"><div class="spinner"></div></div>';
+    modal.classList.add('active');
+
+    try {
+        const res = await fetch(`${API}/api/library/formulas/${id}/versions`);
+        if (!res.ok) throw new Error('Could not load version history');
+        const versions = await res.json();
+
+        if (!versions.length) {
+            list.innerHTML = '<div class="empty-state"><p class="text-muted">No version history</p></div>';
+            return;
+        }
+
+        list.innerHTML = versions.map(v => `
+            <div class="version-item">
+                <div class="version-info">
+                    <div class="version-num">v${v.version}</div>
+                    <div class="version-date">${v.timestamp ? new Date(v.timestamp).toLocaleString() : ''}</div>
+                    <div class="version-summary">${escapeHtml(v.change_summary || '')}</div>
+                </div>
+                <button class="small secondary" onclick="restoreVersion('${id}', ${v.version})">Restore</button>
+            </div>
+        `).join('');
+    } catch (e) {
+        list.innerHTML = `<div class="empty-state"><p class="text-muted">${e.message}</p></div>`;
+    }
+}
+
+async function restoreVersion(formulaId, version) {
+    try {
+        const res = await fetch(`${API}/api/library/formulas/${formulaId}/restore/${version}`, { method: 'POST' });
+        if (!res.ok) throw new Error('Restore failed');
+        toast(`Restored to v${version}`, 'success');
+        document.getElementById('version-modal').classList.remove('active');
+        loadLibrary();
+    } catch (e) {
+        toast(e.message, 'error');
+    }
+}
+
+// =================== SAVE FORMULA ===================
+async function saveFormula() {
+    if (!state.ingredients.length) {
+        toast('Add ingredients first', 'warning');
+        return;
+    }
+
+    const payload = {
+        name: document.getElementById('formula-name').value || 'Unnamed Formula',
+        ingredients: state.ingredients.filter(i => i.cas_number && i.percentage > 0),
+        description: '',
+        tags: [],
+    };
+
+    try {
+        let res;
+        if (state.currentEditFormulaId) {
+            res = await fetch(`${API}/api/library/formulas/${state.currentEditFormulaId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+        } else {
+            res = await fetch(`${API}/api/library/formulas`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+        }
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || 'Save failed');
+        }
+
+        const saved = await res.json();
+        state.currentEditFormulaId = saved.id;
+        toast('Formula saved', 'success');
+        updateHeaderStats();
+    } catch (e) {
+        toast(e.message, 'error');
+    }
+}
+
+// =================== EXPORT CSV ===================
+function exportCSV() {
+    if (!state.ingredients.length) { toast('No ingredients to export', 'warning'); return; }
+    let csv = 'CAS,Name,Percentage\n';
+    state.ingredients.forEach(i => {
+        csv += `"${i.cas_number}","${i.name}",${i.percentage}\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (document.getElementById('formula-name').value || 'formula') + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('CSV exported', 'success');
+}
+
+// =================== SETTINGS ===================
+async function loadSettings() {
+    try {
+        const res = await fetch(`${API}/api/settings`);
+        if (!res.ok) {
+            // Settings endpoint may not exist yet; use defaults
+            state.settings = {};
+            return;
+        }
+        state.settings = await res.json();
+    } catch {
+        state.settings = {};
+    }
+
+    const s = state.settings;
+    document.getElementById('settings-company').value = s.company_name || '';
+    document.getElementById('settings-address').value = s.company_address || '';
+    document.getElementById('settings-phone').value = s.company_phone || '';
+    document.getElementById('settings-email').value = s.company_email || '';
+    document.getElementById('settings-website').value = s.company_website || '';
+    document.getElementById('settings-signatory-name').value = s.signatory_name || '';
+    document.getElementById('settings-signatory-title').value = s.signatory_title || '';
+
+    if (s.company_name) {
+        document.getElementById('header-company').textContent = s.company_name;
+    }
+
+    // Logo preview
+    const preview = document.getElementById('settings-logo-preview');
+    if (s.logo_base64) {
+        preview.innerHTML = `<img src="data:image/png;base64,${s.logo_base64}" class="logo-preview" alt="Logo">
+            <br><button class="small danger-btn mt-1" onclick="removeLogo()">Remove Logo</button>`;
+    } else {
+        preview.innerHTML = '';
+    }
+
+    // Populate document signatory defaults
+    if (s.signatory_name) document.getElementById('doc-signatory').value = s.signatory_name;
+    if (s.signatory_title) document.getElementById('doc-signatory-title').value = s.signatory_title;
+}
+
+async function saveSettings() {
+    const payload = {
+        company_name: document.getElementById('settings-company').value,
+        company_address: document.getElementById('settings-address').value,
+        company_phone: document.getElementById('settings-phone').value,
+        company_email: document.getElementById('settings-email').value,
+        company_website: document.getElementById('settings-website').value,
+        signatory_name: document.getElementById('settings-signatory-name').value,
+        signatory_title: document.getElementById('settings-signatory-title').value,
+        logo_base64: state.settings.logo_base64 || null,
+    };
+
+    try {
+        const res = await fetch(`${API}/api/settings`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error('Save failed');
+        state.settings = payload;
+        if (payload.company_name) {
+            document.getElementById('header-company').textContent = payload.company_name;
+        }
+        toast('Settings saved', 'success');
+    } catch (e) {
+        toast(e.message, 'error');
+    }
+}
+
+function handleLogoUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+        const base64 = reader.result.split(',')[1];
+        state.settings.logo_base64 = base64;
+        const preview = document.getElementById('settings-logo-preview');
+        preview.innerHTML = `<img src="${reader.result}" class="logo-preview" alt="Logo">
+            <br><button class="small danger-btn mt-1" onclick="removeLogo()">Remove Logo</button>`;
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeLogo() {
+    state.settings.logo_base64 = null;
+    document.getElementById('settings-logo-preview').innerHTML = '';
+    document.getElementById('settings-logo-input').value = '';
+}
+
+// =================== UTILITIES ===================
+function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+</script>
+</body>
+</html>

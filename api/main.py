@@ -1,12 +1,14 @@
 """FastAPI application for regulatory compliance API."""
 
+import json
 from datetime import datetime
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
 
 from src.models.regulatory import Market, ProductType
@@ -22,6 +24,21 @@ app = FastAPI(
     description="Fragrance Regulatory Compliance API",
     version="0.1.0",
 )
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Settings file path
+SETTINGS_FILE = Path(__file__).parent.parent / "data" / "settings.json"
+
+# UI directory
+UI_DIR = Path(__file__).parent.parent / "ui"
 
 # Initialize services
 engine = ComplianceEngine()
@@ -124,14 +141,13 @@ def _parse_product_type(product_type_str: str) -> ProductType:
 
 
 # Endpoints
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 async def root():
-    """Root endpoint."""
-    return {
-        "name": "Smell-Reg API",
-        "version": "0.1.0",
-        "description": "Fragrance Regulatory Compliance API",
-    }
+    """Serve the main UI."""
+    ui_path = UI_DIR / "index.html"
+    if ui_path.exists():
+        return HTMLResponse(content=ui_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Smell-Reg</h1><p>UI not found. Check ui/index.html</p>")
 
 
 @app.get("/health")
@@ -559,6 +575,117 @@ async def search_formulas(q: str):
     """
     results = formula_library.search(q)
     return [f.to_dict() for f in results]
+
+
+# Version history endpoints
+@app.get("/api/library/formulas/{formula_id}/versions")
+async def get_formula_versions(formula_id: str):
+    """Get version history for a formula.
+
+    Args:
+        formula_id: Formula ID.
+
+    Returns:
+        List of version snapshots, newest first.
+    """
+    versions = formula_library.get_version_history(formula_id)
+    return [v.to_dict() for v in versions]
+
+
+@app.post("/api/library/formulas/{formula_id}/restore/{version}")
+async def restore_formula_version(formula_id: str, version: int):
+    """Restore a formula to a previous version.
+
+    Args:
+        formula_id: Formula ID.
+        version: Version number to restore to.
+
+    Returns:
+        Updated formula.
+    """
+    formula = formula_library.restore_version(formula_id, version)
+    if not formula:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Formula or version not found: {formula_id} v{version}",
+        )
+    return formula.to_dict()
+
+
+# Settings endpoints
+class SettingsInput(BaseModel):
+    """Input model for application settings."""
+    company_name: Optional[str] = None
+    company_address: Optional[str] = None
+    company_phone: Optional[str] = None
+    company_email: Optional[str] = None
+    company_website: Optional[str] = None
+    signatory_name: Optional[str] = None
+    signatory_title: Optional[str] = None
+    logo_base64: Optional[str] = None
+
+
+def _load_settings() -> dict:
+    """Load settings from disk."""
+    defaults = {
+        "company_name": "",
+        "company_address": "",
+        "company_phone": "",
+        "company_email": "",
+        "company_website": "",
+        "signatory_name": "",
+        "signatory_title": "",
+        "logo_base64": None,
+    }
+    if SETTINGS_FILE.exists():
+        try:
+            with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+                saved = json.load(f)
+                defaults.update(saved)
+        except Exception:
+            pass
+    return defaults
+
+
+def _save_settings(settings: dict) -> None:
+    """Save settings to disk."""
+    SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+        json.dump(settings, f, indent=2)
+
+
+@app.get("/api/settings")
+async def get_settings():
+    """Get application settings."""
+    return _load_settings()
+
+
+@app.post("/api/settings")
+async def update_settings(settings_input: SettingsInput):
+    """Update application settings.
+
+    Args:
+        settings_input: Settings to save.
+
+    Returns:
+        Updated settings.
+    """
+    current = _load_settings()
+    update_data = settings_input.model_dump(exclude_none=False)
+    current.update(update_data)
+    _save_settings(current)
+    return current
+
+
+# ============== Root Endpoint — Serve UI ==============
+
+@app.get("/", response_class=HTMLResponse)
+async def root():
+    """Serve the main UI."""
+    ui_path = UI_DIR / "index.html"
+    if ui_path.exists():
+        return HTMLResponse(content=ui_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Smell-Reg</h1><p>UI not found. Check ui/index.html</p>")
 
 
 if __name__ == "__main__":

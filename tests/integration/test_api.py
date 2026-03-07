@@ -31,12 +31,10 @@ class TestHealthEndpoints:
     """Test health and info endpoints."""
 
     def test_root_endpoint(self, client):
-        """Test root endpoint returns API info."""
+        """Test root endpoint returns UI or fallback HTML."""
         response = client.get("/")
         assert response.status_code == 200
-        data = response.json()
-        assert "name" in data
-        assert data["name"] == "Smell-Reg API"
+        assert "text/html" in response.headers.get("content-type", "")
 
     def test_health_endpoint(self, client):
         """Test health endpoint returns healthy status."""

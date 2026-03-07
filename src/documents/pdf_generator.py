@@ -1,6 +1,7 @@
-"""PDF generation using WeasyPrint."""
+"""PDF generation using Playwright (primary) or WeasyPrint (fallback)."""
 
 import json
+import tempfile
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -8,9 +9,15 @@ from typing import Optional
 from jinja2 import Environment, FileSystemLoader
 
 try:
+    from playwright.sync_api import sync_playwright
+    PLAYWRIGHT_AVAILABLE = True
+except ImportError:
+    PLAYWRIGHT_AVAILABLE = False
+
+try:
     from weasyprint import HTML, CSS
     WEASYPRINT_AVAILABLE = True
-except ImportError:
+except (ImportError, OSError):
     WEASYPRINT_AVAILABLE = False
 
 from ..models.regulatory import ComplianceReport
@@ -73,17 +80,65 @@ class PDFGenerator:
         return template.render(**context)
 
     def _generate_pdf(self, html_content: str, output_path: Path) -> Path:
-        """Generate PDF from HTML content."""
-        if not WEASYPRINT_AVAILABLE:
-            raise ImportError("WeasyPrint is not installed. Run: pip install weasyprint")
+        """Generate PDF from HTML content using Playwright or WeasyPrint."""
+        if PLAYWRIGHT_AVAILABLE:
+            return self._generate_pdf_playwright(html_content, output_path)
+        elif WEASYPRINT_AVAILABLE:
+            return self._generate_pdf_weasyprint(html_content, output_path)
+        else:
+            raise ImportError(
+                "No PDF backend available. Install Playwright: "
+                "pip install playwright && playwright install chromium"
+            )
 
-        # Load stylesheet
+    def _generate_pdf_playwright(self, html_content: str, output_path: Path) -> Path:
+        """Generate PDF using Playwright (Chromium). No system deps required."""
+        # Inline the stylesheet so it works regardless of working directory
+        css_path = self.template_dir / "styles.css"
+        if css_path.exists():
+            css_content = css_path.read_text(encoding="utf-8")
+            # Inject CSS before closing </head> or at the top of the document
+            if "</head>" in html_content:
+                html_content = html_content.replace(
+                    "</head>",
+                    f"<style>{css_content}</style></head>",
+                    1,
+                )
+            else:
+                html_content = f"<style>{css_content}</style>" + html_content
+
+        # Write to a temp file so relative resource paths resolve correctly
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".html", delete=False,
+            encoding="utf-8", dir=self.template_dir
+        ) as f:
+            f.write(html_content)
+            temp_path = Path(f.name)
+
+        try:
+            with sync_playwright() as p:
+                browser = p.chromium.launch()
+                page = browser.new_page()
+                page.goto(temp_path.as_uri())
+                page.pdf(
+                    path=str(output_path),
+                    format="A4",
+                    print_background=True,
+                    margin={"top": "15mm", "bottom": "15mm", "left": "15mm", "right": "15mm"},
+                )
+                browser.close()
+        finally:
+            temp_path.unlink(missing_ok=True)
+
+        return output_path
+
+    def _generate_pdf_weasyprint(self, html_content: str, output_path: Path) -> Path:
+        """Generate PDF using WeasyPrint (requires GTK3 on Windows)."""
         css_path = self.template_dir / "styles.css"
         stylesheets = []
         if css_path.exists():
             stylesheets.append(CSS(filename=str(css_path)))
 
-        # Generate PDF
         html = HTML(string=html_content)
         html.write_pdf(output_path, stylesheets=stylesheets)
 

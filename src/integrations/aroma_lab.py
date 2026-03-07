@@ -5,6 +5,7 @@ for loading IFRA restriction data from JSON files.
 """
 
 import json
+import os
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -12,7 +13,13 @@ from typing import Optional
 
 
 # Path to aroma-lab project data
-AROMA_LAB_PATH = Path("C:/Users/pwong/projects/aroma-lab")
+# Override with AROMA_LAB_PATH env var, otherwise assume sibling directory
+AROMA_LAB_PATH = Path(
+    os.environ.get(
+        "AROMA_LAB_PATH",
+        str(Path(__file__).parent.parent.parent.parent / "aroma-lab")
+    )
+)
 
 
 class IFRACategory(Enum):
@@ -304,7 +311,7 @@ class IFRADatabase:
         Args:
             data_path: Path to IFRA data JSON file.
         """
-        self.data_path = data_path or (AROMA_LAB_PATH / "data" / "ifra_restrictions.json")
+        self.data_path = data_path or (AROMA_LAB_PATH / "data" / "literature" / "ifra_restrictions.json")
         self._restrictions: dict[str, IFRARestriction] = {}
         self._loaded = False
 
