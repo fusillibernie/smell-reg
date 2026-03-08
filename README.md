@@ -1,5 +1,10 @@
 # Smell-Reg: Fragrance Regulatory Compliance Application
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/fusillibernie/smell-reg?quickstart=1)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/fusillibernie/smell-reg)
+
+> **Try it now** -- Click either badge above to launch the app in your browser. No install needed. The server starts automatically and opens the UI on port 8000.
+
 A comprehensive regulatory compliance tool for fragrance products that generates compliance certificates and safety documentation for multiple markets.
 
 ## Features
@@ -23,17 +28,13 @@ US, EU, UK, Canada, Japan, China, Australia, Brazil
 ## Installation
 
 ```bash
-cd C:\Users\pwong\projects\smell-reg
 pip install -e .
 
 # For development
 pip install -e ".[dev]"
 
-# For PDF generation
-pip install weasyprint
-
-# For web UI
-pip install streamlit
+# For PDF generation (Playwright primary, WeasyPrint fallback)
+pip install playwright && playwright install chromium
 ```
 
 ## Quick Start
@@ -149,7 +150,7 @@ Regulatory data requires manual updates. To update:
 
 ## Integration with aroma-lab
 
-This project imports models from `C:\Users\pwong\projects\aroma-lab`:
+This project imports models from the sibling `aroma-lab` directory (configurable via `AROMA_LAB_PATH` env var):
 - `IFRACategory`, `IFRARestriction`, `RestrictionType`
 - `SafetyData`, `Citation`
 - `Aromachemical`, `Formula`, `FormulaIngredient`
