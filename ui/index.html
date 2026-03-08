@@ -1198,13 +1198,13 @@ function setupSearchAutocomplete() {
                     results.innerHTML = '<div class="autocomplete-item text-muted">No results found</div>';
                 } else {
                     results.innerHTML = materials.map(m => `
-                        <div class="autocomplete-item" data-cas="${m.cas_number}" data-name="${m.name}">
+                        <div class="autocomplete-item" data-cas="${escapeHtml(m.cas_number)}" data-name="${escapeHtml(m.name)}">
                             <div class="autocomplete-name">${highlightMatch(m.name, q)}</div>
-                            <div class="autocomplete-detail">${m.cas_number} &middot; ${m.inci_name || ''}</div>
+                            <div class="autocomplete-detail">${escapeHtml(m.cas_number)} &middot; ${escapeHtml(m.inci_name || '')}</div>
                             <div class="autocomplete-badges">
                                 ${m.allergen ? '<span class="badge badge-danger">Allergen</span>' : ''}
                                 ${m.ifra_restricted ? '<span class="badge badge-warning">IFRA Restricted</span>' : ''}
-                                ${(m.odor_families || []).slice(0,2).map(f => `<span class="badge badge-primary">${f}</span>`).join('')}
+                                ${(m.odor_families || []).slice(0,2).map(f => `<span class="badge badge-primary">${escapeHtml(f)}</span>`).join('')}
                             </div>
                         </div>
                     `).join('');
@@ -1278,13 +1278,13 @@ function renderIngredients() {
     }
 
     list.innerHTML = state.ingredients.map(ing => `
-        <div class="ing-row" data-cas="${ing.cas_number}">
-            <span class="ing-cas">${ing.cas_number}</span>
-            <span class="ing-name">${ing.name}</span>
+        <div class="ing-row" data-cas="${escapeHtml(ing.cas_number)}">
+            <span class="ing-cas">${escapeHtml(ing.cas_number)}</span>
+            <span class="ing-name">${escapeHtml(ing.name)}</span>
             <input type="number" value="${ing.percentage}" min="0" max="100" step="0.01"
-                   onchange="updateIngredientPct('${ing.cas_number}', this.value)"
-                   oninput="updateIngredientPct('${ing.cas_number}', this.value)">
-            <button class="ing-remove" onclick="removeIngredient('${ing.cas_number}')" title="Remove">&times;</button>
+                   onchange="updateIngredientPct('${escapeHtml(ing.cas_number)}', this.value)"
+                   oninput="updateIngredientPct('${escapeHtml(ing.cas_number)}', this.value)">
+            <button class="ing-remove" onclick="removeIngredient('${escapeHtml(ing.cas_number)}')" title="Remove">&times;</button>
         </div>
     `).join('');
 
@@ -1459,11 +1459,11 @@ function updateAllergenStrip(result) {
     if (result.requiring_disclosure && result.requiring_disclosure.length > 0) {
         strip.className = 'allergen-strip alert';
         title.textContent = `Allergens Requiring Disclosure (${result.requiring_disclosure.length})`;
-        tags.innerHTML = result.requiring_disclosure.map(n => `<span class="allergen-tag">${n}</span>`).join('');
+        tags.innerHTML = result.requiring_disclosure.map(n => `<span class="allergen-tag">${escapeHtml(n)}</span>`).join('');
     } else if (result.allergens && result.allergens.length > 0) {
         strip.className = 'allergen-strip warn';
         title.textContent = `Allergens Detected (below threshold)`;
-        tags.innerHTML = result.allergens.map(n => `<span class="allergen-tag">${n}</span>`).join('');
+        tags.innerHTML = result.allergens.map(n => `<span class="allergen-tag">${escapeHtml(n)}</span>`).join('');
     } else {
         strip.className = 'allergen-strip clean';
         title.textContent = 'No allergens requiring disclosure';

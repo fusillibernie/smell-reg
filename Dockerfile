@@ -43,10 +43,15 @@ RUN apt-get update && apt-get install -y \
     xdg-utils \
     && rm -rf /var/lib/apt/lists/*
 
+RUN adduser --disabled-password --gecos "" appuser
+
 COPY . .
 
-RUN pip install --no-cache-dir -e .
-RUN playwright install chromium
+RUN pip install --no-cache-dir -e . \
+    && playwright install chromium \
+    && chown -R appuser:appuser /app
+
+USER appuser
 
 EXPOSE 8000
 
