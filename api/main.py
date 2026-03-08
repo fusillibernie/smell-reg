@@ -1,15 +1,20 @@
 """FastAPI application for regulatory compliance API."""
 
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from starlette.background import BackgroundTask
 
 from src.models.regulatory import Market, ProductType
 from src.services.compliance_engine import ComplianceEngine
@@ -19,17 +24,21 @@ from src.documents.pdf_generator import PDFGenerator
 from src.integrations.aroma_lab import FormulaData, FormulaIngredientData
 
 
+limiter = Limiter(key_func=get_remote_address)
+
 app = FastAPI(
     title="Smell-Reg API",
     description="Fragrance Regulatory Compliance API",
     version="0.1.0",
 )
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["http://localhost:8000", "http://127.0.0.1:8000"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -258,6 +267,7 @@ async def generate_ifra_certificate(request: DocumentRequest):
         output_path,
         media_type="application/pdf",
         filename=f"IFRA_Certificate_{formula.name}_{datetime.now().strftime('%Y%m%d')}.pdf",
+        background=BackgroundTask(os.unlink, output_path),
     )
 
 
@@ -288,6 +298,7 @@ async def generate_allergen_statement(request: DocumentRequest):
         output_path,
         media_type="application/pdf",
         filename=f"Allergen_Statement_{formula.name}_{datetime.now().strftime('%Y%m%d')}.pdf",
+        background=BackgroundTask(os.unlink, output_path),
     )
 
 
@@ -318,6 +329,7 @@ async def generate_voc_statement(request: DocumentRequest):
         output_path,
         media_type="application/pdf",
         filename=f"VOC_Statement_{formula.name}_{datetime.now().strftime('%Y%m%d')}.pdf",
+        background=BackgroundTask(os.unlink, output_path),
     )
 
 
@@ -349,6 +361,7 @@ async def generate_fse(request: DocumentRequest):
         output_path,
         media_type="application/pdf",
         filename=f"FSE_{formula.name}_{datetime.now().strftime('%Y%m%d')}.pdf",
+        background=BackgroundTask(os.unlink, output_path),
     )
 
 
@@ -677,17 +690,6 @@ async def update_settings(settings_input: SettingsInput):
     return current
 
 
-# ============== Root Endpoint — Serve UI ==============
-
-@app.get("/", response_class=HTMLResponse)
-async def root():
-    """Serve the main UI."""
-    ui_path = UI_DIR / "index.html"
-    if ui_path.exists():
-        return HTMLResponse(content=ui_path.read_text(encoding="utf-8"))
-    return HTMLResponse(content="<h1>Smell-Reg</h1><p>UI not found. Check ui/index.html</p>")
-
-
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)

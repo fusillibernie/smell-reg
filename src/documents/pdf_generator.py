@@ -42,7 +42,7 @@ def load_all_allergens() -> list:
         with open(ALLERGEN_DATA_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
         return data.get("allergens", [])
-    except:
+    except Exception:
         return []
 
 
