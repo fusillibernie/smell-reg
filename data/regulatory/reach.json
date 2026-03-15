@@ -1,8 +1,8 @@
 {
   "metadata": {
     "description": "EU REACH Regulation relevant substances for fragrance",
-    "sources": ["ECHA REACH Database", "REACH Annex XVII"],
-    "last_updated": "2024-01-15"
+    "sources": ["ECHA REACH Database", "REACH Annex XVII", "EU Cosmetics Regulation 1223/2009"],
+    "last_updated": "2026-03-15"
   },
   "substances": [
     {
@@ -14,7 +14,7 @@
     },
     {
       "cas_number": "80-54-6",
-      "name": "Lilial (BMHCA)",
+      "name": "Lilial (Butylphenyl Methylpropional)",
       "svhc": true,
       "annex_xvii_restriction": {
         "limit_percent": 0.0,
@@ -60,6 +60,111 @@
       "svhc": false,
       "annex_xvii_restriction": null,
       "notes": "ECHA review for environmental concerns"
+    },
+    {
+      "cas_number": "81-15-2",
+      "name": "Musk xylene",
+      "svhc": true,
+      "annex_xvii_restriction": {
+        "limit_percent": 1.0,
+        "notes": "Max 1% in fine fragrance, 0.4% in other cosmetics; vPvB substance"
+      },
+      "notes": "Very persistent, very bioaccumulative (vPvB); SVHC candidate list"
+    },
+    {
+      "cas_number": "81-14-1",
+      "name": "Musk ketone",
+      "svhc": false,
+      "annex_xvii_restriction": {
+        "limit_percent": 1.8,
+        "notes": "Max 1.4% in fine fragrance, 0.56% in other leave-on products"
+      },
+      "notes": "Nitro musk; environmental persistence concerns"
+    },
+    {
+      "cas_number": "556-67-2",
+      "name": "D4 (Octamethylcyclotetrasiloxane)",
+      "svhc": true,
+      "annex_xvii_restriction": {
+        "limit_percent": 0.1,
+        "effective_date": "2020-01-31",
+        "notes": "Restricted in wash-off cosmetic products >= 0.1%; PBT/vPvB substance"
+      },
+      "notes": "PBT/vPvB; SVHC candidate list; restricted under Entry 70"
+    },
+    {
+      "cas_number": "541-02-6",
+      "name": "D5 (Decamethylcyclopentasiloxane)",
+      "svhc": true,
+      "annex_xvii_restriction": {
+        "limit_percent": 0.1,
+        "effective_date": "2020-01-31",
+        "notes": "Restricted in wash-off cosmetic products >= 0.1%; PBT/vPvB substance"
+      },
+      "notes": "PBT/vPvB; SVHC candidate list; restricted under Entry 70"
+    },
+    {
+      "cas_number": "93-15-2",
+      "name": "Methyl eugenol",
+      "svhc": false,
+      "annex_xvii_restriction": {
+        "limit_percent": 0.01,
+        "notes": "Max 0.01% in fine fragrance, 0.004% in eau de toilette, 0.002% in other leave-on; Annex III entry 25 of Cosmetics Regulation"
+      },
+      "notes": "CMR Cat 2 carcinogen; naturally present in many essential oils"
+    },
+    {
+      "cas_number": "526-37-4",
+      "name": "Atranol",
+      "svhc": false,
+      "annex_xvii_restriction": {
+        "limit_percent": 0.0,
+        "effective_date": "2021-08-23",
+        "notes": "Banned in cosmetics; Annex II entry 1381 of Cosmetics Regulation"
+      },
+      "notes": "Extremely potent sensitizer; found in oakmoss and treemoss extracts"
+    },
+    {
+      "cas_number": "57074-21-2",
+      "name": "Chloroatranol",
+      "svhc": false,
+      "annex_xvii_restriction": {
+        "limit_percent": 0.0,
+        "effective_date": "2021-08-23",
+        "notes": "Banned in cosmetics; Annex II entry 1382 of Cosmetics Regulation"
+      },
+      "notes": "Extremely potent sensitizer; found in oakmoss and treemoss extracts"
+    },
+    {
+      "cas_number": "31906-04-4",
+      "name": "HICC (Hydroxyisohexyl 3-cyclohexene carboxaldehyde / Lyral)",
+      "svhc": true,
+      "annex_xvii_restriction": {
+        "limit_percent": 0.0,
+        "effective_date": "2021-08-23",
+        "notes": "Banned in cosmetics; Annex II entry 1383 of Cosmetics Regulation"
+      },
+      "notes": "Strong sensitizer; reproductive toxicant candidate; formerly widely used in fragrance"
+    },
+    {
+      "cas_number": "2682-20-4",
+      "name": "Methylisothiazolinone (MIT)",
+      "svhc": false,
+      "annex_xvii_restriction": {
+        "limit_percent": 0.0015,
+        "notes": "Max 15 ppm in rinse-off products only; banned in leave-on cosmetics since 2017"
+      },
+      "notes": "Potent sensitizer; preservative; not a fragrance ingredient but relevant to formulated products"
+    },
+    {
+      "cas_number": "104-55-2",
+      "name": "Cinnamal (Cinnamaldehyde)",
+      "svhc": false,
+      "annex_xvii_restriction": {
+        "limit_percent": null,
+        "notes": "Annex III allergen; must be declared on label when above 10 ppm in leave-on or 100 ppm in rinse-off products"
+      },
+      "notes": "EU regulated allergen; strong sensitizer; REACH registered"
     }
   ]
 }

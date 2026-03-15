@@ -2,7 +2,7 @@
   "metadata": {
     "description": "Health Canada Cosmetic Ingredient Hotlist - Prohibited and Restricted Substances",
     "sources": ["Health Canada Cosmetic Ingredient Hotlist"],
-    "last_updated": "2024-01-15"
+    "last_updated": "2026-03-15"
   },
   "substances": [
     {
@@ -54,6 +54,138 @@
       "restriction_type": "restricted",
       "restriction": "Atranol and chloroatranol limits",
       "notes": "Sensitization concerns"
+    },
+    {
+      "cas_number": "75-07-0",
+      "name": "Acetaldehyde",
+      "restriction_type": "prohibited",
+      "restriction": "Prohibited in cosmetics",
+      "notes": "Carcinogen; IARC Group 2B"
+    },
+    {
+      "cas_number": "71-43-2",
+      "name": "Benzene",
+      "restriction_type": "prohibited",
+      "restriction": "Prohibited in cosmetics",
+      "notes": "Known human carcinogen; IARC Group 1"
+    },
+    {
+      "cas_number": "67-66-3",
+      "name": "Chloroform",
+      "restriction_type": "prohibited",
+      "restriction": "Prohibited in cosmetics",
+      "notes": "Carcinogen; hepatotoxin"
+    },
+    {
+      "cas_number": "67-56-1",
+      "name": "Methanol",
+      "restriction_type": "restricted",
+      "restriction": "Permitted as denaturant for ethanol only",
+      "limit_percent": 5.0,
+      "notes": "Toxic; permitted only as ethanol denaturant up to 5%"
+    },
+    {
+      "cas_number": "123-31-9",
+      "name": "Hydroquinone",
+      "restriction_type": "restricted",
+      "restriction": "Max 1% in cosmetic products",
+      "limit_percent": 1.0,
+      "notes": "Skin bleaching agent; restricted concentration"
+    },
+    {
+      "cas_number": "106-50-3",
+      "name": "p-Phenylenediamine",
+      "restriction_type": "restricted",
+      "restriction": "Restricted to oxidative hair dye products only",
+      "limit_percent": 2.0,
+      "notes": "Strong sensitizer; not permitted in products applied to skin"
+    },
+    {
+      "cas_number": "10043-35-3",
+      "name": "Boric acid",
+      "restriction_type": "restricted",
+      "restriction": "Max 5% as boric acid in non-oral products",
+      "limit_percent": 5.0,
+      "notes": "Reproductive toxicant; not for use in products for children under 3"
+    },
+    {
+      "cas_number": "108-95-2",
+      "name": "Phenol",
+      "restriction_type": "restricted",
+      "restriction": "Restricted concentration in cosmetics",
+      "limit_percent": 1.0,
+      "notes": "Caustic; limited to low concentrations"
+    },
+    {
+      "cas_number": "119-36-8",
+      "name": "Methyl Salicylate",
+      "restriction_type": "restricted",
+      "restriction": "Not for use in products for children",
+      "notes": "Toxic in high doses; restricted in baby and children's products"
+    },
+    {
+      "cas_number": "76-22-2",
+      "name": "Camphor",
+      "restriction_type": "restricted",
+      "restriction": "Max 3% in cosmetics; not for use in products for children under 2",
+      "limit_percent": 3.0,
+      "notes": "Neurotoxic at high doses; restricted in children's products"
+    },
+    {
+      "cas_number": "89-78-1",
+      "name": "Menthol",
+      "restriction_type": "restricted",
+      "restriction": "Not for use in products for children under 2",
+      "notes": "Can cause respiratory distress in infants"
+    },
+    {
+      "cas_number": "89-83-8",
+      "name": "Thymol",
+      "restriction_type": "restricted",
+      "restriction": "Limited concentration in cosmetics",
+      "notes": "Irritant at high concentrations"
+    },
+    {
+      "cas_number": "108-88-3",
+      "name": "Toluene",
+      "restriction_type": "prohibited",
+      "restriction": "Prohibited in cosmetics",
+      "notes": "Neurotoxin; reproductive toxicant"
+    },
+    {
+      "cas_number": "80-54-6",
+      "name": "Lilial (Butylphenyl Methylpropional)",
+      "restriction_type": "restricted",
+      "restriction": "Restricted; reproductive toxicant",
+      "notes": "EU banned since March 2022; Canada restricted use"
+    },
+    {
+      "cas_number": "526-37-4",
+      "name": "Atranol",
+      "restriction_type": "prohibited",
+      "restriction": "Prohibited in cosmetics",
+      "notes": "Potent sensitizer found in oakmoss and treemoss"
+    },
+    {
+      "cas_number": "57074-21-2",
+      "name": "Chloroatranol",
+      "restriction_type": "prohibited",
+      "restriction": "Prohibited in cosmetics",
+      "notes": "Potent sensitizer found in oakmoss and treemoss"
+    },
+    {
+      "cas_number": "93-15-2",
+      "name": "Methyl eugenol",
+      "restriction_type": "restricted",
+      "restriction": "Not to be added as an ingredient; tolerated in natural essential oils at restricted levels",
+      "notes": "Carcinogen; IARC Group 2B; naturally occurring in many essential oils"
+    },
+    {
+      "cas_number": "8016-84-0",
+      "name": "Tagetes oil (Tagetes minuta / T. patula)",
+      "restriction_type": "restricted",
+      "restriction": "Restricted concentration due to phototoxicity",
+      "notes": "Phototoxic; contains alpha-terthienyl; must not exceed safe levels in leave-on products"
     }
   ]
 }

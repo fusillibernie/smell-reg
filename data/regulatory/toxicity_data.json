@@ -2,8 +2,8 @@
   "metadata": {
     "description": "Toxicological data for FSE assessments",
     "sources": ["RIFM", "SCCS", "CIR", "Literature"],
-    "version": "1.0.0",
-    "last_updated": "2026-02-27"
+    "version": "1.1.0",
+    "last_updated": "2026-03-15"
   },
   "ingredients": {
     "64-17-5": {
@@ -150,9 +150,9 @@
       }
     },
     "111-12-6": {
-      "name": "Methyl Octyne Carbonate (MOC)",
+      "name": "Methyl 2-Octynoate (Methyl Octyne Carbonate / Methyl Heptine Carbonate)",
       "endpoints": {
-        "skin_sensitization": {"risk": "caution", "nesil_percent": 0.5, "notes": "Strong sensitizer"},
+        "skin_sensitization": {"risk": "caution", "nesil_percent": 0.5, "notes": "Strong sensitizer; IFRA restricted"},
         "skin_irritation": {"risk": "caution", "threshold_percent": 2, "notes": "Moderate irritant"},
         "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
         "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 1850, "notes": "Low toxicity"},
@@ -199,6 +199,162 @@
         "reproductive_toxicity": {"risk": "safe", "notes": "No concern"},
         "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
         "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "100-51-6": {
+      "name": "Benzyl Alcohol",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 4.0, "notes": "Weak sensitizer; EU allergen"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 10, "notes": "Low irritation potential"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 1230, "notes": "Moderate oral toxicity"},
+        "repeated_dose_toxicity": {"risk": "acceptable", "noael_mg_kg_day": 200, "notes": "RIFM data; adequate margin of safety"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No reproductive effects at relevant doses"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "120-51-4": {
+      "name": "Benzyl Benzoate",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 7.2, "notes": "Weak sensitizer; EU allergen"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 20, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 1500, "notes": "Moderate oral toxicity"},
+        "repeated_dose_toxicity": {"risk": "acceptable", "noael_mg_kg_day": 200, "notes": "RIFM monograph data"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No reproductive toxicity reported"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "104-55-2": {
+      "name": "Cinnamaldehyde (Cinnamal)",
+      "endpoints": {
+        "skin_sensitization": {"risk": "caution", "nesil_percent": 0.6, "notes": "Strong sensitizer; EU allergen; most common fragrance contact allergen"},
+        "skin_irritation": {"risk": "caution", "threshold_percent": 2, "notes": "Irritant; concentration-dependent"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 2220, "notes": "Low oral toxicity"},
+        "repeated_dose_toxicity": {"risk": "acceptable", "noael_mg_kg_day": 100, "notes": "RIFM data; hepatic effects at higher doses"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No reproductive toxicity"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic in vivo despite positive in vitro signals"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic; NTP study negative"}
+      }
+    },
+    "104-54-1": {
+      "name": "Cinnamyl Alcohol",
+      "endpoints": {
+        "skin_sensitization": {"risk": "caution", "nesil_percent": 0.6, "notes": "Strong sensitizer; EU allergen; frequently co-sensitizes with cinnamal"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 5, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 2000, "notes": "Low oral toxicity"},
+        "repeated_dose_toxicity": {"risk": "acceptable", "noael_mg_kg_day": 200, "notes": "RIFM data"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No reproductive effects"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "107-75-5": {
+      "name": "Hydroxycitronellal",
+      "endpoints": {
+        "skin_sensitization": {"risk": "caution", "nesil_percent": 0.5, "notes": "Strong sensitizer; EU allergen; muguet note chemical"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 5, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 2590, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "safe", "noael_mg_kg_day": 150, "notes": "RIFM data; adequate margin of safety"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No reproductive effects"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "97-54-1": {
+      "name": "Isoeugenol",
+      "endpoints": {
+        "skin_sensitization": {"risk": "caution", "nesil_percent": 0.3, "notes": "Strong sensitizer; EU allergen; NESIL very low"},
+        "skin_irritation": {"risk": "caution", "threshold_percent": 3, "notes": "Moderate irritant"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 1560, "notes": "Moderate oral toxicity"},
+        "repeated_dose_toxicity": {"risk": "acceptable", "noael_mg_kg_day": 100, "notes": "RIFM data"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No reproductive effects"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic in vivo"},
+        "carcinogenicity": {"risk": "caution", "notes": "Prop 65 listed carcinogen; equivocal NTP findings in mice"}
+      }
+    },
+    "127-51-5": {
+      "name": "alpha-Isomethyl Ionone",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 1.5, "notes": "Moderate sensitizer; EU allergen"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 10, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 4590, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "safe", "noael_mg_kg_day": 200, "notes": "RIFM data; good safety margin"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No reproductive effects"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "118-58-1": {
+      "name": "Benzyl Salicylate",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 2.5, "notes": "Moderate sensitizer; EU allergen; widely used fixative"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 15, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 2227, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "acceptable", "noael_mg_kg_day": 100, "notes": "SCCS opinion; endocrine activity under review"},
+        "reproductive_toxicity": {"risk": "caution", "notes": "Weak estrogenic activity reported; SCCS review ongoing"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "90028-68-5": {
+      "name": "Oakmoss extract (Evernia prunastri)",
+      "endpoints": {
+        "skin_sensitization": {"risk": "caution", "nesil_percent": 0.15, "notes": "Very strong sensitizer; atranol and chloroatranol must be removed; IFRA restricted"},
+        "skin_irritation": {"risk": "caution", "threshold_percent": 1, "notes": "Irritant at higher concentrations"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 3200, "notes": "Low toxicity as extract"},
+        "repeated_dose_toxicity": {"risk": "acceptable", "noael_mg_kg_day": 50, "notes": "Limited data on whole extract"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No reproductive data concerns"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic (atranol/chloroatranol-free extract)"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "90028-67-4": {
+      "name": "Treemoss extract (Evernia furfuracea)",
+      "endpoints": {
+        "skin_sensitization": {"risk": "caution", "nesil_percent": 0.15, "notes": "Very strong sensitizer; similar concerns as oakmoss; IFRA restricted"},
+        "skin_irritation": {"risk": "caution", "threshold_percent": 1, "notes": "Irritant at higher concentrations"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 3000, "notes": "Low toxicity as extract"},
+        "repeated_dose_toxicity": {"risk": "acceptable", "noael_mg_kg_day": 50, "notes": "Limited data; parallels oakmoss"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No reproductive data concerns"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic (atranol/chloroatranol-free extract)"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "105-13-5": {
+      "name": "Anisyl Alcohol (4-Methoxybenzyl alcohol)",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 2.0, "notes": "Moderate sensitizer; EU allergen (new, effective 2026)"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 10, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 1200, "notes": "Moderate oral toxicity"},
+        "repeated_dose_toxicity": {"risk": "acceptable", "noael_mg_kg_day": 100, "notes": "RIFM data"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No reproductive effects"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "safe", "notes": "Not carcinogenic"}
+      }
+    },
+    "119-84-6": {
+      "name": "Dihydrocoumarin",
+      "endpoints": {
+        "skin_sensitization": {"risk": "acceptable", "nesil_percent": 1.8, "notes": "Moderate sensitizer"},
+        "skin_irritation": {"risk": "safe", "threshold_percent": 5, "notes": "Low irritation"},
+        "phototoxicity": {"risk": "safe", "notes": "Not phototoxic"},
+        "acute_toxicity": {"risk": "safe", "ld50_oral_mg_kg": 2300, "notes": "Low toxicity"},
+        "repeated_dose_toxicity": {"risk": "caution", "noael_mg_kg_day": 20, "notes": "Hepatotoxicity similar to coumarin; structural analog"},
+        "reproductive_toxicity": {"risk": "safe", "notes": "No reproductive effects at relevant doses"},
+        "genotoxicity": {"risk": "safe", "notes": "Not genotoxic"},
+        "carcinogenicity": {"risk": "acceptable", "notes": "Structural analog of coumarin; limited carcinogenicity data; IFRA restricted"}
       }
     }
   },

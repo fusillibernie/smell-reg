@@ -2,7 +2,7 @@
   "metadata": {
     "description": "California Proposition 65 listed substances relevant to fragrance",
     "sources": ["OEHHA Proposition 65 List"],
-    "last_updated": "2024-01-15"
+    "last_updated": "2026-03-15"
   },
   "substances": [
     {
@@ -54,11 +54,11 @@
     },
     {
       "cas_number": "123-35-3",
-      "name": "Myrcene",
+      "name": "beta-Myrcene",
       "listing_mechanism": "carcinogen",
       "nsrl_ug_day": 170.0,
       "warning_required": true,
-      "notes": "Common in essential oils"
+      "notes": "Common in essential oils; listed 2021"
     },
     {
       "cas_number": "98-86-2",
@@ -66,6 +66,95 @@
       "listing_mechanism": "carcinogen",
       "nsrl_ug_day": null,
       "warning_required": true
+    },
+    {
+      "cas_number": "50-00-0",
+      "name": "Formaldehyde",
+      "listing_mechanism": "carcinogen",
+      "nsrl_ug_day": 40.0,
+      "warning_required": true,
+      "notes": "IARC Group 1 carcinogen; released by formaldehyde donor preservatives"
+    },
+    {
+      "cas_number": "67-56-1",
+      "name": "Methanol",
+      "listing_mechanism": "reproductive",
+      "madl_ug_day": 22000.0,
+      "warning_required": true,
+      "notes": "Developmental toxicant; common solvent impurity"
+    },
+    {
+      "cas_number": "108-88-3",
+      "name": "Toluene",
+      "listing_mechanism": "reproductive",
+      "madl_ug_day": 7000.0,
+      "warning_required": true,
+      "notes": "Developmental toxicant; solvent"
+    },
+    {
+      "cas_number": "117-81-7",
+      "name": "Di(2-ethylhexyl) phthalate (DEHP)",
+      "listing_mechanism": "carcinogen_and_reproductive",
+      "nsrl_ug_day": 310.0,
+      "madl_ug_day": 410.0,
+      "warning_required": true,
+      "notes": "Plasticizer; listed as both carcinogen and reproductive toxicant"
+    },
+    {
+      "cas_number": "84-74-2",
+      "name": "Dibutyl phthalate (DBP)",
+      "listing_mechanism": "reproductive",
+      "madl_ug_day": 8.7,
+      "warning_required": true,
+      "notes": "Reproductive toxicant; formerly used in fragrance formulations"
+    },
+    {
+      "cas_number": "111-42-2",
+      "name": "Diethanolamine (DEA)",
+      "listing_mechanism": "carcinogen",
+      "nsrl_ug_day": null,
+      "warning_required": true,
+      "notes": "Can form nitrosamines; used in some cosmetic formulations"
+    },
+    {
+      "cas_number": "13463-67-7",
+      "name": "Titanium dioxide (airborne, unbound)",
+      "listing_mechanism": "carcinogen",
+      "nsrl_ug_day": null,
+      "warning_required": true,
+      "notes": "Listed for airborne/unbound particles only; IARC Group 2B"
+    },
+    {
+      "cas_number": "93-15-2",
+      "name": "Methyl eugenol",
+      "listing_mechanism": "carcinogen",
+      "nsrl_ug_day": 1.1,
+      "warning_required": true,
+      "notes": "Naturally occurring in basil, nutmeg, pimento oils; IARC Group 2B"
+    },
+    {
+      "cas_number": "89-82-7",
+      "name": "Pulegone",
+      "listing_mechanism": "carcinogen",
+      "nsrl_ug_day": 12.0,
+      "warning_required": true,
+      "notes": "Found in pennyroyal oil; hepatotoxic"
+    },
+    {
+      "cas_number": "97-54-1",
+      "name": "Isoeugenol",
+      "listing_mechanism": "carcinogen",
+      "nsrl_ug_day": null,
+      "warning_required": true,
+      "notes": "Common fragrance ingredient; strong sensitizer"
+    },
+    {
+      "cas_number": "140-67-0",
+      "name": "Estragole (Methyl chavicol)",
+      "listing_mechanism": "carcinogen",
+      "nsrl_ug_day": null,
+      "warning_required": true,
+      "notes": "Found in basil, tarragon, fennel essential oils; genotoxic carcinogen in rodents"
     }
   ]
 }
