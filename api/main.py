@@ -2,6 +2,7 @@
 
 import json
 import os
+from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -21,15 +22,24 @@ from src.services.compliance_engine import ComplianceEngine
 from src.services.materials_service import MaterialsService
 from src.services.formula_library import FormulaLibrary
 from src.documents.pdf_generator import PDFGenerator
-from src.integrations.aroma_lab import FormulaData, FormulaIngredientData
+from src.integrations.aroma_lab import FormulaData, FormulaIngredientData, get_http_client
 
 
 limiter = Limiter(key_func=get_remote_address)
+
+
+@asynccontextmanager
+async def lifespan(app):
+    yield
+    client = get_http_client()
+    await client.close()
+
 
 app = FastAPI(
     title="Smell-Reg API",
     description="Fragrance Regulatory Compliance API",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 app.state.limiter = limiter
@@ -38,7 +48,10 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.environ.get("CORS_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000").split(","),
+    allow_origins=os.environ.get(
+        "CORS_ORIGINS",
+        "http://localhost:8000,http://127.0.0.1:8000,http://localhost:8001,http://127.0.0.1:8001"
+    ).split(","),
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -623,6 +636,141 @@ async def restore_formula_version(formula_id: str, version: int):
             detail=f"Formula or version not found: {formula_id} v{version}",
         )
     return formula.to_dict()
+
+
+# ==================== Integration Endpoints ====================
+
+@app.get("/api/integration/status")
+async def integration_status():
+    """Check connectivity to sibling services."""
+    client = get_http_client()
+    aroma_lab_healthy = await client.check_health()
+    return {
+        "aroma_lab": {
+            "connected": aroma_lab_healthy,
+        }
+    }
+
+
+class ImportFromAromaLabRequest(BaseModel):
+    """Request model for importing a formula from aroma-lab."""
+    formula_id: str = Field(pattern=r"^[a-zA-Z0-9_-]+$")
+
+
+@app.post("/api/formulas/from-aroma-lab")
+@limiter.limit("10/minute")
+async def import_formula_from_aroma_lab(request: Request, body: ImportFromAromaLabRequest):
+    """Import a formula from aroma-lab into the smell-reg formula library.
+
+    Fetches the formula from aroma-lab via HTTP, converts it to
+    smell-reg's format, and saves it to the formula library.
+    """
+    client = get_http_client()
+
+    formula_data = await client.fetch_formula(body.formula_id)
+    if formula_data is None:
+        raise HTTPException(
+            status_code=502,
+            detail="Could not fetch formula from aroma-lab. Service may be unavailable.",
+        )
+
+    # Save to formula library
+    ingredients = [
+        {
+            "cas_number": ing.cas_number,
+            "name": ing.name,
+            "percentage": ing.percentage,
+        }
+        for ing in formula_data.ingredients
+    ]
+
+    saved = formula_library.save(
+        name=formula_data.name,
+        ingredients=ingredients,
+        description=f"Imported from aroma-lab (formula {body.formula_id})",
+        tags=["imported", "aroma-lab"],
+    )
+
+    return saved.to_dict()
+
+
+@app.get("/api/formulas/aroma-lab-list")
+async def list_aroma_lab_formulas():
+    """List formulas available in aroma-lab for import."""
+    client = get_http_client()
+    formulas = await client.list_formulas()
+    if formulas is None:
+        raise HTTPException(
+            status_code=502,
+            detail="Could not reach aroma-lab service.",
+        )
+    return {"formulas": formulas}
+
+
+@app.get("/api/materials/{cas_number}/regulatory")
+@limiter.limit("30/minute")
+async def get_material_regulatory(request: Request, cas_number: str):
+    """Get all regulatory data for a CAS number.
+
+    Returns IFRA restrictions, allergen status, VOC classification,
+    Prop 65, and REACH status. Optionally enriched with aroma-lab
+    chemical properties if available.
+    """
+    import re as _re
+    from src.integrations.aroma_lab import get_database
+
+    if not _re.match(r"^\d{1,7}-\d{2}-\d$", cas_number):
+        raise HTTPException(status_code=400, detail="Invalid CAS number format")
+
+    # IFRA data
+    ifra_db = get_database()
+    ifra_restriction = ifra_db.get_by_cas(cas_number)
+
+    # Material data from smell-reg
+    material = materials_service.get_by_cas(cas_number)
+
+    # Allergen check
+    allergen_info = None
+    try:
+        from src.services.allergen_service import AllergenService
+        allergen_svc = AllergenService()
+        allergen = allergen_svc.get_allergen(cas_number)
+        if allergen:
+            allergen_info = {
+                "is_allergen": True,
+                "name": allergen.name,
+                "inci_name": allergen.inci_name,
+                "regulations": [r.value for r in allergen.regulations],
+            }
+    except Exception:
+        import logging
+        logging.getLogger(__name__).debug("Allergen check failed for %s", cas_number, exc_info=True)
+
+    # Aroma-lab chemical properties (enrichment)
+    chemical_properties = None
+    try:
+        client = get_http_client()
+        chem_data = await client.fetch_aromachemical(cas_number)
+        if chem_data:
+            chemical_properties = {
+                "name": chem_data.get("name"),
+                "odor_description": chem_data.get("odor_description"),
+                "volatility": chem_data.get("volatility"),
+                "odor_families": chem_data.get("odor_families", []),
+                "cost_per_kg_usd": chem_data.get("cost_per_kg_usd"),
+                "boiling_point_c": chem_data.get("boiling_point_c"),
+            }
+    except Exception:
+        import logging
+        logging.getLogger(__name__).debug("Aroma-lab enrichment failed for %s", cas_number, exc_info=True)
+
+    return {
+        "cas_number": cas_number,
+        "material": material.to_dict() if material else None,
+        "ifra_restriction": ifra_restriction.to_dict() if ifra_restriction else None,
+        "allergen": allergen_info,
+        "chemical_properties": chemical_properties,
+    }
 
 
 # Settings endpoints

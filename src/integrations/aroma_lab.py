@@ -1,18 +1,27 @@
 """Client for importing data from aroma-lab project.
 
 This module provides data models compatible with aroma-lab and a client
-for loading IFRA restriction data from JSON files.
+for loading IFRA restriction data from JSON files. Supports both
+file-based (local dev) and HTTP-based (deployed services) access.
 """
 
 import json
+import logging
 import os
+import re
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Optional
 
+import httpx
 
-# Path to aroma-lab project data
+CAS_PATTERN = re.compile(r"^\d{1,7}-\d{2}-\d$")
+
+logger = logging.getLogger(__name__)
+
+
+# Path to aroma-lab project data (filesystem fallback)
 # Override with AROMA_LAB_PATH env var, otherwise assume sibling directory
 AROMA_LAB_PATH = Path(
     os.environ.get(
@@ -20,6 +29,9 @@ AROMA_LAB_PATH = Path(
         str(Path(__file__).parent.parent.parent.parent / "aroma-lab")
     )
 )
+
+# HTTP URL for aroma-lab service (used in deployed environments)
+AROMA_LAB_URL = os.environ.get("AROMA_LAB_URL", "http://localhost:8000")
 
 
 class IFRACategory(Enum):
@@ -302,8 +314,146 @@ class FormulaData:
         return {ing.cas_number: ing.percentage for ing in self.ingredients}
 
 
+class AromaLabHTTPClient:
+    """Async HTTP client for communicating with the aroma-lab service.
+
+    All methods gracefully return None/False on connection errors,
+    falling back to file-based access.
+    """
+
+    def __init__(self, base_url: Optional[str] = None, timeout: float = 10.0):
+        self.base_url = (base_url or AROMA_LAB_URL).rstrip("/")
+        self.timeout = timeout
+        self._client: Optional[httpx.AsyncClient] = None
+
+    async def _get_client(self) -> httpx.AsyncClient:
+        if self._client is None or self._client.is_closed:
+            self._client = httpx.AsyncClient(
+                base_url=self.base_url,
+                timeout=self.timeout,
+            )
+        return self._client
+
+    async def close(self) -> None:
+        if self._client and not self._client.is_closed:
+            await self._client.aclose()
+            self._client = None
+
+    async def check_health(self) -> bool:
+        """Check if aroma-lab is reachable and healthy."""
+        try:
+            client = await self._get_client()
+            resp = await client.get("/health")
+            return resp.status_code == 200
+        except (httpx.HTTPError, Exception):
+            return False
+
+    async def fetch_ifra_restrictions(self) -> Optional[list[IFRARestriction]]:
+        """Fetch IFRA restrictions from aroma-lab's HTTP API.
+
+        Returns:
+            List of IFRARestriction objects, or None on error.
+        """
+        try:
+            client = await self._get_client()
+            resp = await client.get("/api/ifra-restrictions")
+            if resp.status_code == 200:
+                data = resp.json()
+                return [
+                    IFRARestriction.from_dict(item)
+                    for item in data.get("restrictions", [])
+                ]
+            return None
+        except (httpx.HTTPError, Exception) as e:
+            logger.debug("Failed to fetch IFRA restrictions via HTTP: %s", e)
+            return None
+
+    async def fetch_formula(self, formula_id: str) -> Optional[FormulaData]:
+        """Fetch a formula from aroma-lab by ID.
+
+        Returns:
+            FormulaData object, or None if not found/unavailable.
+        """
+        if not re.match(r"^[a-zA-Z0-9_-]+$", formula_id):
+            logger.warning("Invalid formula_id rejected: %s", formula_id)
+            return None
+        try:
+            client = await self._get_client()
+            resp = await client.get(f"/api/formulas/{formula_id}")
+            if resp.status_code == 200:
+                data = resp.json()
+                ingredients = [
+                    FormulaIngredientData(
+                        cas_number=ing.get("cas_number", ""),
+                        name=ing.get("name", ""),
+                        percentage=ing.get("percentage", 0),
+                    )
+                    for ing in data.get("ingredients", [])
+                    if ing.get("cas_number")
+                ]
+                return FormulaData(
+                    name=data.get("name", "Imported Formula"),
+                    ingredients=ingredients,
+                    total_percentage=data.get("total_percentage", 100.0),
+                )
+            return None
+        except (httpx.HTTPError, Exception) as e:
+            logger.debug("Failed to fetch formula via HTTP: %s", e)
+            return None
+
+    async def fetch_aromachemical(self, cas_number: str) -> Optional[dict]:
+        """Fetch aromachemical data from aroma-lab by CAS number.
+
+        Returns:
+            Chemical data dict, or None if not found/unavailable.
+        """
+        if not CAS_PATTERN.match(cas_number):
+            return None
+        try:
+            client = await self._get_client()
+            resp = await client.get(f"/api/aromachemicals/{cas_number}")
+            if resp.status_code == 200:
+                return resp.json()
+            return None
+        except (httpx.HTTPError, Exception) as e:
+            logger.debug("Failed to fetch aromachemical via HTTP: %s", e)
+            return None
+
+    async def list_formulas(self) -> Optional[list[dict]]:
+        """List all formulas from aroma-lab.
+
+        Returns:
+            List of formula dicts, or None if unavailable.
+        """
+        try:
+            client = await self._get_client()
+            resp = await client.get("/api/formulas")
+            if resp.status_code == 200:
+                data = resp.json()
+                return data.get("formulas", [])
+            return None
+        except (httpx.HTTPError, Exception) as e:
+            logger.debug("Failed to list formulas via HTTP: %s", e)
+            return None
+
+
+# Module-level HTTP client singleton
+_http_client: Optional[AromaLabHTTPClient] = None
+
+
+def get_http_client() -> AromaLabHTTPClient:
+    """Get the global AromaLabHTTPClient instance."""
+    global _http_client
+    if _http_client is None:
+        _http_client = AromaLabHTTPClient()
+    return _http_client
+
+
 class IFRADatabase:
-    """Database of IFRA restrictions."""
+    """Database of IFRA restrictions.
+
+    Tries HTTP fetch from aroma-lab first, falls back to filesystem.
+    """
 
     def __init__(self, data_path: Optional[Path] = None):
         """Initialize the database.
@@ -315,18 +465,48 @@ class IFRADatabase:
         self._restrictions: dict[str, IFRARestriction] = {}
         self._loaded = False
 
-    def load(self) -> None:
-        """Load IFRA data from JSON file."""
-        if self._loaded:
-            return
-
+    def _load_from_file(self) -> bool:
+        """Load IFRA data from local JSON file. Returns True if successful."""
         if self.data_path.exists():
             with open(self.data_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 for item in data.get("restrictions", []):
                     restriction = IFRARestriction.from_dict(item)
                     self._restrictions[restriction.cas_number] = restriction
+            return True
+        return False
 
+    def load(self) -> None:
+        """Load IFRA data from JSON file (synchronous, file-based)."""
+        if self._loaded:
+            return
+        self._load_from_file()
+        self._loaded = True
+
+    async def load_async(self) -> None:
+        """Load IFRA data, trying HTTP first then falling back to file.
+
+        Call this instead of load() in async contexts to benefit from
+        HTTP-based data fetching when aroma-lab is running as a service.
+        """
+        if self._loaded:
+            return
+
+        # Try HTTP first
+        try:
+            client = get_http_client()
+            restrictions = await client.fetch_ifra_restrictions()
+            if restrictions:
+                for r in restrictions:
+                    self._restrictions[r.cas_number] = r
+                self._loaded = True
+                logger.info("Loaded %d IFRA restrictions via HTTP", len(restrictions))
+                return
+        except Exception as e:
+            logger.debug("HTTP fetch failed, falling back to file: %s", e)
+
+        # Fall back to file
+        self._load_from_file()
         self._loaded = True
 
     def get_by_cas(self, cas_number: str) -> Optional[IFRARestriction]:
@@ -477,6 +657,7 @@ class AromaLabClient:
 # Re-export types for convenience
 __all__ = [
     "AromaLabClient",
+    "AromaLabHTTPClient",
     "FormulaData",
     "FormulaIngredientData",
     "IFRACategory",
@@ -489,4 +670,5 @@ __all__ = [
     "FormulaIngredient",
     "IFRADatabase",
     "get_database",
+    "get_http_client",
 ]

@@ -696,6 +696,7 @@
                 <div class="header-stat-label">Formulas</div>
             </div>
             <button class="secondary small" onclick="loadSampleFormula()">Load Sample</button>
+            <span id="integrationStatus" style="cursor:pointer; font-size:0.8rem; padding:4px 10px; border-radius:12px; background:var(--bg-card);" onclick="checkIntegrationStatus()" title="aroma-lab connectivity">&#9679; aroma-lab</span>
         </div>
     </header>
 
@@ -930,6 +931,7 @@
                 <div class="flex-gap">
                     <input type="text" id="library-search" placeholder="Search formulas..."
                            style="width:260px;" oninput="debounce(loadLibrary, 300)()">
+                    <button class="secondary small" id="importAromaLabBtn" onclick="showImportModal()" title="Import formula from aroma-lab">&#128229; Import from Aroma Lab</button>
                 </div>
             </div>
             <div class="library-grid" id="library-grid">
@@ -1033,6 +1035,20 @@
         </div>
     </div>
 
+    <!-- Import from Aroma Lab Modal -->
+    <div class="modal-overlay" id="import-modal" onclick="if(event.target===this)this.classList.remove('active')">
+        <div class="modal" style="max-width:600px;">
+            <h3>&#128229; Import from Aroma Lab</h3>
+            <p style="color:var(--text-muted); margin:8px 0 16px;">Select a formula from aroma-lab to import into your library.</p>
+            <div id="import-formula-list" style="max-height:400px; overflow-y:auto;">
+                <p style="color:var(--text-muted);">Loading formulas...</p>
+            </div>
+            <div style="margin-top:16px; text-align:right;">
+                <button class="secondary" onclick="document.getElementById('import-modal').classList.remove('active')">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div class="toast-container" id="toast-container"></div>
 
@@ -1067,6 +1083,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadLibrary(),
     ]);
     updateHeaderStats();
+    checkIntegrationStatus();
 });
 
 async function loadReferenceData() {
@@ -1166,7 +1183,7 @@ function toast(message, type = 'info') {
     const icons = { success: '\u2713', error: '\u2717', warning: '\u26A0', info: '\u2139' };
     const el = document.createElement('div');
     el.className = `toast ${type}`;
-    el.innerHTML = `<span>${icons[type] || ''}</span><span>${message}</span>`;
+    el.innerHTML = `<span>${icons[type] || ''}</span><span>${escapeHtml(message)}</span>`;
     container.appendChild(el);
     setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(100%)'; setTimeout(() => el.remove(), 300); }, 3500);
 }
@@ -2041,6 +2058,79 @@ function removeLogo() {
     state.settings.logo_base64 = null;
     document.getElementById('settings-logo-preview').innerHTML = '';
     document.getElementById('settings-logo-input').value = '';
+}
+
+// =================== INTEGRATION ===================
+let aromaLabConnected = false;
+
+async function checkIntegrationStatus() {
+    const el = document.getElementById('integrationStatus');
+    try {
+        const res = await fetch(`${API}/api/integration/status`);
+        const data = await res.json();
+        aromaLabConnected = data.aroma_lab?.connected || false;
+        el.style.color = aromaLabConnected ? 'var(--success)' : 'var(--text-muted)';
+        el.title = aromaLabConnected ? 'aroma-lab: connected' : 'aroma-lab: disconnected';
+        const btn = document.getElementById('importAromaLabBtn');
+        if (btn) btn.disabled = !aromaLabConnected;
+    } catch {
+        aromaLabConnected = false;
+        if (el) el.style.color = 'var(--text-muted)';
+    }
+}
+
+async function showImportModal() {
+    const modal = document.getElementById('import-modal');
+    const listEl = document.getElementById('import-formula-list');
+    modal.classList.add('active');
+    listEl.innerHTML = '<p style="color:var(--text-muted);">Loading formulas from aroma-lab...</p>';
+
+    try {
+        const res = await fetch(`${API}/api/formulas/aroma-lab-list`);
+        if (!res.ok) throw new Error('Could not reach aroma-lab');
+        const data = await res.json();
+        const formulas = data.formulas || [];
+
+        if (!formulas.length) {
+            listEl.innerHTML = '<p style="color:var(--text-muted);">No formulas found in aroma-lab.</p>';
+            return;
+        }
+
+        listEl.innerHTML = formulas.map(f => `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--bg-card); border-radius:8px; margin-bottom:6px; border:1px solid rgba(255,255,255,0.05);">
+                <div>
+                    <strong>${escapeHtml(f.name || 'Untitled')}</strong>
+                    <span style="color:var(--text-muted); font-size:0.8rem; margin-left:8px;">${(f.ingredients || []).length} ingredients</span>
+                </div>
+                <button class="small" onclick="importFromAromaLab('${escapeHtml(f.id)}')">Import</button>
+            </div>
+        `).join('');
+    } catch (err) {
+        listEl.innerHTML = `<p style="color:var(--danger);">Failed to load: ${escapeHtml(err.message)}</p>`;
+    }
+}
+
+async function importFromAromaLab(formulaId) {
+    try {
+        const res = await fetch(`${API}/api/formulas/from-aroma-lab`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ formula_id: formulaId }),
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || 'Import failed');
+        }
+
+        const data = await res.json();
+        toast(`Imported: ${data.name}`, 'success');
+        document.getElementById('import-modal').classList.remove('active');
+        await loadLibrary();
+        updateHeaderStats();
+    } catch (err) {
+        toast(`Import failed: ${err.message}`, 'error');
+    }
 }
 
 // =================== UTILITIES ===================
