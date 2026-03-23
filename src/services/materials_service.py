@@ -1,10 +1,13 @@
 """Raw materials database service with search functionality."""
 
 import json
+import logging
 import re
 from pathlib import Path
 from typing import Optional
 from dataclasses import dataclass
+
+logger = logging.getLogger(__name__)
 
 
 # Default data file location
@@ -69,6 +72,7 @@ class MaterialsService:
     def load(self) -> None:
         """Load materials data from JSON file."""
         if not self.data_file.exists():
+            logger.warning("Materials data file not found: %s — search will be unavailable", self.data_file)
             return
 
         with open(self.data_file, "r", encoding="utf-8") as f:
@@ -85,6 +89,12 @@ class MaterialsService:
                 self._index_name(synonym, material.cas_number)
 
         self._loaded = True
+
+    @property
+    def data_available(self) -> bool:
+        """Check if materials data has been loaded."""
+        self._ensure_loaded()
+        return self._loaded
 
     def _normalize_name(self, name: str) -> str:
         """Normalize a name for matching."""
@@ -152,6 +162,9 @@ class MaterialsService:
             List of matching materials.
         """
         self._ensure_loaded()
+        if not self._loaded:
+            logger.warning("Materials data not loaded — search unavailable")
+            return []
         query_lower = query.lower().strip()
         query_normalized = self._normalize_name(query)
 

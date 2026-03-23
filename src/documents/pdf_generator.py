@@ -1,6 +1,7 @@
 """PDF generation using Playwright (primary) or WeasyPrint (fallback)."""
 
 import json
+import logging
 import tempfile
 from datetime import datetime
 from pathlib import Path
@@ -8,17 +9,22 @@ from typing import Optional
 
 from jinja2 import Environment, FileSystemLoader
 
+logger = logging.getLogger(__name__)
+
 try:
     from playwright.sync_api import sync_playwright
     PLAYWRIGHT_AVAILABLE = True
 except ImportError:
     PLAYWRIGHT_AVAILABLE = False
+    logger.info("Playwright not available — will use WeasyPrint for PDF generation")
 
 try:
     from weasyprint import HTML, CSS
     WEASYPRINT_AVAILABLE = True
 except (ImportError, OSError):
     WEASYPRINT_AVAILABLE = False
+    if not PLAYWRIGHT_AVAILABLE:
+        logger.warning("No PDF backend available — neither Playwright nor WeasyPrint installed")
 
 from ..models.regulatory import ComplianceReport
 from ..models.allergen import AllergenReport
@@ -82,14 +88,30 @@ class PDFGenerator:
     def _generate_pdf(self, html_content: str, output_path: Path) -> Path:
         """Generate PDF from HTML content using Playwright or WeasyPrint."""
         if PLAYWRIGHT_AVAILABLE:
-            return self._generate_pdf_playwright(html_content, output_path)
-        elif WEASYPRINT_AVAILABLE:
-            return self._generate_pdf_weasyprint(html_content, output_path)
-        else:
-            raise ImportError(
-                "No PDF backend available. Install Playwright: "
-                "pip install playwright && playwright install chromium"
-            )
+            try:
+                logger.debug("Generating PDF with Playwright: %s", output_path.name)
+                return self._generate_pdf_playwright(html_content, output_path)
+            except Exception as e:
+                if WEASYPRINT_AVAILABLE:
+                    logger.warning("Playwright PDF generation failed (%s), falling back to WeasyPrint", e)
+                else:
+                    logger.error("Playwright PDF generation failed and WeasyPrint not available: %s", e)
+                    raise RuntimeError(
+                        f"PDF generation failed: {e}. WeasyPrint fallback not available."
+                    ) from e
+
+        if WEASYPRINT_AVAILABLE:
+            try:
+                logger.debug("Generating PDF with WeasyPrint: %s", output_path.name)
+                return self._generate_pdf_weasyprint(html_content, output_path)
+            except Exception as e:
+                logger.error("WeasyPrint PDF generation failed: %s", e)
+                raise RuntimeError(f"PDF generation failed with WeasyPrint: {e}") from e
+
+        raise ImportError(
+            "No PDF backend available. Install Playwright: "
+            "pip install playwright && playwright install chromium"
+        )
 
     def _generate_pdf_playwright(self, html_content: str, output_path: Path) -> Path:
         """Generate PDF using Playwright (Chromium). No system deps required."""

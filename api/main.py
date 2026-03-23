@@ -427,6 +427,11 @@ async def search_materials(q: str, limit: int = 20):
     Returns:
         List of matching materials.
     """
+    if not materials_service.data_available:
+        raise HTTPException(
+            status_code=503,
+            detail="Materials database not available. Data file may be missing."
+        )
     results = materials_service.search(q, limit=limit)
     return [m.to_dict() for m in results]
 
