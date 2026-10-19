@@ -46,7 +46,54 @@
         "Added Prop 65 fragrance-relevant substances",
         "Added formaldehyde donors list"
       ]
+    },
+    {
+      "date": "2026-10-16",
+      "version": "2026.10-review",
+      "verified": false,
+      "changes": [
+        "Currency review only; no regulatory substance data was changed.",
+        "Primary sources (ifrafragrance.org, eur-lex.europa.eu, oehha.ca.gov, canada.ca, echa.europa.eu) were not reachable from the review environment (egress proxy returned 403), so the findings below come from secondary web-search summaries and are UNVERIFIED."
+      ],
+      "pending_review": [
+        {
+          "dataset": "ifra",
+          "finding": "52nd Amendment consultation closed 2026-06-12; End of Consultation Letter dated 2026-08-31; formal notification expected ~late Nov 2026. 51st remains current_amendment until then. Effective dates not confirmed.",
+          "source": "https://ifrafragrance.org/latest-updates/ifra-news/ifra-publishes-end-of-consultation-letter-for-the-52nd-amendment-to-the-ifra-standards",
+          "verified": false
+        },
+        {
+          "dataset": "eu_allergens",
+          "finding": "Reg (EU) 2023/1545 labelling applies from 2026-07-31 for new products and 2028-07-31 for products already on the market (per secondary sources); confirm against the Official Journal text.",
+          "source": "https://eur-lex.europa.eu/eli/reg/2023/1545/oj",
+          "verified": false
+        },
+        {
+          "dataset": "canada_hotlist",
+          "finding": "Health Canada consultation on proposed Hotlist updates ran 2025-11-19 to 2026-02-17 (proposals incl. Basic Violet 4, Basic Blue 7, furocoumarins amendment). No final revision confirmed; CAS numbers/wording not verified so no entries added.",
+          "source": "https://www.canada.ca/en/health-canada/programs/consultation-proposed-updates-cosmetic-ingredients-hotlist.html",
+          "verified": false
+        },
+        {
+          "dataset": "prop65",
+          "finding": "Reported 2026 listings (hydrochlorothiazide, voriconazole, tacrolimus, welding fumes; reportedly effective 2026-07-17) are not fragrance-relevant and were not added. Fragrance-relevant additions since March 2026 not checked against OEHHA's list.",
+          "source": "https://oehha.ca.gov/proposition-65/proposition-65-list",
+          "verified": false
+        },
+        {
+          "dataset": "reach",
+          "finding": "ECHA Candidate List reportedly grew from 251 to 253 entries in Feb 2026 (n-hexane; bisphenol AF and salts). Later 2026 updates not checked. Not added (not fragrance-specific; not confirmed on ECHA).",
+          "source": "https://echa.europa.eu/candidate-list-table",
+          "verified": false
+        },
+        {
+          "dataset": "voc_limits",
+          "finding": "Canada SOR/2021-268 consolidation reportedly unchanged since 2023-01-01 (current to 2026-06-14). CARB limits not rechecked.",
+          "source": "https://laws-lois.justice.gc.ca/eng/regulations/SOR-2021-268",
+          "verified": false
+        }
+      ]
     }
   ],
-  "notes": "To update regulatory data, edit the corresponding JSON files in data/regulatory/ and update this metadata file with the new version and date."
+  "notes": "To update regulatory data, edit the corresponding JSON files in data/regulatory/ and update this metadata file with the new version and date. Datasets other than the 2026-10-16 review entry reflect the dates in their own metadata.last_updated; those dates were not advanced because no primary-source verification was possible."
 }
